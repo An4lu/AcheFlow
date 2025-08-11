@@ -1,10 +1,11 @@
 import { globalCss } from ".";
 
 export const globalStyles = globalCss({
-    '*':{
+    '*': {
         margin: '0px',
         padding: '0rem',
         boxSizing: 'border-box',
+        fontFamily: '$Primary',
         '&::-webkit-scrollbar': {
             width: '5px',
             height: '8px',
@@ -15,10 +16,10 @@ export const globalStyles = globalCss({
         '&::-webkit-scrollbar-thumb': {
             backgroundColor: '#d71871ff',
             borderRadius: '4px',
-        },    
+        },
     },
 
-     'body, textarea, select': {
+    'body, textarea, select': {
         '&::-webkit-scrollbar': {
             width: '2px',
         },
@@ -37,7 +38,7 @@ export const globalStyles = globalCss({
         overflowY: 'auto',
     },
 
-    img:{
+    img: {
         display: 'block',
         maxWidth: '100%',
     },
