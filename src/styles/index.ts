@@ -20,6 +20,7 @@ export const {
             tertiaryOrange: '#FFB885',
             beige: '#FBD79D',
             white: '#FEF9EC',
+            background: '#F5F5F5',
             lightdark: '#1F1E1F',
         },
         fonts: {
