@@ -1,3 +1,4 @@
+import { FileX } from "@phosphor-icons/react";
 import { styled } from "../../styles";
 
 export const Container = styled('div', {
@@ -11,7 +12,7 @@ export const Container = styled('div', {
 export const Logo = styled('h1', {
     fontFamily: '$Achefont',
     fontWeight: '400',
-    fontSize: '3rem',
+    fontSize: '2rem',
     color: '$primaryPink',
 })
 
@@ -46,38 +47,26 @@ export const Form = styled('form', {
 export const Space = styled('div', {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
-})
-
-export const Input = styled('input', {
-    padding: '12px 16px',
-    border: '1px solid $border',
-    borderRadius: '4px',
-    width: '100%',
-    maxWidth: '400px',
-    marginBottom: '16px',
-    fontSize: '1rem',
-    fontFamily: '$defaultFont',
-    color: '$text',
-    backgroundColor: '$inputBackground',
-    '&:focus': {
-        outline: 'none',
-        borderColor: '$primary',
-    },
+    gap: '30px',
 })
 
 export const Button = styled('button', {
     padding: '12px 16px',
+    display: 'flex',
+    alignItems: 'flex-end',
+    marginTop: '1.5rem',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '0.7rem',
     width: '100%',
     maxWidth: '400px',
     fontSize: '1rem',
     fontFamily: '$defaultFont',
-    color: '$text',
+    color: '$white',
     backgroundColor: '$primaryPink',
     cursor: 'pointer',
+    transition: 'all 0.3s ease-out',
     '&:hover': {
-        backgroundColor: '$secundaryPink',
+        backgroundColor: '$secondaryOrange',
+        color: '$white',
     },
 })
