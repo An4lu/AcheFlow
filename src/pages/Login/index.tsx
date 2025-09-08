@@ -1,4 +1,4 @@
-import { EnvelopeIcon, LockIcon } from "@phosphor-icons/react"
+import { ArrowRight, EnvelopeIcon, LockIcon } from "@phosphor-icons/react"
 import { Input } from "../../components/Input"
 import { Button, Container, Direita, Esquerda, Form, Img, Logo, Space } from "./styles"
 
@@ -24,7 +24,7 @@ export const Login = () => {
               placeholderColor="#E4113F"
               inputIcon={<LockIcon size={24} color="#E4113F" weight="regular" />}
             />
-            <Button onClick={() => { }}>Entrar</Button>
+            <Button onClick={() => { }}>Entrar<ArrowRight size={24} weight="bold" /></Button>
           </Space>
         </Form>
       </Direita>

@@ -1,4 +1,3 @@
-import { FileX } from "@phosphor-icons/react";
 import { styled } from "../../styles";
 
 export const Container = styled('div', {
@@ -53,7 +52,7 @@ export const Space = styled('div', {
 export const Button = styled('button', {
     padding: '12px 16px',
     display: 'flex',
-    alignItems: 'flex-end',
+    justifyContent: 'space-between',
     marginTop: '1.5rem',
     border: 'none',
     borderRadius: '0.7rem',
