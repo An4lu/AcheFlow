@@ -3,8 +3,8 @@ import { globalStyles } from './styles/global'
 import { Login } from './pages/Login'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
-import { Projects } from './pages/Projects'
-import { Tasks } from './pages/Tasks'
+import { Project } from './pages/Projects'
+import { IAche } from './pages/IAche'
 import { Calendar } from './pages/Calendar'
 
 globalStyles()
@@ -16,8 +16,8 @@ export const AppRouter = () => {
                 <Route path="/" element={<Login />} />
                 <Route path='flow/*' element={<DefaultLayout />} >
                     <Route index path='home' element={<Home />} />
-                    <Route path="projects" element={<Projects />} />
-                    <Route path="tasks" element={<Tasks />} />
+                    <Route path="projects" element={<Project />} />
+                    <Route path="ia" element={<IAche />} />
                     <Route path="calendar" element={<Calendar />} />
                 </Route>
             </Routes>

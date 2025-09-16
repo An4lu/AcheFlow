@@ -1,10 +1,11 @@
 import { Container } from './styles'
 
-export const Projects = () => {
+export const Project = () => {
   return (
     <Container>
       <h2>Projetos</h2>
-      <p>Lista de projetos — placeholder. Aqui iremos integrar: criação, listagem, filtrar por responsável, status e prioridade.</p>
+      <p>Lista de tarefas — placeholder. Implementar: criação de tarefa, editar status, associar projeto e responsável.</p>
     </Container>
   )
 }
+

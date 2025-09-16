@@ -8,7 +8,7 @@ export const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    navigate('/flow');
+    navigate('/flow/home');
   };
 
 
