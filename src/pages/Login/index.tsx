@@ -14,7 +14,7 @@ export const Login = () => {
 
   return (
     <Container>
-      <Esquerda><Img src="/src/assets/loginimage.png" alt="Empresa Ache" /></Esquerda>
+      <Esquerda><Img src="/loginimage.png" alt="Empresa Ache" /></Esquerda>
       <Direita>
         <Form>
           <Logo>achē</Logo>
