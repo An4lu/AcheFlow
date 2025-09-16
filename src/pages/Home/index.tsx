@@ -3,7 +3,7 @@ import { Container } from "./styles"
 export const Home = () => {
   return (
     <Container>
-      <div>Home</div>
+      <p>Tabelas e tal</p>
     </Container>
   )
 }
