@@ -33,16 +33,16 @@ export const SidebarItem = styled(NavLink, {
     display: 'flex',
     gap: '16px',
     alignItems: 'center',
-    color: '#333333',
+    color: '$primaryPink',
     cursor: 'pointer',
     textDecoration: 'none',
     transition: 'color 0.4s ease',
     '&:hover': {
-        color: '$maingreen',
+        color: '$primaryOrange',
     },
 
     '&.active': {
-        color: '$maingreen',
+        color: '$primaryOrange',
         border: 'none',
         borderRadius: '8px',
     },
@@ -53,14 +53,14 @@ export const SidebarButton = styled('button', {
     display: 'flex',
     gap: '16px',
     alignItems: 'center',
-    color: '#333333',
+    color: '$primaryPink',
     cursor: 'pointer',
     textDecoration: 'none',
     border: 'none',
     background: 'none',
     transition: 'color 0.4s ease',
     '&:hover': {
-        color: '$yellow',
+        color: '$primaryOrange',
     },
 });
 

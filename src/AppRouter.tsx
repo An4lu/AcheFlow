@@ -15,7 +15,7 @@ export const AppRouter = () => {
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path='flow/*' element={<DefaultLayout />} >
-                    <Route index element={<Home />} />
+                    <Route index path='home' element={<Home />} />
                     <Route path="projects" element={<Projects />} />
                     <Route path="tasks" element={<Tasks />} />
                     <Route path="calendar" element={<Calendar />} />
