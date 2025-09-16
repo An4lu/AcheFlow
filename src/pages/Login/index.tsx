@@ -1,8 +1,17 @@
-import { ArrowRight, EnvelopeIcon, LockIcon } from "@phosphor-icons/react"
+import { ArrowRightIcon, EnvelopeIcon, LockIcon } from "@phosphor-icons/react"
 import { Input } from "../../components/Input"
 import { Button, Container, Direita, Esquerda, Form, Img, Logo, Space } from "./styles"
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
+
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate('/flow');
+  };
+
+
   return (
     <Container>
       <Esquerda><Img src="/src/assets/loginimage.png" alt="Empresa Ache" /></Esquerda>
@@ -24,7 +33,9 @@ export const Login = () => {
               placeholderColor="#E4113F"
               inputIcon={<LockIcon size={24} color="#E4113F" weight="regular" />}
             />
-            <Button onClick={() => { }}>Entrar<ArrowRight size={24} weight="bold" /></Button>
+            <Button onClick={handleLogin}>
+              Entrar<ArrowRightIcon size={24} weight="bold" />
+            </Button>
           </Space>
         </Form>
       </Direita>

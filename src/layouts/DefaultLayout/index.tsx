@@ -1,10 +1,14 @@
 import { Outlet } from "react-router"
-import { Container } from "./styles"
+import { Container, Fundo } from "./styles"
+import { Sidebar } from "../../components/Sidebar"
 
 export const DefaultLayout = () => {
     return (
         <Container>
-            <Outlet />
+            <Sidebar />
+            <Fundo>
+                <Outlet />
+            </Fundo>
         </Container>
     )
 }
