@@ -1,9 +1,10 @@
+import { Title } from "../../components/Title"
 import { Container } from "./styles"
 
 export const Home = () => {
   return (
     <Container>
-      <p>Tabelas e tal</p>
+      <Title>Home</Title>
     </Container>
   )
 }
