@@ -1,40 +1,61 @@
-import { createContext, useState, type ReactNode } from 'react';
+import { createContext, useState, type ReactNode, useCallback, useEffect } from 'react';
+import api from '../services/api';
+import type { User } from '../types/user';
 
-// Define a estrutura de uma tarefa
-export interface Task {
-    Nome: string;
-    Duração: string;
-    // Outros campos do seu CSV
-    [key: string]: any;
+interface SimpleProject {
+    _id: string;
+    nome: string;
 }
 
-// Define a estrutura de um projeto
-export interface Project {
-    name: string;
-    tasks: Task[];
+interface ProjectContextData {
+    projects: SimpleProject[];
+    funcionarios: User[];
+    isProjectModalOpen: boolean;
+    isTaskModalOpen: boolean;
+    openProjectModal: () => void;
+    closeProjectModal: () => void;
+    openTaskModal: () => void;
+    closeTaskModal: () => void;
+    refreshData: () => void;
 }
 
-interface ProjectsContextData {
-    projects: Project[];
-    addProject: (project: Project) => void;
-}
+export const ProjectsContext = createContext({} as ProjectContextData);
 
-export const ProjectsContext = createContext({} as ProjectsContextData);
+export function ProjectsProvider({ children }: { children: ReactNode }) {
+    const [projects, setProjects] = useState<SimpleProject[]>([]);
+    const [funcionarios, setFuncionarios] = useState<User[]>([]);
+    const [isProjectModalOpen, setProjectModalOpen] = useState(false);
+    const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
-interface ProjectsProviderProps {
-    children: ReactNode;
-}
+    const fetchData = useCallback(async () => {
+        try {
+            const [projectsRes, funcionariosRes] = await Promise.all([
+                api.get('/projetos'),
+                api.get('/funcionarios')
+            ]);
+            setProjects(projectsRes.data);
+            setFuncionarios(funcionariosRes.data);
+        } catch (error) {
+            console.error("Falha ao buscar dados para o contexto", error);
+        }
+    }, []);
 
-export function ProjectsProvider({ children }: ProjectsProviderProps) {
-    const [projects, setProjects] = useState<Project[]>([]);
-
-    const addProject = (project: Project) => {
-        // Adiciona o novo projeto à lista de projetos existentes
-        setProjects((prevProjects) => [...prevProjects, project]);
-    };
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     return (
-        <ProjectsContext.Provider value={{ projects, addProject }}>
+        <ProjectsContext.Provider value={{
+            projects,
+            funcionarios,
+            isProjectModalOpen,
+            isTaskModalOpen,
+            openProjectModal: () => setProjectModalOpen(true),
+            closeProjectModal: () => setProjectModalOpen(false),
+            openTaskModal: () => setTaskModalOpen(true),
+            closeTaskModal: () => setTaskModalOpen(false),
+            refreshData: fetchData
+        }}>
             {children}
         </ProjectsContext.Provider>
     );
