@@ -4,7 +4,6 @@ import { Login } from './pages/Login'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
 import { Project } from './pages/Projects'
-import { IAche } from './pages/IAche'
 import { Calendar } from './pages/Calendar'
 
 globalStyles()
@@ -17,7 +16,6 @@ export const AppRouter = () => {
                 <Route path='flow/*' element={<DefaultLayout />} >
                     <Route index path='home' element={<Home />} />
                     <Route path="projects" element={<Project />} />
-                    <Route path="ia" element={<IAche />} />
                     <Route path="calendar" element={<Calendar />} />
                 </Route>
             </Routes>

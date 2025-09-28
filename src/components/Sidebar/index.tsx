@@ -2,11 +2,14 @@ import { BandaidsIcon, CalendarBlankIcon, HouseSimpleIcon, KanbanIcon, SignOutIc
 import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink } from './styles';
 import { Logo } from '../../pages/Login/styles';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { IAche } from '../IAche';
 
 export function Sidebar() {
     // const { logout } = useAuth();
 
     const navigate = useNavigate();
+    const [isIAcheOpen, setIsIAcheOpen] = useState(false);
 
     const handleLogout = () => {
         navigate('/');
@@ -31,16 +34,17 @@ export function Sidebar() {
                         <CalendarBlankIcon size={28} weight='fill' />
                         <TextLink>CALENDÁRIO</TextLink>
                     </SidebarItem>
-                    <SidebarItem to='/flow/ia'>
+                    <SidebarButton onClick={() => setIsIAcheOpen(true)}>
                         <BandaidsIcon size={28} weight='fill' />
                         <TextLink>IAche</TextLink>
-                    </SidebarItem>
+                    </SidebarButton>
                     <SidebarButton onClick={handleLogout}>
                         <SignOutIcon size={28} weight='fill' />
                         <TextLink>SAIR</TextLink>
                     </SidebarButton>
                 </ContentContainer>
             </Div>
+            <IAche isOpen={isIAcheOpen} onClose={() => setIsIAcheOpen(false)} />
         </SidebarContainer >
     );
 }
