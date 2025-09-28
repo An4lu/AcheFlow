@@ -1,18 +1,16 @@
 import { BandaidsIcon, CalendarBlankIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon } from '@phosphor-icons/react';
 import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink } from './styles';
 import { Logo } from '../../pages/Login/styles';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { IAche } from '../IAche';
+import { useAuth } from '../../hooks/useAuth';
 
 export function Sidebar() {
-    // const { logout } = useAuth();
-
-    const navigate = useNavigate();
+    const { logout } = useAuth();
     const [isIAcheOpen, setIsIAcheOpen] = useState(false);
 
     const handleLogout = () => {
-        navigate('/');
+        logout();
     };
 
     return (

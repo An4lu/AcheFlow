@@ -68,4 +68,17 @@ export const Button = styled('button', {
         backgroundColor: '$secondaryOrange',
         color: '$white',
     },
+    '&:disabled': {
+        opacity: 0.7,
+        cursor: 'not-allowed',
+    }
 })
+
+export const ErrorMessage = styled('p', {
+    color: '#c53030',
+    fontSize: '14px',
+    fontFamily: '$Primary',
+    textAlign: 'center',
+    marginTop: '-10px',
+    marginBottom: '-10px',
+});
