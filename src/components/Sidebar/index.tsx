@@ -1,9 +1,10 @@
-import { BandaidsIcon, CalendarBlankIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon } from '@phosphor-icons/react';
+import { BandaidsIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon } from '@phosphor-icons/react';
 import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink } from './styles';
 import { Logo } from '../../pages/Login/styles';
 import { useState } from 'react';
 import { IAche } from '../IAche';
 import { useAuth } from '../../hooks/useAuth';
+import { HandIcon } from '@phosphor-icons/react/dist/ssr';
 
 export function Sidebar() {
     const { logout } = useAuth();
@@ -28,9 +29,9 @@ export function Sidebar() {
                         <KanbanIcon size={28} weight='fill' />
                         <TextLink>PROJETOS</TextLink>
                     </SidebarItem>
-                    <SidebarItem to='/flow/calendar'>
-                        <CalendarBlankIcon size={28} weight='fill' />
-                        <TextLink>CALENDÁRIO</TextLink>
+                    <SidebarItem to='/flow/kanban'>
+                        <HandIcon size={28} weight='fill' />
+                        <TextLink>KANBAN</TextLink>
                     </SidebarItem>
                     <SidebarButton onClick={() => setIsIAcheOpen(true)}>
                         <BandaidsIcon size={28} weight='fill' />
