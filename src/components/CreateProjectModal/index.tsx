@@ -1,36 +1,27 @@
 import { useState, useContext, type ChangeEvent, type FormEvent } from 'react';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
+import { TrashIcon } from '@phosphor-icons/react'; // Ícone para o botão de excluir
 import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea, ImportSection, UploadInput, Divider, ImportTitle } from './styles';
-import { createProject, createTask, type ProjectPayload, type TaskPayload, } from '../../services/api';
+import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea, ImportSection, UploadInput, Divider, ImportTitle, PreviewTable, PreviewHeader, PreviewRow, ActionCell, DeleteButton } from './styles';
+import { createProject, createTask, type TaskPayload } from '../../services/api';
+import type { RawImportedTask, ProcessedTask } from '../../types/project';
 import { useAuth } from '../../hooks/useAuth';
-import type { RawImportedTask } from '../../types/project';
 
-const mapRawToPayload = (raw: RawImportedTask, projectId: string, responsavelId: string): TaskPayload => {
-    const durationMatch = String(raw.Duração).match(/(\d+)/);
-    const durationInDays = durationMatch ? parseInt(durationMatch[0], 10) : 1;
-    const endDate = new Date();
-    endDate.setDate(new Date().getDate() + durationInDays);
-
-    return {
-        nome: raw.Nome,
-        projeto_id: projectId,
-        responsavel_id: responsavelId,
-        descricao: raw['Como Fazer'] || '',
-        prioridade: raw.Classificação?.toLowerCase() as any || 'baixa',
-        status: 'não iniciada',
-        prazo: endDate.toISOString().split('T')[0],
-    };
+const calculatePrazo = (duration: string): string => {
+    const today = new Date();
+    const durationMatch = duration ? duration.match(/(\d+)/) : null;
+    const days = durationMatch ? parseInt(durationMatch[0], 10) : 1;
+    today.setDate(today.getDate() + days);
+    return today.toISOString().split('T')[0];
 };
 
 export function CreateProjectModal() {
     const { isProjectModalOpen, closeProjectModal, funcionarios, refreshData } = useContext(ProjectsContext);
     const { user } = useAuth();
-
     const [isLoading, setIsLoading] = useState(false);
-    const [importedTasks, setImportedTasks] = useState<RawImportedTask[]>([]);
+    const [importedTasks, setImportedTasks] = useState<ProcessedTask[]>([]);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -45,15 +36,30 @@ export function CreateProjectModal() {
             const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
             if (fileExtension === 'csv') {
-                rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true, dynamicTyping: true }).data as RawImportedTask[];
+                rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true }).data as RawImportedTask[];
             } else {
                 const workbook = XLSX.read(data, { type: 'binary' });
                 const sheetName = workbook.SheetNames[0];
                 rawData = XLSX.utils.sheet_to_json<RawImportedTask>(workbook.Sheets[sheetName]);
             }
-            setImportedTasks(rawData.filter(t => t.Nome && t.ResponsavelEmail));
+
+            const processed = rawData
+                .filter(t => t.Nome)
+                .map(t => ({ ...t, responsavel_id: null }));
+            setImportedTasks(processed);
         };
         reader.readAsBinaryString(file);
+    };
+
+    const handleResponsavelChange = (index: number, responsavelId: string) => {
+        const updatedTasks = [...importedTasks];
+        updatedTasks[index].responsavel_id = responsavelId;
+        setImportedTasks(updatedTasks);
+    };
+
+    // NOVA FUNÇÃO: Remove uma tarefa da lista de importação
+    const handleRemoveTask = (indexToRemove: number) => {
+        setImportedTasks(currentTasks => currentTasks.filter((_, index) => index !== indexToRemove));
     };
 
     const handleSubmit = async (event: FormEvent) => {
@@ -64,7 +70,7 @@ export function CreateProjectModal() {
         const formData = new FormData(event.target as HTMLFormElement);
         const projectData = Object.fromEntries(formData.entries());
 
-        const projectPayload: ProjectPayload = {
+        const projectPayload = {
             nome: projectData.nome as string,
             responsavel_id: projectData.responsavel_id as string,
             situacao: projectData.situacao as string,
@@ -78,24 +84,40 @@ export function CreateProjectModal() {
             const newProjectId = projectResponse.data._id;
 
             if (importedTasks.length > 0) {
-                const funcionariosMap = new Map(funcionarios.map(f => [f.email.toLowerCase(), f._id]));
-                for (const rawTask of importedTasks) {
-                    const responsavelId = funcionariosMap.get(rawTask.ResponsavelEmail.toLowerCase());
-                    if (responsavelId) {
-                        const taskPayload = mapRawToPayload(rawTask, newProjectId, responsavelId);
-                        await createTask(taskPayload);
-                    } else {
-                        console.warn(`Email ${rawTask.ResponsavelEmail} não encontrado. Tarefa "${rawTask.Nome}" pulada.`);
+                const defaultResponsavelId = funcionarios.length > 0 ? funcionarios[0]._id : '';
+
+                for (const task of importedTasks) {
+                    const taskPayload: TaskPayload = {
+                        nome: task.Nome,
+                        projeto_id: newProjectId,
+                        responsavel_id: task.responsavel_id || defaultResponsavelId,
+                        descricao: task['Como Fazer'] || '',
+                        prioridade: 'média',
+                        status: 'não iniciada',
+                        prazo: calculatePrazo(task.Duração),
+                        numero: String(task.Número),
+                        classificacao: task.Classificação,
+                        fase: task.Fase,
+                        condicao: task.Condição,
+                        documento_referencia: task['Documento Referência'],
+                        concluido: (task['% Concluída'] || 0) > 0,
+                    };
+
+                    if (!taskPayload.responsavel_id) {
+                        console.warn(`Tarefa "${task.Nome}" pulada por falta de um responsável padrão.`);
+                        continue;
                     }
+
+                    await createTask(taskPayload);
                 }
             }
 
-            alert(`Projeto "${projectPayload.nome}" criado com ${importedTasks.length} tarefas importadas!`);
+            alert(`Projeto "${projectPayload.nome}" criado com sucesso!`);
             setImportedTasks([]);
             closeProjectModal();
             refreshData();
         } catch (error) {
-            alert('Falha ao criar o projeto.');
+            alert('Falha ao criar o projeto ou as tarefas.');
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -105,7 +127,7 @@ export function CreateProjectModal() {
     return (
         <Modal isOpen={isProjectModalOpen} onClose={closeProjectModal} title="Criar Novo Projeto">
             <FormContainer onSubmit={handleSubmit}>
-                {/* CAMPOS DO PROJETO */}
+                {/* Campos do Projeto */}
                 <FormGroup>
                     <Label htmlFor="nome">Nome do Projeto*</Label>
                     <Input id="nome" name="nome" type="text" placeholder="Ex: Lançamento do Produto X" required disabled={isLoading} />
@@ -118,17 +140,14 @@ export function CreateProjectModal() {
                         {funcionarios.map(func => (<option key={func._id} value={func._id}>{func.nome} {func.sobrenome}</option>))}
                     </Select>
                 </FormGroup>
-
                 <FormGroup>
                     <Label htmlFor="descricao">Descrição do Projeto</Label>
                     <TextArea id="descricao" name="descricao" rows={3} placeholder="Objetivo principal do projeto..." disabled={isLoading} />
                 </FormGroup>
-
                 <FormGroup>
                     <Label htmlFor="categoria">Categoria</Label>
                     <Input id="categoria" name="categoria" type="text" placeholder="Ex: Marketing, Desenvolvimento" disabled={isLoading} />
                 </FormGroup>
-
                 <FormGroup>
                     <Label htmlFor="situacao">Situação*</Label>
                     <Select id="situacao" name="situacao" required disabled={isLoading}>
@@ -138,19 +157,53 @@ export function CreateProjectModal() {
                         <option value="Concluído">Concluído</option>
                     </Select>
                 </FormGroup>
-
                 <FormGroup>
                     <Label htmlFor="prazo">Prazo Final do Projeto*</Label>
                     <Input id="prazo" name="prazo" type="date" required disabled={isLoading} />
                 </FormGroup>
 
-                <Divider>OU</Divider>
+                <Divider>E/OU</Divider>
 
                 <ImportSection>
                     <ImportTitle>Importar Tarefas do Projeto (Opcional)</ImportTitle>
                     <Label htmlFor="importFile" style={{ fontWeight: 'normal', fontSize: '14px' }}>Envie um arquivo .xlsx ou .csv para pré-cadastrar as tarefas.</Label>
                     <UploadInput id="importFile" type="file" accept=".csv, .xlsx, .xls" onChange={handleFileChange} disabled={isLoading} />
-                    {importedTasks.length > 0 && <p style={{ marginTop: 10, fontWeight: 'bold' }}>{importedTasks.length} tarefas prontas para serem criadas.</p>}
+
+                    {importedTasks.length > 0 && (
+                        <PreviewTable>
+                            <thead>
+                                <PreviewRow>
+                                    <PreviewHeader>Nome da Tarefa</PreviewHeader>
+                                    <PreviewHeader>Responsável (Opcional)</PreviewHeader>
+                                    <PreviewHeader>Ações</PreviewHeader> {/* NOVA COLUNA */}
+                                </PreviewRow>
+                            </thead>
+                            <tbody>
+                                {importedTasks.map((task, index) => (
+                                    <PreviewRow key={index}>
+                                        <td>{task.Nome}</td>
+                                        <ActionCell>
+                                            <Select
+                                                value={task.responsavel_id || ''}
+                                                onChange={(e) => handleResponsavelChange(index, e.target.value)}
+                                            >
+                                                <option value="">Nenhum</option>
+                                                {funcionarios.map(f => (
+                                                    <option key={f._id} value={f._id}>{f.nome} {f.sobrenome}</option>
+                                                ))}
+                                            </Select>
+                                        </ActionCell>
+                                        {/* NOVA CÉLULA COM O BOTÃO DE EXCLUIR */}
+                                        <ActionCell style={{ width: '50px', textAlign: 'center' }}>
+                                            <DeleteButton type="button" onClick={() => handleRemoveTask(index)}>
+                                                <TrashIcon size={20} />
+                                            </DeleteButton>
+                                        </ActionCell>
+                                    </PreviewRow>
+                                ))}
+                            </tbody>
+                        </PreviewTable>
+                    )}
                 </ImportSection>
 
                 <SubmitButton type="submit" disabled={isLoading}>

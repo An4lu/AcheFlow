@@ -1,5 +1,6 @@
 import { styled } from '../../styles';
 
+// Exporta os estilos base do outro modal
 export {
     FormContainer,
     FormGroup,
@@ -17,14 +18,6 @@ export const ImportSection = styled('div', {
     borderRadius: '8px',
     backgroundColor: '$background'
 });
-
-export const InfoText = styled('p', {
-    color: '#666',
-    fontSize: '14px',
-    textAlign: 'center',
-    marginBottom: '1rem',
-});
-
 
 export const ImportTitle = styled('h4', {
     marginBottom: '0.5rem',
@@ -50,4 +43,49 @@ export const Divider = styled('div', {
         borderTop: '1px solid #ccc',
         transform: 'translateY(-4px)'
     }
+});
+
+// ADIÇÃO DOS ESTILOS FALTANTES
+export const PreviewTable = styled('table', {
+    width: '100%',
+    marginTop: '1.5rem',
+    borderCollapse: 'collapse',
+    fontSize: '14px',
+});
+
+export const PreviewHeader = styled('th', {
+    textAlign: 'left',
+    padding: '8px',
+    borderBottom: '2px solid $primaryPink',
+    color: '#333',
+});
+
+export const PreviewRow = styled('tr', {
+    '&:not(:last-child)': {
+        borderBottom: '1px solid #eee',
+    },
+    'td': {
+        padding: '8px',
+    }
+});
+
+export const ActionCell = styled('td', {
+    width: '250px',
+});
+
+export const DeleteButton = styled('button', {
+    background: 'transparent',
+    border: 'none',
+    color: '#c53030', // Um tom de vermelho para indicar exclusão
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px',
+    borderRadius: '50%',
+    transition: 'background-color 0.2s',
+
+    '&:hover': {
+        backgroundColor: '#FEE2E2', // Um fundo vermelho claro no hover
+    },
 });

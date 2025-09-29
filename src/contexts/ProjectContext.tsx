@@ -1,6 +1,7 @@
-import { createContext, useState, type ReactNode, useCallback, useEffect } from 'react';
+import { createContext, useState, type ReactNode, useCallback, useEffect, useContext } from 'react';
 import api from '../services/api';
 import type { User } from '../types/user';
+import { AuthContext } from './AuthContext'; // Importar o AuthContext
 
 interface Project {
     _id: string;
@@ -23,23 +24,27 @@ interface ProjectContextData {
 export const ProjectsContext = createContext({} as ProjectContextData);
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
+    const { signed } = useContext(AuthContext); // Usar o status de autenticação
     const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
-        try {
-            const [projectsRes, funcionariosRes] = await Promise.all([
-                api.get('/projetos'),
-                api.get('/funcionarios')
-            ]);
-            setProjects(projectsRes.data);
-            setFuncionarios(funcionariosRes.data);
-        } catch (error) {
-            console.error("Falha ao buscar dados para o contexto", error);
+        // SÓ BUSCA OS DADOS SE O USUÁRIO ESTIVER LOGADO
+        if (signed) {
+            try {
+                const [projectsRes, funcionariosRes] = await Promise.all([
+                    api.get('/projetos'),
+                    api.get('/funcionarios')
+                ]);
+                setProjects(projectsRes.data);
+                setFuncionarios(funcionariosRes.data);
+            } catch (error) {
+                console.error("Falha ao buscar dados para o contexto", error);
+            }
         }
-    }, []);
+    }, [signed]);
 
     useEffect(() => {
         fetchData();
