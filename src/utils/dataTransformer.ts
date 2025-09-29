@@ -1,6 +1,6 @@
 import type { Task } from "gantt-task-react";
 
-// Interfaces que correspondem exatamente ao seu JSON
+// Interfaces para os dados da sua API
 interface ApiProject {
     _id: string;
     nome: string;
@@ -23,7 +23,7 @@ function parseValidDate(dateString: string): Date | null {
     if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
         return null;
     }
-    const date = new Date(dateString + 'T00:00:00Z'); // Trata como UTC
+    const date = new Date(dateString + 'T00:00:00Z');
     if (isNaN(date.getTime())) {
         return null;
     }
@@ -42,18 +42,20 @@ const getPercentComplete = (status: string): number => {
 };
 
 /**
- * Transforma os dados da sua API para o formato que a biblioteca gantt-task-react precisa.
+ * Transforma os dados da API para o formato da biblioteca gantt-task-react.
  */
 export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]): Task[] => {
     const ganttTasks: Task[] = [];
+    const projectMap = new Map<string, ApiProject>();
+    projects.forEach(p => projectMap.set(p._id, p));
 
-    // Adiciona os projetos como itens principais no gráfico
+    // Adiciona os projetos
     for (const project of projects) {
         const startDate = parseValidDate(project.prazo);
         if (!startDate) continue;
 
         const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 1); // Duração de 1 dia para o marco do projeto
+        endDate.setDate(startDate.getDate() + 1);
 
         ganttTasks.push({
             id: project._id,
@@ -62,7 +64,7 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             start: startDate,
             end: endDate,
             progress: 100,
-            isDisabled: true, // Impede que o usuário arraste o projeto
+            isDisabled: true,
             styles: {
                 backgroundColor: '#FF7F2A',
                 backgroundSelectedColor: '#FF7F2A',
@@ -72,27 +74,35 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
         });
     }
 
-    // Adiciona as tarefas, vinculadas aos seus projetos
+    // Adiciona as tarefas
     for (const task of tasks) {
         const endDate = parseValidDate(task.prazo);
+        const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
 
-        // Pula a tarefa se não tiver data válida, projeto ou responsável
-        if (!endDate || !task.projeto?.id || !task.responsavel) {
+        if (!endDate || !parentProject || !task.responsavel) {
             continue;
         }
 
         const startDate = new Date(endDate);
-        startDate.setDate(endDate.getDate() - 5); // Duração visual de 5 dias
+        startDate.setDate(endDate.getDate() - 5);
 
-        ganttTasks.push({
+        // AQUI ESTÁ A CORREÇÃO: Usamos "as Task" para resolver o erro de tipagem.
+        const ganttTask = {
             id: task._id,
-            name: `${task.nome} (${task.responsavel.nome})`, // Adiciona o nome do responsável
-            type: 'task',
+            name: task.nome,
+            type: 'task' as const,
             start: startDate,
             end: endDate,
             progress: getPercentComplete(task.status),
-            project: task.projeto.id, // Vincula a tarefa ao projeto pai
-        });
+            project: parentProject._id,
+            // Adiciona um campo 'extra' com os dados para o tooltip
+            extra: {
+                status: task.status,
+                responsavel: `${task.responsavel.nome} ${task.responsavel.sobrenome}`.trim(),
+            }
+        } as Task; // Esta conversão de tipo (type assertion) corrige o erro.
+
+        ganttTasks.push(ganttTask);
     }
 
     return ganttTasks;

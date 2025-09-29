@@ -7,12 +7,15 @@ import { ProjectsContext } from '../../contexts/ProjectContext';
 import { getFilteredTasks, type TaskFilterParams } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
 import type { User } from '../../types/user';
+import { TaskDetailsModal } from '../../components/TaskDetailsModal';
+import type { Task } from 'gantt-task-react';
 
-// Interface correta para a Tarefa, baseada na sua API
-interface ApiTask {
+// Exportar a interface para que o modal possa usá-la
+export interface ApiTask {
   _id: string;
   nome: string;
   prazo: string;
+  descricao: string | null;
   projeto: { id: string; nome: string; };
   responsavel: User;
   status: string;
@@ -22,6 +25,10 @@ export const Project = () => {
   const { openProjectModal, projects: allProjects } = useContext(ProjectsContext);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Novos estados para o modal de detalhes
+  const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ApiTask | null>(null);
 
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     projeto: false, responsavel: false, urgencia: false, prazo: false,
@@ -41,13 +48,13 @@ export const Project = () => {
 
       try {
         const response = await getFilteredTasks(params);
-        let fetchedTasks = response.data;
+        let fetchedTasks = response.data || [];
 
         if (activeFilters.prazo && filterValues.startDate && filterValues.endDate) {
-          const start = new Date(filterValues.startDate + 'T00:00:00');
-          const end = new Date(filterValues.endDate + 'T23:59:59');
+          const start = new Date(filterValues.startDate + 'T00:00:00Z');
+          const end = new Date(filterValues.endDate + 'T23:59:59Z');
           fetchedTasks = fetchedTasks.filter((task: ApiTask) => {
-            const taskDate = new Date(task.prazo + 'T00:00:00');
+            const taskDate = new Date(task.prazo + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
@@ -62,12 +69,13 @@ export const Project = () => {
     fetchTasks();
   }, [filterValues, activeFilters]);
 
-  const handleToggleFilter = (filterName: keyof ActiveFilters) => {
-    setActiveFilters(prev => ({ ...prev, [filterName]: !prev[filterName] }));
-  };
-
-  const handleFilterValueChange = (filterName: keyof FilterValues, value: string) => {
-    setFilterValues(prev => ({ ...prev, [filterName]: value }));
+  // Função para abrir o modal com os dados da tarefa clicada
+  const handleTaskClick = (task: Task) => {
+    const foundTask = tasks.find(t => t._id === task.id);
+    if (foundTask) {
+      setSelectedTask(foundTask);
+      setDetailsModalOpen(true);
+    }
   };
 
   const ganttData = useMemo(() => {
@@ -86,19 +94,25 @@ export const Project = () => {
       <ProjectFilters
         activeFilters={activeFilters}
         filterValues={filterValues}
-        onToggleFilter={handleToggleFilter}
-        onFilterValueChange={handleFilterValueChange}
+        onToggleFilter={(name) => setActiveFilters(prev => ({ ...prev, [name]: !prev[name] }))}
+        onFilterValueChange={(name, value) => setFilterValues(prev => ({ ...prev, [name]: value }))}
       />
 
       <ChartArea>
         {loading ? (
           <Placeholder>Carregando gráfico...</Placeholder>
         ) : ganttData.length > 0 ? (
-          <GanttChart data={ganttData} />
+          <GanttChart data={ganttData} onTaskClick={handleTaskClick} />
         ) : (
           <Placeholder>Nenhuma tarefa encontrada. Tente ajustar os filtros.</Placeholder>
         )}
       </ChartArea>
+
+      <TaskDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        task={selectedTask}
+      />
     </Container>
   );
 };

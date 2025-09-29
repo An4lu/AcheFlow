@@ -193,7 +193,6 @@ export function CreateProjectModal() {
                                                 ))}
                                             </Select>
                                         </ActionCell>
-                                        {/* NOVA CÉLULA COM O BOTÃO DE EXCLUIR */}
                                         <ActionCell style={{ width: '50px', textAlign: 'center' }}>
                                             <DeleteButton type="button" onClick={() => handleRemoveTask(index)}>
                                                 <TrashIcon size={20} />
