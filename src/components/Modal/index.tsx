@@ -1,4 +1,4 @@
-import { X, XCircleIcon } from '@phosphor-icons/react';
+import { XCircleIcon } from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 import { Title } from '../Title';
 import { CloseButton, ModalContent, ModalHeader, ModalOverlay } from './styles';

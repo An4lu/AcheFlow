@@ -3,14 +3,12 @@ import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { createProject, createTask, type ProjectPayload, type TaskPayload } from '../../services/api';
+import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea, ImportSection, UploadInput, Divider, ImportTitle } from './styles';
+import { createProject, createTask, type ProjectPayload, type TaskPayload, } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import type { RawImportedTask } from '../../types/project';
-import { Divider, FormContainer, FormGroup, ImportSection, ImportTitle, InfoText, Label, Select, SubmitButton, TextArea, UploadInput } from './styles';
-import { Input } from '../Input';
 
-// Mapeia os dados do arquivo para o payload da API
-const mapRawToPayload = (raw: RawImportedTask, projectId: string, responsavelId: string): Omit<TaskPayload, 'projeto_id'> => {
+const mapRawToPayload = (raw: RawImportedTask, projectId: string, responsavelId: string): TaskPayload => {
     const durationMatch = String(raw.Duração).match(/(\d+)/);
     const durationInDays = durationMatch ? parseInt(durationMatch[0], 10) : 1;
     const endDate = new Date();
@@ -18,6 +16,7 @@ const mapRawToPayload = (raw: RawImportedTask, projectId: string, responsavelId:
 
     return {
         nome: raw.Nome,
+        projeto_id: projectId,
         responsavel_id: responsavelId,
         descricao: raw['Como Fazer'] || '',
         prioridade: raw.Classificação?.toLowerCase() as any || 'baixa',
@@ -84,14 +83,7 @@ export function CreateProjectModal() {
                     const responsavelId = funcionariosMap.get(rawTask.ResponsavelEmail.toLowerCase());
                     if (responsavelId) {
                         const taskPayload = mapRawToPayload(rawTask, newProjectId, responsavelId);
-                        await createTask({
-                            ...taskPayload, projeto_id: newProjectId,
-                            nome: '',
-                            responsavel_id: '',
-                            prioridade: 'baixa',
-                            status: 'não iniciada',
-                            prazo: ''
-                        });
+                        await createTask(taskPayload);
                     } else {
                         console.warn(`Email ${rawTask.ResponsavelEmail} não encontrado. Tarefa "${rawTask.Nome}" pulada.`);
                     }
@@ -158,7 +150,7 @@ export function CreateProjectModal() {
                     <ImportTitle>Importar Tarefas do Projeto (Opcional)</ImportTitle>
                     <Label htmlFor="importFile" style={{ fontWeight: 'normal', fontSize: '14px' }}>Envie um arquivo .xlsx ou .csv para pré-cadastrar as tarefas.</Label>
                     <UploadInput id="importFile" type="file" accept=".csv, .xlsx, .xls" onChange={handleFileChange} disabled={isLoading} />
-                    {importedTasks.length > 0 && <InfoText style={{ fontWeight: 'bold', color: '$primaryPink', marginTop: '10px' }}>{importedTasks.length} tarefas prontas para serem criadas junto com este projeto.</InfoText>}
+                    {importedTasks.length > 0 && <p style={{ marginTop: 10, fontWeight: 'bold' }}>{importedTasks.length} tarefas prontas para serem criadas.</p>}
                 </ImportSection>
 
                 <SubmitButton type="submit" disabled={isLoading}>
@@ -167,4 +159,4 @@ export function CreateProjectModal() {
             </FormContainer>
         </Modal>
     );
-} 
+}
