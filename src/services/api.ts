@@ -36,6 +36,17 @@ export interface TaskPayload {
   prazo: string; 
 }
 
+export interface TaskFilterParams {
+  departamento?: string;
+  projeto_id?: string;
+  responsavel_id?: string;
+  urgencia?: boolean;
+}
+
+export const getFilteredTasks = (params: TaskFilterParams) => {
+  return api.get('/tarefas', { params });
+};
+
 export const createProject = (data: ProjectPayload) => {
   return api.post('/projetos', data);
 };

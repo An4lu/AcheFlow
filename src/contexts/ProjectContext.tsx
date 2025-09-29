@@ -2,13 +2,14 @@ import { createContext, useState, type ReactNode, useCallback, useEffect } from 
 import api from '../services/api';
 import type { User } from '../types/user';
 
-interface SimpleProject {
+interface Project {
     _id: string;
     nome: string;
+    prazo: string;
 }
 
 interface ProjectContextData {
-    projects: SimpleProject[];
+    projects: Project[];
     funcionarios: User[];
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
@@ -22,7 +23,7 @@ interface ProjectContextData {
 export const ProjectsContext = createContext({} as ProjectContextData);
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
-    const [projects, setProjects] = useState<SimpleProject[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
