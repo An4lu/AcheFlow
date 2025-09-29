@@ -6,7 +6,6 @@ export const Container = styled('main', {
     flexDirection: 'column',
     gap: '2rem',
     height: '100%',
-    backgroundColor: '$background',
 });
 
 export const Header = styled('div', {

@@ -3,7 +3,7 @@ import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
 
-interface Project {
+export interface Project {
     _id: string;
     nome: string;
     prazo: string;
@@ -12,9 +12,18 @@ interface Project {
     categoria?: string;
 }
 
+export interface Task {
+    _id: string;
+    nome: string;
+    prazo: string;
+    status: string;
+    responsavel: { id: string; nome: string; sobrenome: string };
+}
+
 interface ProjectContextData {
     projects: Project[];
     funcionarios: User[];
+    tasks: Task[]; // Adicionamos as tarefas ao contexto
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
     openProjectModal: () => void;
@@ -27,22 +36,25 @@ interface ProjectContextData {
 export const ProjectsContext = createContext({} as ProjectContextData);
 
 export function ProjectsProvider({ children }: { children: ReactNode }) {
-    const { signed } = useContext(AuthContext); // Usar o status de autenticação
+    const { signed } = useContext(AuthContext);
     const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]); // Estado para as tarefas
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
-        // SÓ BUSCA OS DADOS SE O USUÁRIO ESTIVER LOGADO
         if (signed) {
             try {
-                const [projectsRes, funcionariosRes] = await Promise.all([
+                // Agora buscamos projetos, funcionários e tarefas de uma vez
+                const [projectsRes, funcionariosRes, tasksRes] = await Promise.all([
                     api.get('/projetos'),
-                    api.get('/funcionarios')
+                    api.get('/funcionarios'),
+                    api.get('/tarefas')
                 ]);
                 setProjects(projectsRes.data);
                 setFuncionarios(funcionariosRes.data);
+                setTasks(tasksRes.data);
             } catch (error) {
                 console.error("Falha ao buscar dados para o contexto", error);
             }
@@ -57,6 +69,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         <ProjectsContext.Provider value={{
             projects,
             funcionarios,
+            tasks,
             isProjectModalOpen,
             isTaskModalOpen,
             openProjectModal: () => setProjectModalOpen(true),
