@@ -1,51 +1,33 @@
-import { useEffect, useRef } from 'react';
-import { gantt } from 'dhtmlx-gantt';
-import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
+import { Gantt, ViewMode, type Task } from 'gantt-task-react';
+import "gantt-task-react/dist/index.css";
 import { GanttContainer } from './styles';
 
-interface GanttEntity {
-    id: string;
-    text: string;
-    start_date: string;
-    end_date: string;
-    parent?: string;
-    open?: boolean;
-    type?: string;
-}
-
 interface GanttChartProps {
-    data: GanttEntity[];
+    data: Task[];
 }
 
 export function GanttChart({ data }: GanttChartProps) {
-    const ganttContainerRef = useRef<HTMLDivElement | null>(null);
+    if (!data || data.length === 0) {
+        return null;
+    }
 
-    useEffect(() => {
-        if (ganttContainerRef.current) {
-            gantt.config.date_format = "%d-%m-%Y";
-            gantt.config.readonly = true;
-            gantt.config.columns = [
-                { name: "text", label: "Nome", tree: true, width: '*' },
-                { name: "start_date", label: "Início", align: "center", width: 90 },
-            ];
-            gantt.i18n.setLocale("pt");
-
-            gantt.init(ganttContainerRef.current);
-        }
-
-        return () => {
-            if (gantt.isInitialized()) {
-                gantt.destructor();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (gantt.isInitialized()) {
-            gantt.clearAll();
-            gantt.parse({ data });
-        }
-    }, [data]);
-
-    return <GanttContainer ref={ganttContainerRef} />;
+    return (
+        <GanttContainer>
+            <Gantt
+                tasks={data}
+                viewMode={ViewMode.Day}
+                locale="pt-BR"
+                barFill={60}
+                barCornerRadius={5}
+                rowHeight={40}
+                headerHeight={50}
+                ganttHeight={500}
+                todayColor="rgba(244, 102, 133, 0.1)"
+                arrowColor="#E4113F"
+                // Desativa a edição de tarefas por arrastar para o modo de visualização
+                onDateChange={() => Promise.resolve(false)}
+                onProgressChange={() => Promise.resolve(false)}
+            />
+        </GanttContainer>
+    );
 }
