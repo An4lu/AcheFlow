@@ -1,12 +1,15 @@
 import { createContext, useState, type ReactNode, useCallback, useEffect, useContext } from 'react';
 import api from '../services/api';
 import type { User } from '../types/user';
-import { AuthContext } from './AuthContext'; // Importar o AuthContext
+import { AuthContext } from './AuthContext';
 
 interface Project {
     _id: string;
     nome: string;
     prazo: string;
+    situacao: string;
+    descricao?: string;
+    categoria?: string;
 }
 
 interface ProjectContextData {
