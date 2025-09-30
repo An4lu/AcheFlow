@@ -26,6 +26,16 @@ export interface ProjectPayload {
     prazo: string;
 }
 
+export interface TaskUpdatePayload {
+    nome?: string;
+    descricao?: string;
+    prioridade?: 'baixa' | 'média' | 'alta';
+    status?: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
+    prazo?: string;
+    responsavel_id?: string;
+    projeto_id?: string;
+}
+
 export interface TaskPayload {
     nome: string;
     projeto_id: string;
@@ -59,6 +69,10 @@ export const createProject = (data: ProjectPayload) => {
 
 export const createTask = (data: TaskPayload) => {
     return api.post('/tarefas', data);
+};
+
+export const updateTask = (id: string, data: TaskUpdatePayload) => {
+    return api.put(`/tarefas/${id}`, data);
 };
 
 export default api;

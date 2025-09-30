@@ -1,4 +1,4 @@
-import { styled } from '../../styles'
+import { styled } from '../../styles';
 
 export const Container = styled('main', {
   padding: '2rem',
@@ -13,6 +13,7 @@ export const Header = styled('div', {
   justifyContent: 'space-between',
   alignItems: 'center',
   gap: '1rem',
+  flexShrink: 0,
 });
 
 export const ActionButton = styled('button', {
@@ -26,7 +27,6 @@ export const ActionButton = styled('button', {
   fontSize: '15px',
   transition: 'background-color 0.2s ease',
   whiteSpace: 'nowrap',
-
   '&:hover': {
     backgroundColor: '$secondaryPink',
   },
@@ -34,7 +34,13 @@ export const ActionButton = styled('button', {
 
 export const ChartArea = styled('div', {
   flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  borderRadius: '8px',
   minHeight: 0,
+  maxHeight: '100%',
+  overflow: 'hidden',
+  padding: '1rem',
 });
 
 export const Placeholder = styled('div', {
@@ -42,19 +48,18 @@ export const Placeholder = styled('div', {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: '$background',
+  backgroundColor: '$white',
   borderRadius: '8px',
   color: '#999',
   fontSize: '18px',
-  minHeight: '200px',
 });
 
 export const ViewSwitcher = styled('div', {
   display: 'flex',
-  backgroundColor: '$background',
+  backgroundColor: '$white',
   borderRadius: '8px',
   padding: '4px',
-  marginLeft: 'auto', // Empurra para a esquerda, antes do botão de novo projeto
+  marginLeft: 'auto',
 });
 
 export const ViewButton = styled('button', {
@@ -66,12 +71,11 @@ export const ViewButton = styled('button', {
   fontWeight: '600',
   cursor: 'pointer',
   transition: 'background-color 0.2s ease, color 0.2s ease',
-
   variants: {
     active: {
       true: {
-        backgroundColor: '$white',
-        color: '$primaryPink',
+        backgroundColor: '$primaryPink',
+        color: '$white',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       }
     }

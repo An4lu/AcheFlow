@@ -4,10 +4,10 @@ import { Container, Header, ActionButton, ChartArea, Placeholder, ViewSwitcher, 
 import { GanttChart } from '../../components/GanttChart';
 import { ProjectFilters, type ActiveFilters, type FilterValues } from '../../components/ProjectFilters';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { getFilteredTasks, type TaskFilterParams } from '../../services/api';
+import { getFilteredTasks, updateTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
 import type { User } from '../../types/user';
-import { TaskDetailsModal } from '../../components/TaskDetailsModal';
+import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
 
 export interface ApiTask {
@@ -21,12 +21,12 @@ export interface ApiTask {
 }
 
 export const Project = () => {
-  const { openProjectModal, projects: allProjects } = useContext(ProjectsContext);
+  const { openProjectModal, projects: allProjects, refreshData } = useContext(ProjectsContext);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<ViewMode>(ViewMode.Day); // Estado para o seletor de visualização
+  const [view, setView] = useState<ViewMode>(ViewMode.Day);
 
-  const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ApiTask | null>(null);
 
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
@@ -67,7 +67,6 @@ export const Project = () => {
         }
 
         processedTasks.sort((a: any, b: any) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime());
-
         setTasks(processedTasks);
       } catch (error) {
         console.error("Falha ao buscar tarefas:", error);
@@ -77,28 +76,32 @@ export const Project = () => {
       }
     };
     fetchAndProcessTasks();
-  }, [filterValues, activeFilters]);
+  }, [filterValues, activeFilters, refreshData]);
 
-  const handleTaskClick = (task: Task) => {
+  const handleTaskDoubleClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
     if (foundTask) {
       setSelectedTask(foundTask);
-      setDetailsModalOpen(true);
+      setEditModalOpen(true);
     }
   };
 
-  const { ganttData, viewDate } = useMemo(() => {
+  const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
+    try {
+      await updateTask(taskId, payload);
+      alert('Tarefa atualizada com sucesso!');
+      setEditModalOpen(false);
+      refreshData(); // Recarrega todos os dados para refletir a mudança
+    } catch (error) {
+      alert('Falha ao atualizar a tarefa.');
+      console.error(error);
+    }
+  };
+
+  const ganttData = useMemo(() => {
     const relevantProjectIds = new Set(tasks.map(task => task.projeto?.id).filter(Boolean));
     const visibleProjects = allProjects.filter(p => relevantProjectIds.has(p._id));
-    const transformedData = transformDataForGantt(visibleProjects, tasks);
-
-    let focusDate: Date | undefined = undefined;
-    if (transformedData.length > 0) {
-      const dates = transformedData.map(t => t.start);
-      focusDate = new Date(Math.min(...dates.map(date => date.getTime())));
-    }
-
-    return { ganttData: transformedData, viewDate: focusDate };
+    return transformDataForGantt(visibleProjects, tasks);
   }, [tasks, allProjects]);
 
   return (
@@ -126,8 +129,7 @@ export const Project = () => {
         ) : ganttData.length > 0 ? (
           <GanttChart
             data={ganttData}
-            onTaskClick={handleTaskClick}
-            viewDate={viewDate}
+            onTaskClick={handleTaskDoubleClick}
             viewMode={view}
           />
         ) : (
@@ -135,10 +137,11 @@ export const Project = () => {
         )}
       </ChartArea>
 
-      <TaskDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => setDetailsModalOpen(false)}
+      <TaskEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setEditModalOpen(false)}
         task={selectedTask}
+        onSave={handleUpdateTask}
       />
     </Container>
   );

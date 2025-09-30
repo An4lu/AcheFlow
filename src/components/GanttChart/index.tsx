@@ -1,4 +1,4 @@
-import { Gantt, ViewMode, type Task } from 'gantt-task-react';
+import { Gantt,  ViewMode, type Task } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { GanttContainer } from './styles';
 
@@ -47,11 +47,11 @@ export function GanttChart({ data, onTaskClick, viewDate, viewMode }: GanttChart
                 barFill={60}
                 barCornerRadius={5}
                 rowHeight={40}
-                ganttHeight={0}
+                ganttHeight={0} // Permite que o container controle a altura
                 todayColor="rgba(244, 102, 133, 0.1)"
                 arrowColor="#E4113F"
                 viewDate={viewDate}
-                listCellWidth={""}
+                listCellWidth={""} // Remove as colunas "From" e "To"
                 columnWidth={viewMode === ViewMode.Day ? 65 : 120}
             />
         </GanttContainer>
