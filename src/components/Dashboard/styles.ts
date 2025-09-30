@@ -4,15 +4,15 @@ export const Container = styled('div', {
     display: 'flex',
     flexDirection: 'column',
     gap: '2rem',
-    width: '100%',
-    padding: '1rem',
-    boxSizing: 'border-box',
 });
 
 export const CardGrid = styled('div', {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    // Cria um grid responsivo que se ajusta ao tamanho da tela
+    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
     gap: '1.5rem',
+    // Alinha os itens ao topo de suas células para corrigir o desalinhamento
+    alignItems: 'start',
 });
 
 export const Card = styled('div', {
@@ -25,6 +25,8 @@ export const Card = styled('div', {
     gap: '0.5rem',
     color: '$primaryPink',
     transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+    // Garante que o card ocupe a altura total necessária
+    height: '100%',
 
     '&:hover': {
         transform: 'translateY(-5px)',
@@ -33,8 +35,9 @@ export const Card = styled('div', {
 });
 
 export const ChartContainer = styled(Card, {
-    gridColumn: '1 / -1',
-    '@media (min-width: 768px)': {
+    // Faz o gráfico ocupar duas colunas em telas maiores
+    gridColumn: 'span 1',
+    '@media (min-width: 1024px)': {
         gridColumn: 'span 2',
     },
 });
@@ -52,7 +55,6 @@ export const CardValue = styled('p', {
     color: '$lightdark',
 });
 
-// Lista para Projetos Concluídos
 export const CompletedList = styled('ul', {
     listStyle: 'none',
     marginTop: '0.5rem',
@@ -66,7 +68,6 @@ export const CompletedListItem = styled('li', {
     '&::before': { content: "'✓'", color: '$primaryOrange', position: 'absolute', left: 0, fontWeight: 'bold' }
 });
 
-// Lista para Tarefas Vencidas
 export const OverdueList = styled('ul', {
     listStyle: 'none',
     marginTop: '0.5rem',
