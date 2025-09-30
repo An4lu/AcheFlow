@@ -1,49 +1,58 @@
 import { styled } from '../../styles';
 
 export const GanttContainer = styled('div', {
+    // O container deve ocupar todo o espaço que seu pai (ChartArea) lhe der.
     width: '100%',
-    padding: '1rem',
-    backgroundColor: '$white',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    // Estilos para customizar a aparência da biblioteca
+    height: '100%',
+
+    // Esconde qualquer overflow deste container, pois o scroll será interno ao gráfico.
+    overflow: 'hidden',
+
+    // --- Seletores para os elementos internos da biblioteca do gráfico ---
+
+    // O wrapper principal do gráfico
     '.gantt-container': {
         fontFamily: '$Primary',
+        // Força o gráfico a ter exatamente a altura do nosso container.
+        height: '100% !important',
     },
-    // Cor da barra de progresso para tarefas
-    '.bar-progress': {
-        fill: '$primaryPink',
+
+    // O corpo da lista de tarefas (lado esquerdo)
+    '.grid-body': {
+        // Força a barra de rolagem vertical a estar sempre visível.
+        overflowY: 'scroll !important',
     },
-    // Cor de fundo para projetos (sobrescreve o inline style para garantir)
-    '.bar-project': {
-        fill: '$secondaryOrange',
+
+    // O container da linha do tempo (lado direito)
+    '[id^="gantt-timeline-container-"]': {
+        // Força a barra de rolagem horizontal a estar sempre visível.
+        overflowX: 'scroll !important',
     },
-    '.grid-header': {
-        backgroundColor: '$background',
-    },
+
+    // --- Estilização customizada ---
+    '.bar-progress': { fill: '$primaryPink' },
+    '.bar-project': { fill: '$secondaryOrange' },
+    '.grid-header': { backgroundColor: '$background' },
     '.grid-row': {
         backgroundColor: '$white',
-        '&:hover': {
-            backgroundColor: '#fafafa'
-        }
+        '&:hover': { backgroundColor: '#fafafa' },
     },
 
-    overflowY: 'auto',
-    overflowX: 'auto',
-    maxHeight: '100%',
-    maxWidth: '100%',
-
+    // --- Estilização da Barra de Rolagem ---
     '& ::-webkit-scrollbar': {
         width: '12px',
         height: '12px',
     },
     '& ::-webkit-scrollbar-track': {
         backgroundColor: '$background',
+        borderRadius: '6px',
     },
     '& ::-webkit-scrollbar-thumb': {
-        backgroundColor: '$primaryPink',
+        backgroundColor: '$tertiaryPink',
         borderRadius: '6px',
-        border: '3px solid $background',
+        border: '3px solid $background', // Cria uma borda em volta da barra
+        '&:hover': {
+            backgroundColor: '$secondaryPink',
+        }
     }
-
 });

@@ -9,10 +9,12 @@ export interface RawImportedTask {
     'Como Fazer': string;
     'Documento Referência': string;
     '% Concluída': number;
+    'Status'?: string;
 }
 
 export interface ProcessedTask extends RawImportedTask {
     responsavel_id?: string | null;
+    status: string;
 }
 
 export interface TaskToCreate {

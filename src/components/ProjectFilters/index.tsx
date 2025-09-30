@@ -2,8 +2,7 @@ import { useContext } from 'react';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import {
     FiltersWrapper, TogglesContainer, CheckboxGroup, Checkbox, Label,
-    ControlsContainer, FormGroup, Select,
-    Input
+    ControlsContainer, FormGroup, Select, Input
 } from './styles';
 
 export interface ActiveFilters {
@@ -49,7 +48,7 @@ export function ProjectFilters({
                 </CheckboxGroup>
                 <CheckboxGroup>
                     <Checkbox type="checkbox" id="toggle-urgencia" checked={activeFilters.urgencia} onChange={() => onToggleFilter('urgencia')} />
-                    <Label htmlFor="toggle-urgencia">Apenas Urgentes</Label>
+                    <Label htmlFor="toggle-urgencia">Apenas Vencidas</Label>
                 </CheckboxGroup>
                 <CheckboxGroup>
                     <Checkbox type="checkbox" id="toggle-prazo" checked={activeFilters.prazo} onChange={() => onToggleFilter('prazo')} />
@@ -91,7 +90,7 @@ export function ProjectFilters({
                                 type="date"
                                 id="start-date"
                                 value={filterValues.startDate}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFilterValueChange('startDate', e.target.value)}
+                                onChange={(e) => onFilterValueChange('startDate', e.target.value)}
                             />
                         </FormGroup>
                         <FormGroup>
@@ -100,7 +99,7 @@ export function ProjectFilters({
                                 type="date"
                                 id="end-date"
                                 value={filterValues.endDate}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFilterValueChange('endDate', e.target.value)}
+                                onChange={(e) => onFilterValueChange('endDate', e.target.value)}
                             />
                         </FormGroup>
                     </>

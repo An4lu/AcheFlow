@@ -1,6 +1,5 @@
 import type { Task } from "gantt-task-react";
 
-// Interfaces para os dados da sua API
 interface ApiProject {
     _id: string;
     nome: string;
@@ -16,9 +15,6 @@ interface ApiTask {
     responsavel: { nome: string; sobrenome: string };
 }
 
-/**
- * Converte uma string 'YYYY-MM-DD' para um objeto Date de forma segura.
- */
 function parseValidDate(dateString: string): Date | null {
     if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
         return null;
@@ -30,9 +26,6 @@ function parseValidDate(dateString: string): Date | null {
     return date;
 }
 
-/**
- * Define a porcentagem de conclusão (0 a 100) com base no status.
- */
 const getPercentComplete = (status: string): number => {
     switch (status?.toLowerCase()) {
         case 'concluída': return 100;
@@ -41,19 +34,13 @@ const getPercentComplete = (status: string): number => {
     }
 };
 
-/**
- * Transforma os dados da API para o formato da biblioteca gantt-task-react.
- */
 export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]): Task[] => {
     const ganttTasks: Task[] = [];
-    const projectMap = new Map<string, ApiProject>();
-    projects.forEach(p => projectMap.set(p._id, p));
+    const projectMap = new Map<string, ApiProject>(projects.map(p => [p._id, p]));
 
-    // Adiciona os projetos
     for (const project of projects) {
         const startDate = parseValidDate(project.prazo);
         if (!startDate) continue;
-
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 1);
 
@@ -65,28 +52,46 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             end: endDate,
             progress: 100,
             isDisabled: true,
-            styles: {
-                backgroundColor: '#FF7F2A',
-                backgroundSelectedColor: '#FF7F2A',
-                progressColor: '#F9AC39',
-                progressSelectedColor: '#F9AC39',
-            },
+            styles: { backgroundColor: '#FF7F2A', progressColor: '#F9AC39' },
         });
     }
 
-    // Adiciona as tarefas
     for (const task of tasks) {
         const endDate = parseValidDate(task.prazo);
         const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
-
-        if (!endDate || !parentProject || !task.responsavel) {
-            continue;
-        }
+        if (!endDate || !parentProject || !task.responsavel) continue;
 
         const startDate = new Date(endDate);
         startDate.setDate(endDate.getDate() - 5);
 
-        // AQUI ESTÁ A CORREÇÃO: Usamos "as Task" para resolver o erro de tipagem.
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isOverdue = endDate < now && task.status.toLowerCase() !== 'concluída';
+        const status = task.status.toLowerCase();
+
+        // Lógica para definir as cores das barras
+        let barStyles = {
+            backgroundColor: '#E4113F', // Rosa (padrão para 'em andamento')
+            progressColor: '#F46685',
+            progressSelectedColor: '#F46685',
+        };
+
+        if (isOverdue) {
+            // Vermelho para vencidas
+            barStyles = {
+                backgroundColor: '#c53030',
+                progressColor: '#9B2C2C',
+                progressSelectedColor: '#9B2C2C',
+            };
+        } else if (status === 'não iniciada') {
+            // Cinza para não iniciadas
+            barStyles = {
+                backgroundColor: '#A0AEC0',
+                progressColor: '#718096',
+                progressSelectedColor: '#718096',
+            };
+        }
+
         const ganttTask = {
             id: task._id,
             name: task.nome,
@@ -95,13 +100,12 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             end: endDate,
             progress: getPercentComplete(task.status),
             project: parentProject._id,
-            // Adiciona um campo 'extra' com os dados para o tooltip
+            styles: barStyles,
             extra: {
                 status: task.status,
                 responsavel: `${task.responsavel.nome} ${task.responsavel.sobrenome}`.trim(),
-            }
-        } as Task; // Esta conversão de tipo (type assertion) corrige o erro.
-
+            },
+        } as Task;
         ganttTasks.push(ganttTask);
     }
 

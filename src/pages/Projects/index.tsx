@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
 import { Title } from '../../components/Title';
-import { Container, Header, ActionButton, ChartArea, Placeholder } from './styles';
+import { Container, Header, ActionButton, ChartArea, Placeholder, ViewSwitcher, ViewButton } from './styles';
 import { GanttChart } from '../../components/GanttChart';
 import { ProjectFilters, type ActiveFilters, type FilterValues } from '../../components/ProjectFilters';
 import { ProjectsContext } from '../../contexts/ProjectContext';
@@ -8,9 +8,8 @@ import { getFilteredTasks, type TaskFilterParams } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
 import type { User } from '../../types/user';
 import { TaskDetailsModal } from '../../components/TaskDetailsModal';
-import type { Task } from 'gantt-task-react';
+import { ViewMode, type Task } from 'gantt-task-react';
 
-// Exportar a interface para que o modal possa usá-la
 export interface ApiTask {
   _id: string;
   nome: string;
@@ -25,8 +24,8 @@ export const Project = () => {
   const { openProjectModal, projects: allProjects } = useContext(ProjectsContext);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<ViewMode>(ViewMode.Day); // Estado para o seletor de visualização
 
-  // Novos estados para o modal de detalhes
   const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ApiTask | null>(null);
 
@@ -39,26 +38,37 @@ export const Project = () => {
   });
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchAndProcessTasks = async () => {
       setLoading(true);
-      const params: TaskFilterParams = {};
+      const params: Omit<TaskFilterParams, 'urgencia'> = {};
       if (activeFilters.projeto && filterValues.projeto_id) params.projeto_id = filterValues.projeto_id;
       if (activeFilters.responsavel && filterValues.responsavel_id) params.responsavel_id = filterValues.responsavel_id;
-      if (activeFilters.urgencia) params.urgencia = true;
 
       try {
         const response = await getFilteredTasks(params);
-        let fetchedTasks = response.data || [];
+        let processedTasks = response.data || [];
+
+        if (activeFilters.urgencia) {
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          processedTasks = processedTasks.filter((task: ApiTask) => {
+            const prazo = new Date(task.prazo + 'T00:00:00Z');
+            return prazo < now && task.status.toLowerCase() !== 'concluída';
+          });
+        }
 
         if (activeFilters.prazo && filterValues.startDate && filterValues.endDate) {
           const start = new Date(filterValues.startDate + 'T00:00:00Z');
           const end = new Date(filterValues.endDate + 'T23:59:59Z');
-          fetchedTasks = fetchedTasks.filter((task: ApiTask) => {
+          processedTasks = processedTasks.filter((task: ApiTask) => {
             const taskDate = new Date(task.prazo + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
-        setTasks(fetchedTasks);
+
+        processedTasks.sort((a: any, b: any) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime());
+
+        setTasks(processedTasks);
       } catch (error) {
         console.error("Falha ao buscar tarefas:", error);
         setTasks([]);
@@ -66,10 +76,9 @@ export const Project = () => {
         setLoading(false);
       }
     };
-    fetchTasks();
+    fetchAndProcessTasks();
   }, [filterValues, activeFilters]);
 
-  // Função para abrir o modal com os dados da tarefa clicada
   const handleTaskClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
     if (foundTask) {
@@ -78,16 +87,29 @@ export const Project = () => {
     }
   };
 
-  const ganttData = useMemo(() => {
+  const { ganttData, viewDate } = useMemo(() => {
     const relevantProjectIds = new Set(tasks.map(task => task.projeto?.id).filter(Boolean));
     const visibleProjects = allProjects.filter(p => relevantProjectIds.has(p._id));
-    return transformDataForGantt(visibleProjects, tasks);
+    const transformedData = transformDataForGantt(visibleProjects, tasks);
+
+    let focusDate: Date | undefined = undefined;
+    if (transformedData.length > 0) {
+      const dates = transformedData.map(t => t.start);
+      focusDate = new Date(Math.min(...dates.map(date => date.getTime())));
+    }
+
+    return { ganttData: transformedData, viewDate: focusDate };
   }, [tasks, allProjects]);
 
   return (
     <Container>
       <Header>
         <Title>Visão Geral dos Projetos</Title>
+        <ViewSwitcher>
+          <ViewButton active={view === ViewMode.Day} onClick={() => setView(ViewMode.Day)}>Dia</ViewButton>
+          <ViewButton active={view === ViewMode.Week} onClick={() => setView(ViewMode.Week)}>Semana</ViewButton>
+          <ViewButton active={view === ViewMode.Month} onClick={() => setView(ViewMode.Month)}>Mês</ViewButton>
+        </ViewSwitcher>
         <ActionButton onClick={openProjectModal}>+ Novo Projeto</ActionButton>
       </Header>
 
@@ -102,7 +124,12 @@ export const Project = () => {
         {loading ? (
           <Placeholder>Carregando gráfico...</Placeholder>
         ) : ganttData.length > 0 ? (
-          <GanttChart data={ganttData} onTaskClick={handleTaskClick} />
+          <GanttChart
+            data={ganttData}
+            onTaskClick={handleTaskClick}
+            viewDate={viewDate}
+            viewMode={view}
+          />
         ) : (
           <Placeholder>Nenhuma tarefa encontrada. Tente ajustar os filtros.</Placeholder>
         )}

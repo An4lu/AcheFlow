@@ -12,18 +12,20 @@ export const Header = styled('div', {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  gap: '1rem',
 });
 
 export const ActionButton = styled('button', {
-  padding: '12px 24px',
+  padding: '10px 20px',
   border: 'none',
   borderRadius: '8px',
   backgroundColor: '$primaryPink',
   color: '$white',
   cursor: 'pointer',
   fontWeight: 'bold',
-  fontSize: '16px',
+  fontSize: '15px',
   transition: 'background-color 0.2s ease',
+  whiteSpace: 'nowrap',
 
   '&:hover': {
     backgroundColor: '$secondaryPink',
@@ -45,4 +47,33 @@ export const Placeholder = styled('div', {
   color: '#999',
   fontSize: '18px',
   minHeight: '200px',
+});
+
+export const ViewSwitcher = styled('div', {
+  display: 'flex',
+  backgroundColor: '$background',
+  borderRadius: '8px',
+  padding: '4px',
+  marginLeft: 'auto', // Empurra para a esquerda, antes do botão de novo projeto
+});
+
+export const ViewButton = styled('button', {
+  padding: '8px 16px',
+  border: 'none',
+  borderRadius: '6px',
+  backgroundColor: 'transparent',
+  color: '#666',
+  fontWeight: '600',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s ease, color 0.2s ease',
+
+  variants: {
+    active: {
+      true: {
+        backgroundColor: '$white',
+        color: '$primaryPink',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      }
+    }
+  }
 });
