@@ -6,8 +6,10 @@ export const Container = styled('div', {
     minHeight: '100vh',
 })
 
-export const Fundo = styled('div', {
+export const Fundo = styled('main', {
     marginLeft: '200px',
     width: 'calc(100% - 200px)',
-    height: '100vh',
-})
+    minHeight: '100vh',
+    backgroundColor: '$bgPrimary',
+    padding: '$6',
+});

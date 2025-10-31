@@ -3,7 +3,6 @@ import { styled } from '../../styles';
 export const ModalOverlay = styled('div', {
   position: 'fixed',
   inset: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.6)',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -15,7 +14,7 @@ export const ModalContent = styled('div', {
   padding: '2rem',
   borderRadius: '8px',
   width: '90%',
-  maxWidth: '800px', // Aumentamos para caber mais conteúdo
+  maxWidth: '800px',
   maxHeight: '90vh',
   overflowY: 'auto',
   boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.2)',

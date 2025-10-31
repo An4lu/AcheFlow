@@ -1,7 +1,7 @@
 import { useState, useContext, type FormEvent } from 'react';
 import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea } from './styles';
+import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea } from '../Form/styles';
 import { createTask, type TaskPayload } from '../../services/api';
 
 export function CreateTaskModal() {

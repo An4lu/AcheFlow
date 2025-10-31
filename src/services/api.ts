@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('@AcheFlow:token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

@@ -1,10 +1,8 @@
-import { BandaidsIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon } from '@phosphor-icons/react';
-import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink } from './styles';
-import { Logo } from '../../pages/Login/styles';
+import { BandaidsIcon, HandPalmIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon } from '@phosphor-icons/react';
+import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink, Logo } from './styles';
 import { useState } from 'react';
 import { IAche } from '../IAche';
 import { useAuth } from '../../hooks/useAuth';
-import { HandIcon } from '@phosphor-icons/react/dist/ssr';
 
 export function Sidebar() {
     const { logout } = useAuth();
@@ -22,23 +20,23 @@ export function Sidebar() {
             <Div>
                 <ContentContainer>
                     <SidebarItem to='/flow/home'>
-                        <HouseSimpleIcon size={28} weight='fill' />
+                        <HouseSimpleIcon weight='fill' />
                         <TextLink>PRINCIPAL</TextLink>
                     </SidebarItem>
                     <SidebarItem to='/flow/projects'>
-                        <KanbanIcon size={28} weight='fill' />
+                        <KanbanIcon weight='fill' />
                         <TextLink>PROJETOS</TextLink>
                     </SidebarItem>
                     <SidebarItem to='/flow/kanban'>
-                        <HandIcon size={28} weight='fill' />
+                        <HandPalmIcon weight='fill' />
                         <TextLink>KANBAN</TextLink>
                     </SidebarItem>
                     <SidebarButton onClick={() => setIsIAcheOpen(true)}>
-                        <BandaidsIcon size={28} weight='fill' />
+                        <BandaidsIcon weight='fill' />
                         <TextLink>IAche</TextLink>
                     </SidebarButton>
                     <SidebarButton onClick={handleLogout}>
-                        <SignOutIcon size={28} weight='fill' />
+                        <SignOutIcon weight='fill' />
                         <TextLink>SAIR</TextLink>
                     </SidebarButton>
                 </ContentContainer>

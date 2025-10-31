@@ -4,75 +4,89 @@ import { styled } from "../../styles";
 export const SidebarContainer = styled('div', {
     width: '200px',
     height: '100vh',
-    backgroundColor: '$white',
+    backgroundColor: '$bgSecondary',
+    borderRight: '1px solid $borderDefault',
     position: 'fixed',
     top: 0,
     left: 0,
     zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
 });
 
 export const LogoContainer = styled('div', {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '32px',
+    padding: '$6 0',
+    flexShrink: 0,
 });
 
 export const ContentContainer = styled('ul', {
     display: 'flex',
     flexDirection: 'column',
-    justifyItems: 'center',
-    alignItems: 'flex-start',
-    marginTop: '15px',
-    marginLeft: '30px',
-    gap: '32px',
+    gap: '$2',
+    padding: '0 $4',
+    listStyle: 'none',
 });
 
-export const SidebarItem = styled(NavLink, {
-    fontSize: '13px',
+const baseItemStyles = {
+    fontSize: '$sm',
+    fontWeight: '500',
     display: 'flex',
-    gap: '16px',
+    gap: '$3',
     alignItems: 'center',
-    color: '$primaryPink',
+    color: '$brandTertiary',
     cursor: 'pointer',
     textDecoration: 'none',
-    transition: 'color 0.4s ease',
+    padding: '$2 $3',
+    borderRadius: '$md',
+    transition: 'all 0.2s ease',
+
     '&:hover': {
-        color: '$primaryOrange',
+        color: '$brandPrimary',
+        backgroundColor: '$brandOrange',
     },
 
+
+    svg: {
+        fontSize: '20px',
+    }
+};
+
+export const Logo = styled('h1', {
+    fontFamily: '$brand',
+    fontWeight: '400',
+    fontSize: '$2xl',
+    color: '$brandPrimary',
+})
+
+export const SidebarItem = styled(NavLink, {
+    ...baseItemStyles,
+
     '&.active': {
-        color: '$primaryOrange',
-        border: 'none',
-        borderRadius: '8px',
+        color: '$brandPrimary',
+        backgroundColor: '$tertiaryPink',
+        fontWeight: '600',
     },
 });
 
 export const SidebarButton = styled('button', {
-    fontSize: '15px',
-    display: 'flex',
-    gap: '16px',
-    alignItems: 'center',
-    color: '$primaryPink',
-    cursor: 'pointer',
-    textDecoration: 'none',
+    ...baseItemStyles,
     border: 'none',
     background: 'none',
-    transition: 'color 0.4s ease',
-    '&:hover': {
-        color: '$primaryOrange',
-    },
+    width: '100%',
+    textAlign: 'left',
 });
 
-
 export const TextLink = styled('span', {
-    fontSize: '12px',
+    fontSize: '$sm',
 })
 
 export const Div = styled('div', {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    marginBottom: '30px',
     height: '100%',
+    paddingBottom: '$4',
 })

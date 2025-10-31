@@ -1,4 +1,3 @@
-
 import * as DropdownHelper from '@radix-ui/react-hover-card'
 import { styled } from '../../styles'
 
@@ -6,7 +5,7 @@ export const Container = styled('div', {
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-    gap: '8px',
+    gap: '$2',
 })
 
 export const InputWrapper = styled('div', {
@@ -16,48 +15,43 @@ export const InputWrapper = styled('div', {
 
 export const IconContainer = styled('div', {
     position: 'absolute',
-    left: '3%',
+    left: '$3',
     top: '50%',
     transform: 'translateY(-50%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '$fontgreen',
+    color: '$brandPrimary', 
     pointerEvents: 'none',
     zIndex: 1,
 })
 
 export const FieldInput = styled('input', {
     width: '100%',
-    padding: '20px 35px',
-    height: '15px',
-    fontSize: '14px',
-    color: '$fontgreen',
-    border: 'none',
-    borderBottom: '2px solid $primaryPink',
-    backgroundColor: 'transparent',
+    height: '48px',
+    padding: '0 $4 0 45px',
+    fontSize: '$md',
+    color: '$textPrimary',
+    border: '1px solid $borderDefault',
+    borderRadius: '$md',
+    backgroundColor: '$bgTertiary',
+
     '&::placeholder': {
-        color: 'rgba(190,219,196, 0.3)',
+        color: '$textMuted',
         fontWeight: '400',
-        fontSize: '14px',
+        fontSize: '$sm',
     },
     '&:focus': {
-        outline: 'none',
+        outline: '2px solid $brandPrimary',
+        borderColor: '$brandPrimary',
     },
 
-    variants: {
-        hasIcon: {
-            true: {
-                paddingLeft: '45px',
-            }
-        }
-    }
 })
 
 export const TextDesc = styled('span', {
-    fontSize: '15px',
+    fontSize: '$sm',
     fontWeight: '500',
-    color: '$fontgreen',
+    color: '$textSecondary',
 })
 
 export const ForHelper = styled('div', {

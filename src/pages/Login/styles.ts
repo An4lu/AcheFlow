@@ -3,34 +3,44 @@ import { styled } from "../../styles";
 export const Container = styled('div', {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
     height: '100vh',
+    width: '100vw',
+    overflow: 'hidden',
 })
 
 export const Logo = styled('h1', {
-    fontFamily: '$Achefont',
+    fontFamily: '$brand',
     fontWeight: '400',
-    fontSize: '2rem',
-    color: '$primaryPink',
+    fontSize: '40px',
+    color: '$brandPrimary',
 })
 
 export const Esquerda = styled('div', {
-    display: 'flex',
+    display: 'none',
     flex: 1,
+
+    '@media (min-width: 768px)': {
+        display: 'block',
+    }
 })
 
 export const Img = styled('img', {
-    maxWidth: '145%',
-    minWidth: '145%',
-    height: 'auto',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
 })
 
 export const Direita = styled('div', {
     flex: 1,
-    backgroundColor: '$background',
+    backgroundColor: '$bgPrimary',
     width: '100%',
     height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '$5',
 })
 
 export const Form = styled('form', {
@@ -38,35 +48,38 @@ export const Form = styled('form', {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
     width: '100%',
-    gap: '50px',
+    maxWidth: '400px',
+    gap: '$7',
 })
 
 export const Space = styled('div', {
     display: 'flex',
     flexDirection: 'column',
-    gap: '30px',
+    gap: '$4',
+    width: '100%',
 })
 
 export const Button = styled('button', {
-    padding: '12px 16px',
+    padding: '$3 $4',
     display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '1.5rem',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '$2',
+    marginTop: '$2',
     border: 'none',
-    borderRadius: '0.7rem',
+    borderRadius: '$md',
     width: '100%',
-    maxWidth: '400px',
-    fontSize: '1rem',
-    fontFamily: '$defaultFont',
-    color: '$white',
-    backgroundColor: '$primaryPink',
+    fontSize: '$md',
+    fontWeight: '600',
+    fontFamily: '$primary',
+    color: '$bgTertiary',
+    backgroundColor: '$brandPrimary',
     cursor: 'pointer',
-    transition: 'all 0.3s ease-out',
-    '&:hover': {
-        backgroundColor: '$secondaryOrange',
-        color: '$white',
+    transition: 'all 0.2s ease-out',
+
+    '&:hover:not(:disabled)': {
+        backgroundColor: '$brandPrimaryHover',
     },
     '&:disabled': {
         opacity: 0.7,
@@ -75,10 +88,9 @@ export const Button = styled('button', {
 })
 
 export const ErrorMessage = styled('p', {
-    color: '#c53030',
-    fontSize: '14px',
-    fontFamily: '$Primary',
+    color: '$danger',
+    fontSize: '$sm',
+    fontFamily: '$primary',
     textAlign: 'center',
-    marginTop: '-10px',
-    marginBottom: '-10px',
-});
+    marginTop: '-$2',
+})
