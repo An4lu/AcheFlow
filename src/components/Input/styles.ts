@@ -21,7 +21,7 @@ export const IconContainer = styled('div', {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '$brandPrimary', 
+    color: '$brandPrimary',
     pointerEvents: 'none',
     zIndex: 1,
 })
@@ -44,6 +44,17 @@ export const FieldInput = styled('input', {
     '&:focus': {
         outline: '2px solid $brandPrimary',
         borderColor: '$brandPrimary',
+    },
+    variants: {
+        hasIcon: {
+            true: {
+                paddingLeft: '2rem',
+            },
+            false: {},
+        },
+    },
+    defaultVariants: {
+        hasIcon: false,
     },
 
 })
