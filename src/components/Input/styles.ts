@@ -48,7 +48,7 @@ export const FieldInput = styled('input', {
     variants: {
         hasIcon: {
             true: {
-                paddingLeft: '2rem',
+                paddingLeft: '2.7rem',
             },
             false: {},
         },
