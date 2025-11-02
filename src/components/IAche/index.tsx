@@ -49,7 +49,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
 
         try {
             const token = localStorage.getItem('@AcheFlow:token');            const response = await axios.post(
-                'https://ache-flow-back.onrender.com/ai/chat',
+                'https://ache-flow-back-182737921073.southamerica-east1.run.app/ai/chat',
                 { pergunta: currentInput },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
