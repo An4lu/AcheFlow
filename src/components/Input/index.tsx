@@ -9,14 +9,14 @@ interface PropInput extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder?: string
   title?: string
   icon?: ReactElement
-  inputIcon?: ReactElement // Novo: ícone dentro do input
+  inputIcon?: ReactElement
   hoverText?: string
   value?: string | number
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
   readOnly?: boolean
-  placeholderColor?: string // Nova prop para cor do placeholder (aceita qualquer cor)
+  placeholderColor?: string
 }
 
 export const Input: React.FC<PropInput> = ({
