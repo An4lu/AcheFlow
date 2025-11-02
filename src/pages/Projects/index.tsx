@@ -67,7 +67,7 @@ export const Project = () => {
           });
         }
 
-        processedTasks.sort((a: any, b: any) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime());
+        processedTasks.sort((a: any, b: any) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime());
         setTasks(processedTasks);
       } catch (error) {
         console.error("Falha ao buscar tarefas:", error);

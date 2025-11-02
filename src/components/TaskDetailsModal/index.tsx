@@ -31,8 +31,12 @@ export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProp
                     <Value style={{ textTransform: 'capitalize' }}>{task.status}</Value>
                 </DetailItem>
                 <DetailItem>
-                    <Label>Prazo Final:</Label>
-                    <Value>{new Date(task.prazo + 'T00:00:00Z').toLocaleDateString()}</Value>
+                    <Label>Data de Início:</Label>
+                    <Value>{new Date(task.data_inicio + 'T00:00:00Z').toLocaleDateString()}</Value>
+                </DetailItem>
+                <DetailItem>
+                    <Label>Data de Fim:</Label>
+                    <Value>{new Date(task.data_fim + 'T00:00:00Z').toLocaleDateString()}</Value>
                 </DetailItem>
                 <DetailItem>
                     <Label>Descrição:</Label>
