@@ -17,13 +17,14 @@ export interface Task {
     nome: string;
     prazo: string;
     status: string;
-    responsavel: { id: string; nome: string; sobrenome: string };
+    responsavel: User;
+    projeto: { id: string; nome: string; };
 }
 
 interface ProjectContextData {
     projects: Project[];
     funcionarios: User[];
-    tasks: Task[]; // Adicionamos as tarefas ao contexto
+    tasks: Task[];
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
     openProjectModal: () => void;

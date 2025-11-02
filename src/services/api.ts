@@ -9,13 +9,13 @@ const api = axios.create({
     baseURL: baseURL,
 });
 
-api.interceptors.request.use(async config => {
-    const token = localStorage.getItem('@AcheFlow:token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+// api.interceptors.request.use(async config => {
+//     const token = localStorage.getItem('@AcheFlow:token');
+//     if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+// });
 
 export interface ProjectPayload {
     nome: string;

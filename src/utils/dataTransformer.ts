@@ -1,4 +1,5 @@
 import type { Task } from "gantt-task-react";
+import type { User } from "../types/user";
 
 interface ApiProject {
     _id: string;
@@ -12,7 +13,7 @@ interface ApiTask {
     prazo: string;
     projeto: { id: string; nome: string };
     status: string;
-    responsavel: { nome: string; sobrenome: string };
+    responsavel: User;
 }
 
 function parseValidDate(dateString: string): Date | null {

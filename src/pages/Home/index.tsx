@@ -46,8 +46,8 @@ export const Home = () => {
     ];
 
     const taskCountsByEmployee = tasks.reduce((acc, task) => {
-      if (task.responsavel?.id) {
-        acc[task.responsavel.id] = (acc[task.responsavel.id] || 0) + 1;
+      if (task.responsavel?._id) {
+        acc[task.responsavel._id] = (acc[task.responsavel._id] || 0) + 1;
       }
       return acc;
     }, {} as Record<string, number>);
