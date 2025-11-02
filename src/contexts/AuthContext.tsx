@@ -43,6 +43,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         const { access_token } = response.data;
 
+        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
         const userResponse = await api.get('/funcionarios/me', {
             headers: { Authorization: `Bearer ${access_token}` }
         });
@@ -50,7 +52,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const loggedUser: User = userResponse.data;
 
         setUser(loggedUser);
-        api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
         localStorage.setItem('@AcheFlow:token', access_token);
         localStorage.setItem('@AcheFlow:user', JSON.stringify(loggedUser));
