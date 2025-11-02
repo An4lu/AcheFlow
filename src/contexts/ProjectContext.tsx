@@ -15,10 +15,11 @@ export interface Project {
 export interface Task {
     _id: string;
     nome: string;
-    prazo: string;
+    data_inicio: string; 
+    data_fim: string;    
     status: string;
-    responsavel: User;
-    projeto: { id: string; nome: string; };
+    responsavel: User;  
+    projeto: { id: string; nome: string; }; 
 }
 
 interface ProjectContextData {
@@ -40,7 +41,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const { signed } = useContext(AuthContext);
     const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
-    const [tasks, setTasks] = useState<Task[]>([]); // Estado para as tarefas
+    const [tasks, setTasks] = useState<Task[]>([]); 
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 

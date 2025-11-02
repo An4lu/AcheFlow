@@ -13,7 +13,8 @@ import { ViewMode, type Task } from 'gantt-task-react';
 export interface ApiTask {
   _id: string;
   nome: string;
-  prazo: string;
+  data_inicio: string;
+  data_fim: string;
   descricao: string | null;
   projeto: { id: string; nome: string; };
   responsavel: User;
@@ -52,8 +53,8 @@ export const Project = () => {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            const prazo = new Date(task.prazo + 'T00:00:00Z');
-            return prazo < now && task.status.toLowerCase() !== 'concluída';
+            const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+            return dataFim < now && task.status.toLowerCase() !== 'concluída';
           });
         }
 
@@ -61,7 +62,7 @@ export const Project = () => {
           const start = new Date(filterValues.startDate + 'T00:00:00Z');
           const end = new Date(filterValues.endDate + 'T23:59:59Z');
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            const taskDate = new Date(task.prazo + 'T00:00:00Z');
+            const taskDate = new Date(task.data_fim + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
@@ -91,7 +92,7 @@ export const Project = () => {
       await updateTask(taskId, payload);
       alert('Tarefa atualizada com sucesso!');
       setEditModalOpen(false);
-      refreshData(); // Recarrega todos os dados para refletir a mudança
+      refreshData();
     } catch (error) {
       alert('Falha ao atualizar a tarefa.');
       console.error(error);
@@ -126,13 +127,14 @@ export const Project = () => {
       <ChartArea>
         {loading ? (
           <Placeholder>Carregando gráfico...</Placeholder>
-        ) : ganttData.length > 0 ? (
+        ) : (
           <GanttChart
             data={ganttData}
             onTaskClick={handleTaskDoubleClick}
             viewMode={view}
           />
-        ) : (
+        )}
+        {!loading && ganttData.length === 0 && (
           <Placeholder>Nenhuma tarefa encontrada. Tente ajustar os filtros.</Placeholder>
         )}
       </ChartArea>

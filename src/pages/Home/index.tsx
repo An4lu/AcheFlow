@@ -21,16 +21,17 @@ export const Home = () => {
     // --- Métricas de Tarefas ---
     const overdueTasks = tasks
       .filter(task => {
-        const prazo = new Date(task.prazo + 'T00:00:00Z');
-        return prazo < now && task.status.toLowerCase() !== 'concluída';
+        const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+        return dataFim < now && task.status.toLowerCase() !== 'concluída';
       })
       .map(task => {
-        const prazo = new Date(task.prazo + 'T00:00:00Z');
-        const diffTime = Math.abs(now.getTime() - prazo.getTime());
+        const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+        const diffTime = Math.abs(now.getTime() - dataFim.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return { name: task.nome, days: diffDays };
       })
       .slice(0, 5);
+
     const statusCounts = tasks.reduce((acc, task) => {
       const status = task.status.toLowerCase();
       acc[status] = (acc[status] || 0) + 1;

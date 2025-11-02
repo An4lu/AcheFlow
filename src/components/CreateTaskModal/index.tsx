@@ -22,7 +22,8 @@ export function CreateTaskModal() {
             descricao: data.descricao as string,
             prioridade: data.prioridade as 'baixa' | 'média' | 'alta',
             status: data.status as 'em andamento' | 'congelada' | 'não iniciada' | 'concluída',
-            prazo: data.prazo as string,
+            data_inicio: data.data_inicio as string, 
+            data_fim: data.data_fim as string,
         };
 
         try {
@@ -90,9 +91,14 @@ export function CreateTaskModal() {
                     </Select>
                 </FormGroup>
 
+               <FormGroup>
+                    <Label htmlFor="data_inicio">Data de Início*</Label>
+                    <Input id="data_inicio" name="data_inicio" type="date" required disabled={isLoading} />
+                </FormGroup>
+                
                 <FormGroup>
-                    <Label htmlFor="prazo">Prazo*</Label>
-                    <Input id="prazo" name="prazo" type="date" required disabled={isLoading} />
+                    <Label htmlFor="data_fim">Data de Fim*</Label>
+                    <Input id="data_fim" name="data_fim" type="date" required disabled={isLoading} />
                 </FormGroup>
 
                 <SubmitButton type="submit" disabled={isLoading}>

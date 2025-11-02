@@ -1,4 +1,4 @@
-import { Gantt,  ViewMode, type Task } from 'gantt-task-react';
+import { Gantt, ViewMode, type Task } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { GanttContainer } from './styles';
 
@@ -32,9 +32,6 @@ interface GanttChartProps {
 }
 
 export function GanttChart({ data, onTaskClick, viewDate, viewMode }: GanttChartProps) {
-    if (!data || data.length === 0) {
-        return null;
-    }
 
     return (
         <GanttContainer>

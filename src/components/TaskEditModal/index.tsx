@@ -13,7 +13,6 @@ interface TaskEditModalProps {
 }
 
 export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalProps) {
-    // A lista de 'projects' não é mais necessária aqui
     const { funcionarios } = useContext(ProjectsContext);
     const [formData, setFormData] = useState<Partial<ApiTask>>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +21,8 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
         if (task) {
             setFormData({
                 ...task,
-                prazo: task.prazo ? task.prazo.split('T')[0] : '',
+                data_inicio: task.data_inicio ? task.data_inicio.split('T')[0] : '',
+                data_fim: task.data_fim ? task.data_fim.split('T')[0] : '',
             });
         }
     }, [task]);
@@ -48,7 +48,8 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
             nome: formData.nome,
             descricao: formData.descricao || '',
             status: formData.status as any,
-            prazo: formData.prazo,
+            data_inicio: formData.data_inicio,
+            data_fim: formData.data_fim,
             responsavel_id: formData.responsavel?._id,
         };
         await onSave(task._id, payload);
@@ -92,9 +93,14 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
                     </Select>
                 </FormGroup>
                 <FormGroup>
-                    <Label htmlFor="prazo">Prazo</Label>
-                    <Input type="date" id="prazo" name="prazo" value={formData.prazo || ''} onChange={handleChange} />
+                    <Label htmlFor="data_inicio">Data de Início</Label>
+                    <Input type="date" id="data_inicio" name="data_inicio" value={formData.data_inicio || ''} onChange={handleChange} />
                 </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="data_fim">Data de Fim</Label>
+                    <Input type="date" id="data_fim" name="data_fim" value={formData.data_fim || ''} onChange={handleChange} />
+                </FormGroup>
+
                 <FormGroup>
                     <Label htmlFor="descricao">Descrição</Label>
                     <TextArea id="descricao" name="descricao" value={formData.descricao || ''} onChange={handleChange} rows={4} />

@@ -9,14 +9,6 @@ const api = axios.create({
     baseURL: baseURL,
 });
 
-// api.interceptors.request.use(async config => {
-//     const token = localStorage.getItem('@AcheFlow:token');
-//     if (token) {
-//         config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-// });
-
 export interface ProjectPayload {
     nome: string;
     responsavel_id: string;
@@ -31,7 +23,8 @@ export interface TaskUpdatePayload {
     descricao?: string;
     prioridade?: 'baixa' | 'média' | 'alta';
     status?: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
-    prazo?: string;
+    data_inicio?: string;
+    data_fim?: string;
     responsavel_id?: string;
     projeto_id?: string;
 }
@@ -43,7 +36,10 @@ export interface TaskPayload {
     descricao?: string;
     prioridade: 'baixa' | 'média' | 'alta';
     status: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
-    prazo: string;
+    data_inicio: string;
+    data_fim: string;
+    como_fazer?: string;
+    porcentagem?: number;
     numero?: string;
     classificacao?: string;
     fase?: string;

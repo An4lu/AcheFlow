@@ -10,7 +10,8 @@ interface ApiProject {
 interface ApiTask {
     _id: string;
     nome: string;
-    prazo: string;
+    data_inicio: string;
+    data_fim: string;
     projeto: { id: string; nome: string };
     status: string;
     responsavel: User;
@@ -58,34 +59,32 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     }
 
     for (const task of tasks) {
-        const endDate = parseValidDate(task.prazo);
+        const startDate = parseValidDate(task.data_inicio);
+        const endDate = parseValidDate(task.data_fim);
         const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
-        if (!endDate || !parentProject || !task.responsavel) continue;
 
-        const startDate = new Date(endDate);
-        startDate.setDate(endDate.getDate() - 5);
+        if (!startDate || !endDate || !parentProject || !task.responsavel) continue;
 
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isOverdue = endDate < now && task.status.toLowerCase() !== 'concluída';
         const status = task.status.toLowerCase();
 
-        // Lógica para definir as cores das barras
+
+
         let barStyles = {
-            backgroundColor: '#E4113F', // Rosa (padrão para 'em andamento')
+            backgroundColor: '#E4113F',
             progressColor: '#F46685',
             progressSelectedColor: '#F46685',
         };
 
         if (isOverdue) {
-            // Vermelho para vencidas
             barStyles = {
                 backgroundColor: '#c53030',
                 progressColor: '#9B2C2C',
                 progressSelectedColor: '#9B2C2C',
             };
         } else if (status === 'não iniciada') {
-            // Cinza para não iniciadas
             barStyles = {
                 backgroundColor: '#A0AEC0',
                 progressColor: '#718096',
