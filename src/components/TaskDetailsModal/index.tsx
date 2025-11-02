@@ -24,7 +24,7 @@ export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProp
                 </DetailItem>
                 <DetailItem>
                     <Label>Responsável:</Label>
-                    <Value>{task.responsavel.nome} {task.responsavel.sobrenome}</Value>
+                    <Value>{task.responsavel?.nome} {task.responsavel?.sobrenome || 'Sem Responsável'}</Value>
                 </DetailItem>
                 <DetailItem>
                     <Label>Status:</Label>
