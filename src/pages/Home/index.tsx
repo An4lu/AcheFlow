@@ -15,14 +15,14 @@ export const Home = () => {
 
     // --- Métricas de Projetos ---
     const totalProjects = projects.length;
-    const inProgressProjects = projects.filter(p => p.situacao.toLowerCase() === 'em andamento').length;
-    const completedProjects = projects.filter(p => p.situacao.toLowerCase() === 'concluído').map(p => p.nome);
+    const inProgressProjects = projects.filter(p => p.situacao?.toLowerCase() === 'em andamento').length;
+    const completedProjects = projects.filter(p => p.situacao?.toLowerCase() === 'concluído').map(p => p.nome);
 
     // --- Métricas de Tarefas ---
     const overdueTasks = tasks
       .filter(task => {
         const dataFim = new Date(task.data_fim + 'T00:00:00Z');
-        return dataFim < now && task.status.toLowerCase() !== 'concluída';
+        return dataFim < now && task.status?.toLowerCase() !== 'concluída';
       })
       .map(task => {
         const dataFim = new Date(task.data_fim + 'T00:00:00Z');
@@ -33,7 +33,7 @@ export const Home = () => {
       .slice(0, 5);
 
     const statusCounts = tasks.reduce((acc, task) => {
-      const status = task.status.toLowerCase();
+      const status = task.status?.toLowerCase() || 'desconhecido';
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -44,6 +44,7 @@ export const Home = () => {
       ['Em Andamento', statusCounts['em andamento'] || 0],
       ['Concluída', statusCounts['concluída'] || 0],
       ['Congelada', statusCounts['congelada'] || 0],
+      ['Desconhecido', statusCounts['desconhecido'] || 0],
     ];
 
     const taskCountsByEmployee = tasks.reduce((acc, task) => {
@@ -66,18 +67,18 @@ export const Home = () => {
   }, [projects, tasks, funcionarios]);
 
   return (
-      <Container>
-        <Header>
-          <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
-        </Header>
-        <Dashboard
-          totalProjects={dashboardMetrics.totalProjects}
-          inProgressProjects={dashboardMetrics.inProgressProjects}
-          completedProjects={dashboardMetrics.completedProjects}
-          overdueTasks={dashboardMetrics.overdueTasks}
-          tasksByStatus={dashboardMetrics.tasksByStatus}
-          busiestEmployee={dashboardMetrics.busiestEmployee}
-        />
-      </Container>
+    <Container>
+      <Header>
+        <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
+      </Header>
+      <Dashboard
+        totalProjects={dashboardMetrics.totalProjects}
+        inProgressProjects={dashboardMetrics.inProgressProjects}
+        completedProjects={dashboardMetrics.completedProjects}
+        overdueTasks={dashboardMetrics.overdueTasks}
+        tasksByStatus={dashboardMetrics.tasksByStatus}
+        busiestEmployee={dashboardMetrics.busiestEmployee}
+      />
+    </Container>
   );
 }
