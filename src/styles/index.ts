@@ -37,6 +37,18 @@ export const {
             success: '#2E7D32',
             danger: '#C62828',
             warning: '#F9A825',
+
+            // --- ADICIONE ESTES APELIDOS (ALIASES) ---
+            // Mapeia os nomes antigos que seus componentes usam para os novos nomes do tema
+            primaryPink: '$brandPrimary',
+            secondaryPink: '$brandPrimaryHover',
+            tertiaryPink: '$brandTertiary',
+            tertiaryOrange: '$brandOrange',
+            secondaryOrange: '$brandSecondary',
+
+            white: '$bgTertiary',
+            background: '$bgPrimary',
+            lightdark: '$textPrimary',
         },
         fonts: {
             primary: 'Outfit, sans-serif',
