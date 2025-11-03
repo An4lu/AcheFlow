@@ -47,9 +47,9 @@ export const {
             secondaryOrange: '#F9AC39',
             tertiaryOrange: '#FFB885',
 
-            white: '$bgTertiary',
-            background: '$bgPrimary',
-            lightdark: '$textPrimary',
+            white: '#FFFFFF',     
+            background: '#F5F5F5',  
+            lightdark: '#1F1E1F',
         },
         fonts: {
             primary: 'Outfit, sans-serif',
