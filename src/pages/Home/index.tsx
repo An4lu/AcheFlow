@@ -4,6 +4,7 @@ import { ProjectsContext } from '../../contexts/ProjectContext';
 import { useAuth } from '../../hooks/useAuth';
 import { Container, Header } from "./styles";
 import { Dashboard } from '../../components/Dashboard';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export const Home = () => {
   const { user } = useAuth();
@@ -66,18 +67,18 @@ export const Home = () => {
   }, [projects, tasks, funcionarios]);
 
   return (
-    <Container>
-      <Header>
-        <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
-      </Header>
-      <Dashboard
-        totalProjects={dashboardMetrics.totalProjects}
-        inProgressProjects={dashboardMetrics.inProgressProjects}
-        completedProjects={dashboardMetrics.completedProjects}
-        overdueTasks={dashboardMetrics.overdueTasks}
-        tasksByStatus={dashboardMetrics.tasksByStatus}
-        busiestEmployee={dashboardMetrics.busiestEmployee}
-      />
-    </Container>
+      <Container>
+        <Header>
+          <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
+        </Header>
+        <Dashboard
+          totalProjects={dashboardMetrics.totalProjects}
+          inProgressProjects={dashboardMetrics.inProgressProjects}
+          completedProjects={dashboardMetrics.completedProjects}
+          overdueTasks={dashboardMetrics.overdueTasks}
+          tasksByStatus={dashboardMetrics.tasksByStatus}
+          busiestEmployee={dashboardMetrics.busiestEmployee}
+        />
+      </Container>
   );
 }

@@ -57,6 +57,6 @@ export const Input = styled('input', {
     padding: '8px',
     borderRadius: '4px',
     border: '1px solid #ccc',
-    fontFamily: '$Primary',
+    fontFamily: '$primary',
     backgroundColor: 'white',
 });

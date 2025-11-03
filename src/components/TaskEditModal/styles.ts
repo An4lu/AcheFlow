@@ -25,7 +25,7 @@ const baseInputStyles = {
     padding: '10px',
     borderRadius: '4px',
     border: '1px solid #ccc',
-    fontFamily: '$Primary',
+    fontFamily: '$primary',
     fontSize: '15px',
     backgroundColor: '$white',
     '&:focus': {

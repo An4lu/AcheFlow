@@ -39,7 +39,7 @@ export const GanttContainer = styled('div', {
     },
 
     // --- Outros estilos visuais ---
-    '.gantt-container': { fontFamily: '$Primary', height: '100% !important' },
+    '.gantt-container': { fontFamily: '$primary', height: '100% !important' },
     '.bar-progress': { fill: '$primaryPink' },
     '.bar-project': { fill: '$secondaryOrange' },
     '.grid-header': { backgroundColor: '$background' },

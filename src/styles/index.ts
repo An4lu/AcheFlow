@@ -40,11 +40,12 @@ export const {
 
             // --- ADICIONE ESTES APELIDOS (ALIASES) ---
             // Mapeia os nomes antigos que seus componentes usam para os novos nomes do tema
-            primaryPink: '$brandPrimary',
-            secondaryPink: '$brandPrimaryHover',
-            tertiaryPink: '$brandTertiary',
-            tertiaryOrange: '$brandOrange',
-            secondaryOrange: '$brandSecondary',
+            primaryPink: '#E4113F',
+            secondaryPink: '#F46685',
+            tertiaryPink: '#FAB3B5',
+            primaryOrange: '#FF7F2A',
+            secondaryOrange: '#F9AC39',
+            tertiaryOrange: '#FFB885',
 
             white: '$bgTertiary',
             background: '$bgPrimary',

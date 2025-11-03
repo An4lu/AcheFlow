@@ -3,6 +3,7 @@ import { Title } from '../../components/Title';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { KanbanBoard } from '../../components/KanbanBoard';
 import api from '../../services/api';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export function Kanban() {
   const { tasks, refreshData } = useContext(ProjectsContext);
