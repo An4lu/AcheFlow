@@ -67,8 +67,8 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
 
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-        const isOverdue = endDate < now && task.status.toLowerCase() !== 'concluída';
-        const status = task.status.toLowerCase();
+        const isOverdue = endDate < now && task.status?.toLowerCase() !== 'concluída';
+        const status = task.status?.toLowerCase();
 
 
 

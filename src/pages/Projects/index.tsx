@@ -54,7 +54,7 @@ export const Project = () => {
           now.setHours(0, 0, 0, 0);
           processedTasks = processedTasks.filter((task: ApiTask) => {
             const dataFim = new Date(task.data_fim + 'T00:00:00Z');
-            return dataFim < now && task.status.toLowerCase() !== 'concluída';
+            return dataFim < now && task.status?.toLowerCase() !== 'concluída';
           });
         }
 
