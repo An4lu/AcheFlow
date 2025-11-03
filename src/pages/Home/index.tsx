@@ -4,7 +4,6 @@ import { ProjectsContext } from '../../contexts/ProjectContext';
 import { useAuth } from '../../hooks/useAuth';
 import { Container, Header } from "./styles";
 import { Dashboard } from '../../components/Dashboard';
-import { ErrorBoundary } from 'react-error-boundary';
 
 export const Home = () => {
   const { user } = useAuth();
