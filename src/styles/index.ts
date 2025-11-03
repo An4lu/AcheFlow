@@ -47,14 +47,15 @@ export const {
             secondaryOrange: '#F9AC39',
             tertiaryOrange: '#FFB885',
 
-            white: '#FFFFFF',     
-            background: '#F5F5F5',  
+            white: '#FFFFFF',
+            background: '#F5F5F5',
             lightdark: '#1F1E1F',
         },
         fonts: {
             primary: 'Outfit, sans-serif',
             brand: 'Krona One, sans-serif',
             secondary: 'Quicksand, sans-serif',
+            Primary: 'Outfit, sans-serif',
         },
         space: {
             1: '4px',
