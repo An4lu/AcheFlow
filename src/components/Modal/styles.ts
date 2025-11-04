@@ -7,6 +7,7 @@ export const ModalOverlay = styled('div', {
   justifyContent: 'center',
   alignItems: 'center',
   zIndex: 1000,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
 });
 
 export const ModalContent = styled('div', {
