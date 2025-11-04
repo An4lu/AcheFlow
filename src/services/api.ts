@@ -1,12 +1,44 @@
+// src/services/api.ts
 import axios from 'axios';
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
+// --- 1. API Principal (Render) ---
+// Usada para login, projetos, tarefas, etc.
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 if (!baseURL) {
-    throw new Error('A variável de ambiente VITE_API_BASE_URL não está definida.');
+    throw new Error('A variável de ambiente VITE_API_BASE_URL (API Principal/Render) não está definida.');
 }
 
 const api = axios.create({
     baseURL: baseURL,
+});
+
+// Interceptor para a API Principal (Render)
+// Adiciona o token de login automaticamente
+api.interceptors.request.use(async (config) => {
+    const token = localStorage.getItem('@AcheFlow:token');
+    if (token && !config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// --- 2. API da IA (Cloud Run) ---
+// Usada para /ai/chat e /tasks/from-xlsx
+const iaBaseURL = import.meta.env.VITE_IA_SERVICE_URL;
+if (!iaBaseURL) {
+    throw new Error('A variável de ambiente VITE_IA_SERVICE_URL (Serviço de IA/Cloud Run) não está definida.');
+}
+
+const iaApiKey = import.meta.env.VITE_API_KEY;
+if (!iaApiKey) {
+    throw new Error('A variável de ambiente VITE_API_KEY (Chave da IA) não está definida.');
+}
+
+export const api_ia = axios.create({
+    baseURL: iaBaseURL,
+    headers: {
+        'x-api-key': iaApiKey // Adiciona a chave de segurança para o main.py
+    }
 });
 
 export interface ProjectPayload {
@@ -58,15 +90,12 @@ export interface TaskFilterParams {
 export const getFilteredTasks = (params: TaskFilterParams) => {
     return api.get('/tarefas', { params });
 };
-
 export const createProject = (data: ProjectPayload) => {
     return api.post('/projetos', data);
 };
-
 export const createTask = (data: TaskPayload) => {
     return api.post('/tarefas', data);
 };
-
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
     return api.put(`/tarefas/${id}`, data);
 };

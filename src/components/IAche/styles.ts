@@ -13,24 +13,22 @@ export const ModalBackground = styled('div', {
   zIndex: 1000,
 });
 
-// Animação de "digitando..." para o Stitches
 const bounce = keyframes({
-  '0%, 80%, 100%': { transform: 'scale(0)' },
-  '40%': { transform: 'scale(1.0)' },
+    '0%, 80%, 100%': { transform: 'scale(0)' },
+    '40%': { transform: 'scale(1.0)' },
 });
 
 export const ModalContent = styled('div', {
-  // --- Estilos Originais Modificados ---
-  backgroundColor: '$bgTertiary', // $white -> $bgTertiary
-  borderRadius: '$lg', // 12px
+  backgroundColor: '$white',
+  borderRadius: '12px',
   display: 'flex',
   flexDirection: 'column',
-  width: '400px', // Tamanho mais comum para um chat modal
+  width: '400px',
   height: '600px',
   maxHeight: '90vh',
-  boxShadow: '$shadows.large', // Sombra hardcoded removida
-  padding: '0', // O padding será controlado pelos elementos internos
-  overflow: 'hidden', // Importante para o border-radius funcionar nos filhos
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+  padding: '0',
+  overflow: 'hidden',
 
   '.chat-container': {
     width: '100%',
@@ -43,9 +41,9 @@ export const ModalContent = styled('div', {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '$2 $4', // 0.5rem 1rem
-    borderBottom: '1px solid $borderDefault', // Cor hardcoded removida
-    backgroundColor: '$bgSecondary', // Cor hardcoded removida
+    padding: '0.5rem 1rem',
+    borderBottom: '1px solid #eee',
+    backgroundColor: '#f8f9fa',
   },
 
   '.close-button': {
@@ -53,21 +51,17 @@ export const ModalContent = styled('div', {
     border: 'none',
     fontSize: '1.5rem',
     cursor: 'pointer',
-    color: '$textMuted', // #888 -> $textMuted
-    transition: 'color 0.2s',
-    '&:hover': {
-      color: '$brandPrimary',
-    }
+    color: '#888',
   },
 
   '.message-list': {
     flexGrow: 1,
     overflowY: 'auto',
-    padding: '$4', // 1rem
+    padding: '1rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '$3', // 0.75rem
-    backgroundColor: '$bgPrimary', // Cor hardcoded removida
+    gap: '0.75rem',
+    backgroundColor: '#f0f2f5',
   },
 
   '.message-bubble-container': {
@@ -75,6 +69,17 @@ export const ModalContent = styled('div', {
     width: '100%',
     '&.sender-user': { justifyContent: 'flex-end' },
     '&.sender-ai': { justifyContent: 'flex-start' },
+    // Estilo para mensagens do "Sistema" (ex: importação concluída)
+    '&.sender-system': {
+        justifyContent: 'center',
+        '.message-bubble': {
+            backgroundColor: '$brandOrange',
+            color: '$primaryOrange',
+            fontSize: '12px',
+            fontWeight: 500,
+            border: '1px solid $tertiaryPink',
+        }
+    }
   },
 
   '.message-bubble': {
@@ -86,65 +91,138 @@ export const ModalContent = styled('div', {
   },
 
   '.sender-user .message-bubble': {
-    backgroundColor: '$brandTertiary', // $tertiaryPink -> $brandTertiary
+    backgroundColor: '$tertiaryPink',
     borderRadius: '18px 18px 4px 18px',
-    color: '$textPrimary', // Garante contraste
   },
 
   '.sender-ai .message-bubble': {
-    backgroundColor: '$bgTertiary', // #ffffff -> $bgTertiary
-    border: '1px solid $borderDefault', // Cor hardcoded removida
+    backgroundColor: '#ffffff',
+    border: '1px solid #e9e9eb',
     borderRadius: '18px 18px 18px 4px',
-    color: '$textPrimary',
   },
-
+  
   '.message-input-container': {
     display: 'flex',
     padding: '10px',
-    borderTop: '1px solid $borderDefault', // Cor hardcoded removida
-    background: '$bgTertiary', // #fff -> $bgTertiary
+    borderTop: '1px solid #ddd',
+    background: '#fff',
+    alignItems: 'center', // Alinha o botão de anexo
+    gap: '8px',
+
     input: {
       flexGrow: 1,
-      border: '1px solid $borderDefault', // Cor hardcoded removida
+      border: '1px solid #ccc',
       borderRadius: '20px',
       padding: '10px 15px',
       fontSize: '1em',
-      fontFamily: '$primary',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '$brandPrimary', // Cor hardcoded removida
-        boxShadow: '0 0 0 1px $brandPrimary', // Adiciona foco
-      },
+      '&:focus': { outline: 'none', borderColor: '$primaryPink' },
     },
-    button: {
-      backgroundColor: '$brandPrimary', // $primaryPink -> $brandPrimary
-      color: '$bgTertiary', // white -> $bgTertiary
+    
+    // Botão de Enviar (Avião)
+    '.send-button': {
+      backgroundColor: '$primaryPink',
+      color: 'white',
       border: 'none',
       borderRadius: '50%',
       width: '40px',
       height: '40px',
-      marginLeft: '10px',
+      flexShrink: 0,
       cursor: 'pointer',
       fontSize: '1.2em',
-      transition: 'background-color 0.2s',
-      '&:hover': {
-        backgroundColor: '$brandPrimaryHover',
-      }
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    // Botão de Anexo (Clipe)
+    '.attach-button': {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '5px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#555',
+        '&:hover': { color: '$primaryPink' },
     },
   },
 
   '.typing-indicator span': {
     height: '8px',
     width: '8px',
-    backgroundColor: '$textMuted', // #9E9E9E -> $textMuted
+    backgroundColor: '#9E9E9E',
     borderRadius: '50%',
     display: 'inline-block',
     animation: `${bounce} 1.4s infinite ease-in-out both`,
     '&:nth-child(1)': { animationDelay: '-0.32s' },
     '&:nth-child(2)': { animationDelay: '-0.16s' },
   },
-});
 
-export const ModalParagraph = styled('p', {
-  marginTop: '0.5rem',
+  // --- NOVOS ESTILOS PARA IMPORTAÇÃO ---
+  '.import-container': {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    padding: '10px',
+    borderTop: '1px solid #ddd',
+    background: '#f8f9fa',
+  },
+
+  '.file-info': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '13px',
+    padding: '5px 10px',
+    background: '$brandOrange',
+    borderRadius: '4px',
+
+    span: {
+        fontWeight: 'bold',
+        color: '$primaryOrange',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    
+    button: { // Botão 'X' para cancelar
+        background: 'none',
+        border: 'none',
+        color: '$primaryPink',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+    }
+  },
+
+  '.import-controls': {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+
+  '.import-select, .import-input, .import-button': {
+    width: '100%',
+    height: '40px',
+    padding: '0 10px',
+    borderRadius: '4px',
+    border: '1px solid $borderDefault',
+    fontFamily: '$primary',
+    fontSize: '14px',
+    backgroundColor: '$bgTertiary',
+    color: '$textPrimary',
+    '&:focus': {
+        borderColor: '$brandPrimary',
+        outline: '2px solid $brandPrimary',
+    }
+  },
+
+  '.import-button': {
+    background: '$primaryPink',
+    color: 'white',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    '&:hover': { background: '$brandPrimaryHover' },
+    '&:disabled': { background: '#ccc', cursor: 'not-allowed' }
+  }
 });
