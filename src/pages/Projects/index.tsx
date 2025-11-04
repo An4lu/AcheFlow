@@ -9,6 +9,7 @@ import { transformDataForGantt } from '../../utils/dataTransformer';
 import type { User } from '../../types/user';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
+import { PageLoader } from '../../components/PageLoader';
 
 export interface ApiTask {
   _id: string;
@@ -22,9 +23,8 @@ export interface ApiTask {
 }
 
 export const Project = () => {
-  const { openProjectModal, projects: allProjects, refreshData } = useContext(ProjectsContext);
+  const { openProjectModal, projects: allProjects, refreshData, loading } = useContext(ProjectsContext);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
-  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
 
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -40,7 +40,7 @@ export const Project = () => {
 
   useEffect(() => {
     const fetchAndProcessTasks = async () => {
-      setLoading(true);
+
       const params: Omit<TaskFilterParams, 'urgencia'> = {};
       if (activeFilters.projeto && filterValues.projeto_id) params.projeto_id = filterValues.projeto_id;
       if (activeFilters.responsavel && filterValues.responsavel_id) params.responsavel_id = filterValues.responsavel_id;
@@ -73,11 +73,12 @@ export const Project = () => {
         console.error("Falha ao buscar tarefas:", error);
         setTasks([]);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
+
     fetchAndProcessTasks();
-  }, [filterValues, activeFilters, refreshData]);
+  }, [filterValues, activeFilters]);
 
   const handleTaskDoubleClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
@@ -124,21 +125,20 @@ export const Project = () => {
         onFilterValueChange={(name, value) => setFilterValues(prev => ({ ...prev, [name]: value }))}
       />
 
+
       <ChartArea>
         {loading ? (
-          <Placeholder>Carregando gráfico...</Placeholder>
-        ) : (
+          <PageLoader />
+        ) : ganttData.length > 0 ? (
           <GanttChart
             data={ganttData}
             onTaskClick={handleTaskDoubleClick}
             viewMode={view}
           />
-        )}
-        {!loading && ganttData.length === 0 && (
+        ) : (
           <Placeholder>Nenhuma tarefa encontrada. Tente ajustar os filtros.</Placeholder>
         )}
       </ChartArea>
-
       <TaskEditModal
         isOpen={isEditModalOpen}
         onClose={() => setEditModalOpen(false)}
