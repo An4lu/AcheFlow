@@ -1,6 +1,6 @@
 import { styled } from '../../styles';
 
-// Reutilizamos os estilos dos outros modais para manter a consistência
+
 export const FormContainer = styled('form', {
     display: 'flex',
     flexDirection: 'column',

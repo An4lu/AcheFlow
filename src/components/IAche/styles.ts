@@ -15,20 +15,20 @@ export const ModalBackground = styled('div', {
 
 // Animação de "digitando..." para o Stitches
 const bounce = keyframes({
-    '0%, 80%, 100%': { transform: 'scale(0)' },
-    '40%': { transform: 'scale(1.0)' },
+  '0%, 80%, 100%': { transform: 'scale(0)' },
+  '40%': { transform: 'scale(1.0)' },
 });
 
 export const ModalContent = styled('div', {
   // --- Estilos Originais Modificados ---
-  backgroundColor: '$white',
-  borderRadius: '12px', // Um pouco mais arredondado para estética de chat
+  backgroundColor: '$bgTertiary', // $white -> $bgTertiary
+  borderRadius: '$lg', // 12px
   display: 'flex',
   flexDirection: 'column',
   width: '400px', // Tamanho mais comum para um chat modal
   height: '600px',
   maxHeight: '90vh',
-  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+  boxShadow: '$shadows.large', // Sombra hardcoded removida
   padding: '0', // O padding será controlado pelos elementos internos
   overflow: 'hidden', // Importante para o border-radius funcionar nos filhos
 
@@ -43,9 +43,9 @@ export const ModalContent = styled('div', {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0.5rem 1rem',
-    borderBottom: '1px solid #eee',
-    backgroundColor: '#f8f9fa',
+    padding: '$2 $4', // 0.5rem 1rem
+    borderBottom: '1px solid $borderDefault', // Cor hardcoded removida
+    backgroundColor: '$bgSecondary', // Cor hardcoded removida
   },
 
   '.close-button': {
@@ -53,17 +53,21 @@ export const ModalContent = styled('div', {
     border: 'none',
     fontSize: '1.5rem',
     cursor: 'pointer',
-    color: '#888',
+    color: '$textMuted', // #888 -> $textMuted
+    transition: 'color 0.2s',
+    '&:hover': {
+      color: '$brandPrimary',
+    }
   },
 
   '.message-list': {
     flexGrow: 1,
     overflowY: 'auto',
-    padding: '1rem',
+    padding: '$4', // 1rem
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.75rem',
-    backgroundColor: '#f0f2f5',
+    gap: '$3', // 0.75rem
+    backgroundColor: '$bgPrimary', // Cor hardcoded removida
   },
 
   '.message-bubble-container': {
@@ -82,32 +86,39 @@ export const ModalContent = styled('div', {
   },
 
   '.sender-user .message-bubble': {
-    backgroundColor: '$tertiaryPink',
+    backgroundColor: '$brandTertiary', // $tertiaryPink -> $brandTertiary
     borderRadius: '18px 18px 4px 18px',
+    color: '$textPrimary', // Garante contraste
   },
 
   '.sender-ai .message-bubble': {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e9e9eb',
+    backgroundColor: '$bgTertiary', // #ffffff -> $bgTertiary
+    border: '1px solid $borderDefault', // Cor hardcoded removida
     borderRadius: '18px 18px 18px 4px',
+    color: '$textPrimary',
   },
-  
+
   '.message-input-container': {
     display: 'flex',
     padding: '10px',
-    borderTop: '1px solid #ddd',
-    background: '#fff',
+    borderTop: '1px solid $borderDefault', // Cor hardcoded removida
+    background: '$bgTertiary', // #fff -> $bgTertiary
     input: {
       flexGrow: 1,
-      border: '1px solid #ccc',
+      border: '1px solid $borderDefault', // Cor hardcoded removida
       borderRadius: '20px',
       padding: '10px 15px',
       fontSize: '1em',
-      '&:focus': { outline: 'none', borderColor: '#007bff' },
+      fontFamily: '$primary',
+      '&:focus': {
+        outline: 'none',
+        borderColor: '$brandPrimary', // Cor hardcoded removida
+        boxShadow: '0 0 0 1px $brandPrimary', // Adiciona foco
+      },
     },
     button: {
-      backgroundColor: '$primaryPink',
-      color: 'white',
+      backgroundColor: '$brandPrimary', // $primaryPink -> $brandPrimary
+      color: '$bgTertiary', // white -> $bgTertiary
       border: 'none',
       borderRadius: '50%',
       width: '40px',
@@ -115,13 +126,17 @@ export const ModalContent = styled('div', {
       marginLeft: '10px',
       cursor: 'pointer',
       fontSize: '1.2em',
+      transition: 'background-color 0.2s',
+      '&:hover': {
+        backgroundColor: '$brandPrimaryHover',
+      }
     },
   },
 
   '.typing-indicator span': {
     height: '8px',
     width: '8px',
-    backgroundColor: '#9E9E9E',
+    backgroundColor: '$textMuted', // #9E9E9E -> $textMuted
     borderRadius: '50%',
     display: 'inline-block',
     animation: `${bounce} 1.4s infinite ease-in-out both`,
@@ -131,6 +146,5 @@ export const ModalContent = styled('div', {
 });
 
 export const ModalParagraph = styled('p', {
-  // Seus estilos originais, mantidos caso precise usar em outro lugar
   marginTop: '0.5rem',
 });

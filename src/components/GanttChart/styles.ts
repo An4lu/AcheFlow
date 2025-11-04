@@ -1,13 +1,9 @@
 import { styled } from '../../styles';
 
 export const GanttContainer = styled('div', {
-    // Ocupa 100% do espaço que a ChartArea lhe deu
     width: '100%',
     height: '100%',
 
-
-
-    // --- Seletores para os elementos INTERNOS da biblioteca ---
 
     // O container da linha do tempo (lado direito)
     '[id^="gantt-timeline-container-"]': {
@@ -27,24 +23,24 @@ export const GanttContainer = styled('div', {
         height: '14px',
     },
     '& ::-webkit-scrollbar-track': {
-        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        backgroundColor: '$borderSubtle', // Cor hardcoded removida
     },
     '& ::-webkit-scrollbar-thumb': {
-        backgroundColor: '$tertiaryPink',
+        backgroundColor: '$brandTertiary', // $tertiaryPink -> $brandTertiary
         borderRadius: '7px',
-        border: '3px solid $background',
+        border: '3px solid $bgPrimary', // $background -> $bgPrimary
         '&:hover': {
-            backgroundColor: '$secondaryPink',
+            backgroundColor: '$brandQuaternary', // $secondaryPink -> $brandQuaternary
         }
     },
 
     // --- Outros estilos visuais ---
     '.gantt-container': { fontFamily: '$primary', height: '100% !important' },
-    '.bar-progress': { fill: '$primaryPink' },
-    '.bar-project': { fill: '$secondaryOrange' },
-    '.grid-header': { backgroundColor: '$background' },
+    '.bar-progress': { fill: '$brandPrimary' }, // $primaryPink -> $brandPrimary
+    '.bar-project': { fill: '$brandSecondary' }, // $secondaryOrange -> $brandSecondary
+    '.grid-header': { backgroundColor: '$bgPrimary' }, // $background -> $bgPrimary
     '.grid-row': {
-        backgroundColor: '$white',
-        '&:hover': { backgroundColor: '#fafafa' },
+        backgroundColor: '$bgTertiary', // $white -> $bgTertiary
+        '&:hover': { backgroundColor: '#fafafa' }, // Mantido por ser sutil
     },
 });

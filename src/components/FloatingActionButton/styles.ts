@@ -2,19 +2,19 @@ import { styled } from '../../styles';
 
 export const FabContainer = styled('div', {
     position: 'fixed',
-    bottom: '2rem',
-    right: '2rem',
+    bottom: '$6', // 2rem
+    right: '$6', // 2rem
     zIndex: 1050,
 });
 
 export const FabButton = styled('button', {
     width: '60px',
     height: '60px',
-    borderRadius: '50%',
-    backgroundColor: '$primaryPink',
-    color: '$white',
+    borderRadius: '$full', // 50%
+    backgroundColor: '$brandPrimary', // $primaryPink -> $brandPrimary
+    color: '$bgTertiary', // $white -> $bgTertiary
     border: 'none',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    boxShadow: '$shadows.medium', // Sombra hardcoded removida
     cursor: 'pointer',
     display: 'flex',
     justifyContent: 'center',
@@ -23,17 +23,17 @@ export const FabButton = styled('button', {
 
     '&:hover': {
         transform: 'scale(1.1)',
-        backgroundColor: '$secondaryPink',
+        backgroundColor: '$brandPrimaryHover', // HOVER CORRIGIDO
     },
 });
 
 export const FabMenu = styled('div', {
     position: 'absolute',
-    bottom: '70px',
+    bottom: '70px', // 60px + 10px (gap aproximado)
     right: '0',
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '$4', // 1rem
 });
 
 export const FabMenuItem = styled('button', {
@@ -41,11 +41,11 @@ export const FabMenuItem = styled('button', {
     alignItems: 'center',
     gap: '10px',
     padding: '10px 15px',
-    borderRadius: '8px',
+    borderRadius: '$md', // 8px
     border: 'none',
-    backgroundColor: '$white',
-    color: '$primaryPink',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    backgroundColor: '$bgTertiary', // $white -> $bgTertiary
+    color: '$brandPrimary', // $primaryPink -> $brandPrimary
+    boxShadow: '$shadows.small', // Sombra hardcoded removida
     cursor: 'pointer',
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
@@ -53,7 +53,7 @@ export const FabMenuItem = styled('button', {
     transition: 'background-color 0.2s, transform 0.2s',
 
     '&:hover': {
-        backgroundColor: '$background',
+        backgroundColor: '$bgPrimary', // $background -> $bgPrimary
         transform: 'translateX(-5px)',
     }
 });

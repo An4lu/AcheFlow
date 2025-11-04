@@ -1,6 +1,7 @@
 import { BriefcaseIcon, ChartLineUpIcon, UserFocusIcon, WarningCircleIcon, CheckCircleIcon } from '@phosphor-icons/react';
 import { Chart } from "react-google-charts";
 import { Card, CardGrid, CardTitle, CardValue, CompletedList, CompletedListItem, Container, ChartContainer, OverdueList, OverdueListItem } from './styles';
+import { theme } from '../../styles';
 
 interface DashboardProps {
     totalProjects: number;
@@ -10,6 +11,13 @@ interface DashboardProps {
     tasksByStatus: (string | number)[][];
     busiestEmployee: { name: string, count: number } | null;
 }
+
+const chartColors = [
+    theme.colors.brandQuaternary.value, // #F46685
+    theme.colors.brandSecondary.value,  // #FF7F2A
+    theme.colors.success.value,         // #2E7D32
+    theme.colors.textMuted.value        // #9E9E9E
+];
 
 export function Dashboard({
     totalProjects,
@@ -37,12 +45,12 @@ export function Dashboard({
                         <UserFocusIcon size={32} weight="light" />
                         <CardTitle>Funcionário Mais Ativo</CardTitle>
                         <CardValue style={{ fontSize: '1.8rem' }}>{busiestEmployee.name}</CardValue>
-                        <span style={{ fontSize: '14px', color: '#666' }}>{busiestEmployee.count} tarefas</span>
+                        <span style={{ fontSize: '14px', color: theme.colors.textSecondary.value }}>{busiestEmployee.count} tarefas</span>
                     </Card>
                 )}
 
                 <Card style={{ gridColumn: '1 / -1' }}>
-                    <WarningCircleIcon size={32} weight="light" color="#c53030" />
+                    <WarningCircleIcon size={32} weight="light" color={theme.colors.danger.value} />
                     <CardTitle>Tarefas com Prazo Vencido</CardTitle>
                     {overdueTasks.length > 0 ? (
                         <OverdueList>
@@ -53,7 +61,7 @@ export function Dashboard({
                             ))}
                         </OverdueList>
                     ) : (
-                        <CardValue style={{ fontSize: '16px', marginTop: '1rem', color: '#38A169' }}>Nenhuma tarefa vencida!</CardValue>
+                        <CardValue style={{ fontSize: '16px', marginTop: '1rem', color: theme.colors.success.value }}>Nenhuma tarefa vencida!</CardValue>
                     )}
                 </Card>
 
@@ -68,7 +76,7 @@ export function Dashboard({
                             pieHole: 0.4,
                             is3D: false,
                             legend: { position: 'bottom' },
-                            colors: ['#F46685', '#FF7F2A', '#38A169', '#A0AEC0'], // Cores do seu tema
+                            colors: chartColors, 
                             fontName: 'Outfit',
                         }}
                     />

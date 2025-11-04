@@ -3,14 +3,15 @@ import { styled } from '../../styles';
 export const WizardContainer = styled('div', {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem',
+    gap: '$5', // 1.5rem
 });
 
 export const UploadStep = styled('div', {
-    border: '2px dashed $tertiaryPink',
-    padding: '2rem',
-    borderRadius: '8px',
+    border: '2px dashed $brandTertiary', // $tertiaryPink -> $brandTertiary
+    padding: '$6', // 2rem
+    borderRadius: '$md', // 8px
     textAlign: 'center',
+    backgroundColor: '$bgSecondary',
 
     input: {
         display: 'none',
@@ -18,7 +19,7 @@ export const UploadStep = styled('div', {
 
     label: {
         cursor: 'pointer',
-        color: '$primaryPink',
+        color: '$brandPrimary', // $primaryPink -> $brandPrimary
         fontWeight: 'bold',
         '&:hover': {
             textDecoration: 'underline',
@@ -29,27 +30,29 @@ export const UploadStep = styled('div', {
 export const PreviewTable = styled('table', {
     width: '100%',
     borderCollapse: 'collapse',
-    marginTop: '1rem',
+    marginTop: '$4', // 1rem
 
     'th, td': {
-        border: '1px solid #ddd',
-        padding: '8px',
+        border: '1px solid $borderDefault', // Cor hardcoded removida
+        padding: '$2', // 8px
         textAlign: 'left',
     },
 
     th: {
-        backgroundColor: '$background',
-        color: '$primaryPink',
+        backgroundColor: '$bgPrimary', // $background -> $bgPrimary
+        color: '$brandPrimary', // $primaryPink -> $brandPrimary
+        padding: '$3',
     },
 
     'input': {
         width: '100%',
-        border: '1px solid #ccc',
-        padding: '4px',
-        borderRadius: '4px',
+        border: '1px solid $borderDefault', // Cor hardcoded removida
+        padding: '$1', // 4px
+        borderRadius: '$sm', // 4px
+        fontFamily: '$primary',
         '&:focus': {
-            borderColor: '$primaryOrange',
-            outline: 'none',
+            borderColor: '$brandSecondary', // $primaryOrange -> $brandSecondary
+            outline: '1px solid $brandSecondary',
         }
     }
 });
@@ -57,23 +60,23 @@ export const PreviewTable = styled('table', {
 export const Actions = styled('div', {
     display: 'flex',
     justifyContent: 'flex-end',
-    gap: '1rem',
-    marginTop: '1rem',
+    gap: '$4', // 1rem
+    marginTop: '$4', // 1rem
 });
 
 export const SaveButton = styled('button', {
     padding: '10px 20px',
     border: 'none',
-    borderRadius: '4px',
-    backgroundColor: '$primaryPink',
-    color: '$white',
+    borderRadius: '$sm', // 4px
+    backgroundColor: '$brandPrimary', // $primaryPink -> $brandPrimary
+    color: '$bgTertiary', // $white -> $bgTertiary
     cursor: 'pointer',
     fontWeight: 'bold',
     '&:hover': {
-        backgroundColor: '$secondaryPink',
+        backgroundColor: '$brandPrimaryHover', // HOVER CORRIGIDO
     },
     '&:disabled': {
-        backgroundColor: '#ccc',
+        backgroundColor: '$textMuted', // Cor hardcoded removida
         cursor: 'not-allowed',
     }
 });

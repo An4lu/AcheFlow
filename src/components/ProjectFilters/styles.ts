@@ -1,62 +1,72 @@
 import { styled } from '../../styles';
 
 export const FiltersWrapper = styled('div', {
-    padding: '1rem',
-    backgroundColor: '$background',
-    borderRadius: '8px',
-    marginBottom: '1rem',
+    padding: '$4',
+    backgroundColor: '$bgTertiary',
+    borderRadius: '$md',
+    marginBottom: '$4',
+    boxShadow: '$shadows.small',
 });
 
 export const TogglesContainer = styled('div', {
     display: 'flex',
-    gap: '1.5rem',
+    gap: '$5',
     alignItems: 'center',
-    paddingBottom: '1rem',
-    marginBottom: '1rem',
-    borderBottom: '1px solid #eee',
+    paddingBottom: '$4',
+    marginBottom: '$4',
+    borderBottom: '1px solid $borderDefault',
 });
 
 export const CheckboxGroup = styled('div', {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '$2', // 0.5rem
 });
 
 export const Checkbox = styled('input', {});
 
 export const Label = styled('label', {
     fontSize: '15px',
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '$textPrimary',
     cursor: 'pointer',
 });
 
 export const ControlsContainer = styled('div', {
     display: 'flex',
-    gap: '1rem',
+    gap: '$4',
     flexWrap: 'wrap',
 });
 
 export const FormGroup = styled('div', {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.5rem',
+    gap: '$2',
     flex: '1 1 220px',
     minWidth: '220px',
 });
 
-export const Select = styled('select', {
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    fontFamily: '$Primary',
-    backgroundColor: 'white',
-});
-
-export const Input = styled('input', {
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+const baseInputStyles = {
+    height: '40px',
+    padding: '0 $3',
+    borderRadius: '$md',
+    border: '1px solid $borderDefault',
     fontFamily: '$primary',
-    backgroundColor: 'white',
-});
+    fontSize: '$sm',
+    backgroundColor: '$bgTertiary',
+    color: '$textPrimary',
+
+    '&:focus': {
+        borderColor: '$brandPrimary',
+        outline: '2px solid $brandPrimary',
+    },
+    '&:disabled': {
+        backgroundColor: '$bgPrimary',
+        color: '$textMuted',
+        cursor: 'not-allowed',
+    }
+};
+
+export const Select = styled('select', baseInputStyles);
+
+export const Input = styled('input', baseInputStyles);
