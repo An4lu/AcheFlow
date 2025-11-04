@@ -2,12 +2,17 @@ import { useContext, useMemo } from 'react';
 import { Title } from "../../components/Title";
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { useAuth } from '../../hooks/useAuth';
-import { Container, Header } from "./styles";
+import { Container, Header, DailyGrid } from "./styles"; // Importa DailyGrid
 import { Dashboard } from '../../components/Dashboard';
+import { PageLoader } from '../../components/PageLoader'; // Importa Loader
+import { MyTasks } from '../../components/MyTasks'; // Importa Novo Componente
+import { UpcomingDeadlines } from '../../components/UpcomingDeadlines'; // Importa Novo Componente
+import { UpcomingEvents } from '../../components/UpcomingEvents'; // Importa Novo Componente
 
 export const Home = () => {
   const { user } = useAuth();
-  const { projects, tasks, funcionarios } = useContext(ProjectsContext);
+  // Adiciona 'loading' do contexto
+  const { projects, tasks, funcionarios, loading } = useContext(ProjectsContext);
 
   const dashboardMetrics = useMemo(() => {
     const now = new Date();
@@ -68,17 +73,30 @@ export const Home = () => {
 
   return (
     <Container>
-      <Header>
-        <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
-      </Header>
-      <Dashboard
-        totalProjects={dashboardMetrics.totalProjects}
-        inProgressProjects={dashboardMetrics.inProgressProjects}
-        completedProjects={dashboardMetrics.completedProjects}
-        overdueTasks={dashboardMetrics.overdueTasks}
-        tasksByStatus={dashboardMetrics.tasksByStatus}
-        busiestEmployee={dashboardMetrics.busiestEmployee}
-      />
+      {loading ? (
+        <PageLoader />
+      ) : (
+        <>
+          <Header>
+            <Title>Bem-vindo(a) de volta, {user?.nome}!</Title>
+          </Header>
+          <Dashboard
+            totalProjects={dashboardMetrics.totalProjects}
+            inProgressProjects={dashboardMetrics.inProgressProjects}
+            completedProjects={dashboardMetrics.completedProjects}
+            overdueTasks={dashboardMetrics.overdueTasks}
+            tasksByStatus={dashboardMetrics.tasksByStatus}
+            busiestEmployee={dashboardMetrics.busiestEmployee}
+          />
+
+          <Title css={{ fontSize: '$2xl', marginTop: '$6' }}>Seu Dia a Dia</Title>
+          <DailyGrid>
+            <MyTasks />
+            <UpcomingDeadlines />
+            <UpcomingEvents />
+          </DailyGrid>
+        </>
+      )}
     </Container>
   );
 }

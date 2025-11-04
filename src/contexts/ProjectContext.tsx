@@ -15,19 +15,30 @@ export interface Project {
 export interface Task {
     _id: string;
     nome: string;
-    data_inicio: string; 
-    data_fim: string;    
+    data_inicio: string;
+    data_fim: string;
     status: string;
-    responsavel: User;  
-    projeto: { id: string; nome: string; }; 
+    responsavel: User;
+    projeto: { id: string; nome: string; };
+}
+
+// Novo tipo para os eventos do calendário
+export interface CalendarEvent {
+    _id: string;
+    tipoEvento: string;
+    data_hora_evento: string; // ISO String
+    projeto_id?: string;
+    tarefa_id?: string;
 }
 
 interface ProjectContextData {
     projects: Project[];
     funcionarios: User[];
     tasks: Task[];
+    events: CalendarEvent[]; // Adicionado
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
+    loading: boolean; // Adicionado
     openProjectModal: () => void;
     closeProjectModal: () => void;
     openTaskModal: () => void;
@@ -41,25 +52,34 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const { signed } = useContext(AuthContext);
     const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
-    const [tasks, setTasks] = useState<Task[]>([]); 
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [events, setEvents] = useState<CalendarEvent[]>([]); // Adicionado
+    const [loading, setLoading] = useState(true); // Adicionado
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
+        setLoading(true); // Começa o loading
         if (signed) {
             try {
-                // Agora buscamos projetos, funcionários e tarefas de uma vez
-                const [projectsRes, funcionariosRes, tasksRes] = await Promise.all([
+                // Busca projetos, funcionários, tarefas E eventos
+                const [projectsRes, funcionariosRes, tasksRes, eventsRes] = await Promise.all([
                     api.get('/projetos'),
                     api.get('/funcionarios'),
-                    api.get('/tarefas')
+                    api.get('/tarefas'),
+                    api.get('/calendario') // Busca eventos
                 ]);
                 setProjects(projectsRes.data);
                 setFuncionarios(funcionariosRes.data);
                 setTasks(tasksRes.data);
+                setEvents(eventsRes.data); // Salva eventos
             } catch (error) {
                 console.error("Falha ao buscar dados para o contexto", error);
+            } finally {
+                setLoading(false); // Termina o loading
             }
+        } else {
+            setLoading(false); // Termina se não estiver logado
         }
     }, [signed]);
 
@@ -72,6 +92,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             projects,
             funcionarios,
             tasks,
+            events, // Exposto
+            loading, // Exposto
             isProjectModalOpen,
             isTaskModalOpen,
             openProjectModal: () => setProjectModalOpen(true),
