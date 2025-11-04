@@ -24,11 +24,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     useEffect(() => {
         async function loadStoragedData() {
-            const storedToken = localStorage.getItem('@AcheFlow:token');
+            const token = localStorage.getItem('@AcheFlow:token');
             const storedUser = localStorage.getItem('@AcheFlow:user');
 
-            if (storedToken && storedUser) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+            if (token && storedUser) {
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 setUser(JSON.parse(storedUser));
             }
             setLoading(false);

@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import { Container, Fundo } from "./styles";
 import { Sidebar } from "../../components/Sidebar";
 import { ProjectsProvider } from "../../contexts/ProjectContext";
