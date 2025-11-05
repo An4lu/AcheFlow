@@ -91,7 +91,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 '/ai/chat', 
                 {
                     pergunta: currentInput,
-                    // Envia o histórico (todas as mensagens ANTES da que acabamos de adicionar)
                     history: messages, 
                     nome_usuario: user.nome,
                     email_usuario: user.email,
@@ -99,9 +98,26 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 }
             );
             
-            const aiResponse: Message = { sender: 'ai', content: response.data };
-            // Adiciona a resposta da IA
+            const aiContent = response.data;
+
+            const aiResponse: Message = { sender: 'ai', content: aiContent };
             setMessages(prev => [...prev, aiResponse]);
+
+            const toolSteps = aiContent.dados || []; 
+            const didCreateOrUpdate = toolSteps.some((step: any) => 
+                (
+                    step.call.name === 'create_project' || 
+                    step.call.name === 'update_project' ||
+                    step.call.name === 'create_task' ||
+                    step.call.name === 'update_task'
+                ) && step.result.ok === true
+            );
+
+            if (didCreateOrUpdate) {
+                console.log("IA detectou mudança nos dados, atualizando a lista...");
+                refreshData();
+            }
+
         } catch (error) {
             const errorMessage: Message = { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Desculpe, ocorreu um erro. Tente novamente.' } };
             // Adiciona a mensagem de erro
