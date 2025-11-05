@@ -1,6 +1,7 @@
 import { styled } from '../../styles';
+import { ActionButton as BaseActionButton } from '../Projects/styles';
 
-// Reutiliza o container principal da Home
+
 export const Container = styled('main', {
     padding: '$6',
     display: 'flex',
@@ -9,9 +10,20 @@ export const Container = styled('main', {
     height: '100%',
 });
 
-// Reutiliza o header da Home
+
 export const Header = styled('div', {
     flexShrink: 0,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '$4',
+});
+
+
+export const ActionButton = styled(BaseActionButton, {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '$2',
 });
 
 export const EmployeeGrid = styled('div', {
@@ -21,6 +33,7 @@ export const EmployeeGrid = styled('div', {
 });
 
 export const EmployeeCard = styled('div', {
+    position: 'relative',
     backgroundColor: '$bgTertiary',
     borderRadius: '$md',
     padding: '$5',
@@ -35,6 +48,28 @@ export const EmployeeCard = styled('div', {
         boxShadow: '$shadows.medium',
     }
 });
+
+export const DeleteButton = styled('button', {
+    position: 'absolute',
+    top: '$3',
+    right: '$3',
+    background: 'transparent',
+    border: 'none',
+    color: '$textMuted',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '$1',
+    borderRadius: '$full',
+    transition: 'all 0.2s',
+
+    '&:hover': {
+        backgroundColor: '$brandTertiary',
+        color: '$danger',
+    },
+});
+
 
 export const EmployeeHeader = styled('div', {
     display: 'flex',
@@ -92,7 +127,7 @@ export const ProjectList = styled('div', {
         margin: 0,
     },
 
-    div: { // Container das tags
+    div: {
         display: 'flex',
         flexWrap: 'wrap',
         gap: '$2',
@@ -110,7 +145,6 @@ export const ProjectTag = styled('span', {
     padding: '$1 $3',
     borderRadius: '$full',
 
-    // Variantes baseadas se o usuário é gerente do projeto
     variants: {
         isManager: {
             true: {

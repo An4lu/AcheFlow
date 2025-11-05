@@ -5,6 +5,7 @@ import { ProjectsProvider } from "../../contexts/ProjectContext";
 import { FloatingActionButton } from "../../components/FloatingActionButton";
 import { CreateProjectModal } from "../../components/CreateProjectModal";
 import { CreateTaskModal } from "../../components/CreateTaskModal";
+import { CreateEmployeeModal } from "../../components/CreateEmployeeModal";
 
 export const DefaultLayout = () => {
     return (
@@ -17,6 +18,7 @@ export const DefaultLayout = () => {
                     <FloatingActionButton />
                     <CreateProjectModal />
                     <CreateTaskModal />
+                    <CreateEmployeeModal />
                 </Fundo>
             </Container>
         </ProjectsProvider>

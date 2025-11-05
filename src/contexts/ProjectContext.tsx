@@ -2,7 +2,6 @@ import { createContext, useState, type ReactNode, useCallback, useEffect, useCon
 import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
-
 interface NestedResponsible {
     id: string;
     nome: string;
@@ -15,8 +14,8 @@ export interface Project {
     nome: string;
     prazo: string;
     situacao: string;
-    descricao?: string;
     responsavel: NestedResponsible;
+    descricao?: string;
     categoria?: string;
 }
 
@@ -30,11 +29,10 @@ export interface Task {
     projeto: { id: string; nome: string; };
 }
 
-// Novo tipo para os eventos do calendário
 export interface CalendarEvent {
     _id: string;
     tipoEvento: string;
-    data_hora_evento: string; // ISO String
+    data_hora_evento: string;
     projeto_id?: string;
     tarefa_id?: string;
 }
@@ -43,14 +41,17 @@ interface ProjectContextData {
     projects: Project[];
     funcionarios: User[];
     tasks: Task[];
-    events: CalendarEvent[]; // Adicionado
+    events: CalendarEvent[];
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
-    loading: boolean; // Adicionado
+    isEmployeeModalOpen: boolean;
+    loading: boolean;
     openProjectModal: () => void;
     closeProjectModal: () => void;
     openTaskModal: () => void;
     closeTaskModal: () => void;
+    openEmployeeModal: () => void;
+    closeEmployeeModal: () => void;
     refreshData: () => void;
 }
 
@@ -65,9 +66,10 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
+    const [isEmployeeModalOpen, setEmployeeModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
-        setLoading(true); // Começa o loading
+        setLoading(true);
         if (signed) {
             try {
                 const [projectsRes, funcionariosRes, tasksRes, eventsRes] = await Promise.all([
@@ -103,10 +105,13 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             loading,
             isProjectModalOpen,
             isTaskModalOpen,
+            isEmployeeModalOpen,
             openProjectModal: () => setProjectModalOpen(true),
             closeProjectModal: () => setProjectModalOpen(false),
             openTaskModal: () => setTaskModalOpen(true),
             closeTaskModal: () => setTaskModalOpen(false),
+            openEmployeeModal: () => setEmployeeModalOpen(true),
+            closeEmployeeModal: () => setEmployeeModalOpen(false),
             refreshData: fetchData
         }}>
             {children}

@@ -14,6 +14,7 @@ export function MyTasks() {
 
         const filtered = tasks.filter(task => task.responsavel?.id === user._id);
 
+
         const todo = filtered
             .filter(t => t.status === 'não iniciada')
             .sort((a, b) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime());
