@@ -61,9 +61,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
     useEffect(() => {
         if (!isOpen) {
             cancelImport(); // <--- Esta função estava faltando
-            setMessages([
-                { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá! Como posso te ajudar hoje?' } }
-            ]);
         }
     }, [isOpen]);
 
@@ -142,9 +139,13 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
 
         setIsImportLoading(true);
 
-        const formData = new FormData(); // <--- 'formData' estava faltando
+        const formData = new FormData();
         formData.append('file', selectedFile, selectedFile.name);
         
+        if (user) {
+            formData.append('id_usuario', user._id);
+        }
+
         if (targetProjectId === 'NEW') {
             formData.append('create_project_flag', '1');
             formData.append('projeto_nome', newProjectName);
