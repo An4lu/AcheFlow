@@ -3,12 +3,20 @@ import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
 
+interface NestedResponsible {
+    id: string;
+    nome: string;
+    sobrenome: string;
+    email: string;
+}
+
 export interface Project {
     _id: string;
     nome: string;
     prazo: string;
     situacao: string;
     descricao?: string;
+    responsavel: NestedResponsible;
     categoria?: string;
 }
 
@@ -18,7 +26,7 @@ export interface Task {
     data_inicio: string;
     data_fim: string;
     status: string;
-    responsavel: User;
+    responsavel: NestedResponsible;
     projeto: { id: string; nome: string; };
 }
 
@@ -53,8 +61,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [funcionarios, setFuncionarios] = useState<User[]>([]);
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [events, setEvents] = useState<CalendarEvent[]>([]); // Adicionado
-    const [loading, setLoading] = useState(true); // Adicionado
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
 
@@ -62,24 +70,23 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         setLoading(true); // Começa o loading
         if (signed) {
             try {
-                // Busca projetos, funcionários, tarefas E eventos
                 const [projectsRes, funcionariosRes, tasksRes, eventsRes] = await Promise.all([
                     api.get('/projetos'),
                     api.get('/funcionarios'),
                     api.get('/tarefas'),
-                    api.get('/calendario') // Busca eventos
+                    api.get('/calendario')
                 ]);
                 setProjects(projectsRes.data);
                 setFuncionarios(funcionariosRes.data);
                 setTasks(tasksRes.data);
-                setEvents(eventsRes.data); // Salva eventos
+                setEvents(eventsRes.data);
             } catch (error) {
                 console.error("Falha ao buscar dados para o contexto", error);
             } finally {
-                setLoading(false); // Termina o loading
+                setLoading(false);
             }
         } else {
-            setLoading(false); // Termina se não estiver logado
+            setLoading(false);
         }
     }, [signed]);
 
@@ -92,8 +99,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             projects,
             funcionarios,
             tasks,
-            events, // Exposto
-            loading, // Exposto
+            events,
+            loading,
             isProjectModalOpen,
             isTaskModalOpen,
             openProjectModal: () => setProjectModalOpen(true),

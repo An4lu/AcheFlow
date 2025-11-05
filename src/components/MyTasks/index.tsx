@@ -12,7 +12,7 @@ export function MyTasks() {
     const myTasks = useMemo(() => {
         if (!user) return { todo: [], inProgress: [] };
 
-        const filtered = tasks.filter(task => task.responsavel?._id === user._id);
+        const filtered = tasks.filter(task => task.responsavel?.id === user._id);
 
         const todo = filtered
             .filter(t => t.status === 'não iniciada')
