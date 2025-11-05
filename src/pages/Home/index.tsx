@@ -52,14 +52,16 @@ export const Home = () => {
       ['Desconhecido', statusCounts['desconhecido'] || 0],
     ];
 
+
     const taskCountsByEmployee = tasks.reduce((acc, task) => {
-      if (task.responsavel?._id) {
-        acc[task.responsavel._id] = (acc[task.responsavel._id] || 0) + 1;
+      if (task.responsavel?.id) {
+        acc[task.responsavel.id] = (acc[task.responsavel.id] || 0) + 1;
       }
       return acc;
     }, {} as Record<string, number>);
 
     const busiestEmployeeId = Object.keys(taskCountsByEmployee).sort((a, b) => taskCountsByEmployee[b] - taskCountsByEmployee[a])[0];
+
     const busiestEmployee = funcionarios.find(f => f._id === busiestEmployeeId);
 
     const busiestEmployeeData = busiestEmployee ? {
@@ -89,6 +91,7 @@ export const Home = () => {
             busiestEmployee={dashboardMetrics.busiestEmployee}
           />
 
+          {/* Nova Seção */}
           <Title css={{ fontSize: '$2xl', marginTop: '$6' }}>Seu Dia a Dia</Title>
           <DailyGrid>
             <MyTasks />
