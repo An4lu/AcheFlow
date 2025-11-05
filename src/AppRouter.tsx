@@ -6,6 +6,7 @@ import { Home } from './pages/Home'
 import { Project } from './pages/Projects'
 import { Kanban } from './pages/Kanban'
 import { PrivateRoute } from './layouts/PrivateRoute'
+import { Employees } from './pages/Employees'
 
 globalStyles()
 
@@ -19,6 +20,7 @@ export const AppRouter = () => {
                     <Route path="home" element={<Home />} />
                     <Route path="projects" element={<Project />} />
                     <Route path="kanban" element={<Kanban />} />
+                    <Route path="funcionarios" element={<Employees />} />
                 </Route>
             </Route>
         </Routes>

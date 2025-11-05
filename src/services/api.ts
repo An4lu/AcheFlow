@@ -41,6 +41,12 @@ export const api_ia = axios.create({
     }
 });
 
+
+const token = localStorage.getItem('@AcheFlow:token');
+if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
 export interface ProjectPayload {
     nome: string;
     responsavel_id: string;
@@ -80,6 +86,15 @@ export interface TaskPayload {
     concluido?: boolean;
 }
 
+export interface FuncionarioPayload {
+    nome: string;
+    sobrenome: string;
+    email: string;
+    senha: string;
+    cargo: string;
+    departamento: string;
+}
+
 export interface TaskFilterParams {
     departamento?: string;
     projeto_id?: string;
@@ -98,6 +113,15 @@ export const createTask = (data: TaskPayload) => {
 };
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
     return api.put(`/tarefas/${id}`, data);
+};
+
+export const createFuncionario = (data: FuncionarioPayload) => {
+    return api.post('/funcionarios', data);
+};
+
+
+export const deleteFuncionario = (id: string) => {
+    return api.delete(`/funcionarios/${id}`);
 };
 
 export default api;

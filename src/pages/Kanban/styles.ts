@@ -1,11 +1,11 @@
 import { styled } from '../../styles';
 
-export const CalendarContainer = styled('div', {
-  padding: '2rem',
+export const KanbanContainer = styled('div', {
+  padding: '$6', // 2rem
   h1: {
-    marginBottom: '1rem',
+    marginBottom: '$4', // 1rem
   },
-  '.rbc-calendar': {
+  '.rbc-calendar': { // Estilo antigo não utilizado
     minHeight: '600px',
   }
 });

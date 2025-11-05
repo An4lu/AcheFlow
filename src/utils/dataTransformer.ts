@@ -1,12 +1,12 @@
 import type { Task } from "gantt-task-react";
 import type { User } from "../types/user";
+import { theme } from "../styles";
 
 interface ApiProject {
     _id: string;
     nome: string;
     prazo: string;
 }
-
 interface ApiTask {
     _id: string;
     nome: string;
@@ -54,7 +54,11 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             end: endDate,
             progress: 100,
             isDisabled: true,
-            styles: { backgroundColor: '#FF7F2A', progressColor: '#F9AC39' },
+            // Cores do Tema
+            styles: {
+                backgroundColor: theme.colors.brandSecondary.value,
+                progressColor: theme.colors.brandSecondaryHover.value
+            },
         });
     }
 
@@ -71,24 +75,30 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
         const status = task.status?.toLowerCase();
 
 
-
+        // Cores do Tema
         let barStyles = {
-            backgroundColor: '#E4113F',
-            progressColor: '#F46685',
-            progressSelectedColor: '#F46685',
+            backgroundColor: theme.colors.brandPrimary.value,
+            progressColor: theme.colors.brandQuaternary.value,
+            progressSelectedColor: theme.colors.brandQuaternary.value,
         };
 
         if (isOverdue) {
             barStyles = {
-                backgroundColor: '#c53030',
-                progressColor: '#9B2C2C',
-                progressSelectedColor: '#9B2C2C',
+                backgroundColor: theme.colors.danger.value,
+                progressColor: theme.colors.brandTertiary.value,
+                progressSelectedColor: theme.colors.brandTertiary.value,
             };
         } else if (status === 'não iniciada') {
             barStyles = {
-                backgroundColor: '#A0AEC0',
-                progressColor: '#718096',
-                progressSelectedColor: '#718096',
+                backgroundColor: theme.colors.textMuted.value,
+                progressColor: theme.colors.borderDefault.value,
+                progressSelectedColor: theme.colors.borderDefault.value,
+            };
+        } else if (status === 'concluída') {
+            barStyles = {
+                backgroundColor: theme.colors.success.value,
+                progressColor: theme.colors.success.value,
+                progressSelectedColor: theme.colors.success.value,
             };
         }
 

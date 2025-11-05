@@ -36,7 +36,8 @@ export const ChartArea = styled('div', {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  borderRadius: '$md', // 8px
+  borderRadius: '$md',
+  backgroundColor: '$bgTertiary',
   minHeight: 0,
   maxHeight: '100%',
   overflow: 'hidden',

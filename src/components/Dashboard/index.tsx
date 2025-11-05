@@ -76,13 +76,13 @@ export function Dashboard({
                             pieHole: 0.4,
                             is3D: false,
                             legend: { position: 'bottom' },
-                            colors: chartColors, 
+                            colors: chartColors,
                             fontName: 'Outfit',
                         }}
                     />
                 </ChartContainer>
 
-                <Card style={{ gridRow: 'span 2' }}>
+                <Card>
                     <CheckCircleIcon size={32} weight="light" />
                     <CardTitle>Projetos Concluídos</CardTitle>
                     {completedProjects.length > 0 ? (
