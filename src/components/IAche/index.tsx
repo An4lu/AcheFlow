@@ -109,7 +109,8 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                     step.call.name === 'create_project' || 
                     step.call.name === 'update_project' ||
                     step.call.name === 'create_task' ||
-                    step.call.name === 'update_task'
+                    step.call.name === 'update_task' ||
+                    step.call.name === 'import_project_from_url_tool'
                 ) && step.result.ok === true
             );
 
