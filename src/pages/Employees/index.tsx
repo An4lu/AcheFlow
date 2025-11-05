@@ -1,16 +1,24 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState, type MouseEvent } from 'react';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { PageLoader } from '../../components/PageLoader';
 import { Title } from '../../components/Title';
 import { Container, Header, EmployeeGrid, EmployeeCard, EmployeeHeader, EmployeeInfo, EmployeeName, EmployeeRole, Stats, Stat, ProjectList, ProjectTag, ActionButton, DeleteButton } from './styles';
-import { BriefcaseIcon, CheckCircleIcon, TrashIcon, UserIcon, UserPlusIcon } from '@phosphor-icons/react';
+import { UserIcon, BriefcaseIcon, CheckCircleIcon, TrashIcon, UserPlusIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
 import { deleteFuncionario } from '../../services/api';
 import { ConfirmDeleteModal } from '../../components/ConfirmDeleteModal';
 import type { User as UserType } from '../../types/user';
 
 export function Employees() {
-    const { funcionarios, projects, tasks, loading, refreshData, openEmployeeModal } = useContext(ProjectsContext);
+    const {
+        funcionarios,
+        projects,
+        tasks,
+        loading,
+        refreshData,
+        openEmployeeCreateModal,
+        openEmployeeDetailsModal
+    } = useContext(ProjectsContext);
 
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [selectedFunc, setSelectedFunc] = useState<UserType | null>(null);
@@ -37,6 +45,7 @@ export function Employees() {
                     involvedInProjects.set(proj._id, proj.nome);
                 }
             });
+
             return {
                 ...func,
                 managedProjectsCount: managedProjects.length,
@@ -47,14 +56,14 @@ export function Employees() {
         });
     }, [funcionarios, projects, tasks]);
 
-    const handleDeleteClick = (func: UserType) => {
+    const handleDeleteClick = (e: MouseEvent, func: UserType) => {
+        e.stopPropagation();
         setSelectedFunc(func);
         setIsConfirmOpen(true);
     };
 
     const handleConfirmDelete = async () => {
         if (!selectedFunc) return;
-
         try {
             await deleteFuncionario(selectedFunc._id);
             alert('Funcionário excluído com sucesso!');
@@ -73,7 +82,7 @@ export function Employees() {
         <Container>
             <Header>
                 <Title>Equipe e Responsabilidades</Title>
-                <ActionButton onClick={openEmployeeModal}>
+                <ActionButton onClick={openEmployeeCreateModal}>
                     <UserPlusIcon size={20} weight="bold" />
                     Novo Funcionário
                 </ActionButton>
@@ -84,8 +93,8 @@ export function Employees() {
             ) : (
                 <EmployeeGrid>
                     {employeeData.map(func => (
-                        <EmployeeCard key={func._id}>
-                            <DeleteButton onClick={() => handleDeleteClick(func)}>
+                        <EmployeeCard key={func._id} onClick={() => openEmployeeDetailsModal(func)}>
+                            <DeleteButton onClick={(e) => handleDeleteClick(e, func)}>
                                 <TrashIcon size={20} />
                             </DeleteButton>
 

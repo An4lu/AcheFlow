@@ -5,7 +5,7 @@ import { FormContainer, FormGroup, Input, Label, SubmitButton } from '../Form/st
 import { createFuncionario, type FuncionarioPayload } from '../../services/api';
 
 export function CreateEmployeeModal() {
-    const { isEmployeeModalOpen, closeEmployeeModal, refreshData } = useContext(ProjectsContext);
+    const { isEmployeeCreateModalOpen, closeEmployeeCreateModal, refreshData } = useContext(ProjectsContext);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +40,7 @@ export function CreateEmployeeModal() {
 
             alert('Funcionário criado com sucesso!');
             form.reset();
-            closeEmployeeModal();
+            closeEmployeeCreateModal();
             refreshData();
         } catch (err: any) {
             console.error(err);
@@ -59,7 +59,7 @@ export function CreateEmployeeModal() {
     };
 
     return (
-        <Modal isOpen={isEmployeeModalOpen} onClose={closeEmployeeModal} title="Criar Novo Funcionário">
+        <Modal isOpen={isEmployeeCreateModalOpen} onClose={closeEmployeeCreateModal} title="Criar Novo Funcionário">
             <FormContainer onSubmit={handleSubmit} onReset={() => setError(null)}>
                 <FormGroup>
                     <Label htmlFor="nome">Nome*</Label>

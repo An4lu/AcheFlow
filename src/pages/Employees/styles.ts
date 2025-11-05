@@ -42,6 +42,7 @@ export const EmployeeCard = styled('div', {
     flexDirection: 'column',
     gap: '$4',
     transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+    cursor: 'pointer',
 
     '&:hover': {
         transform: 'translateY(-5px)',

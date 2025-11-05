@@ -2,6 +2,7 @@ import { createContext, useState, type ReactNode, useCallback, useEffect, useCon
 import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
+
 interface NestedResponsible {
     id: string;
     nome: string;
@@ -44,14 +45,18 @@ interface ProjectContextData {
     events: CalendarEvent[];
     isProjectModalOpen: boolean;
     isTaskModalOpen: boolean;
-    isEmployeeModalOpen: boolean;
+    isEmployeeCreateModalOpen: boolean;
+    isEmployeeDetailsModalOpen: boolean;
+    selectedEmployee: User | null;
     loading: boolean;
     openProjectModal: () => void;
     closeProjectModal: () => void;
     openTaskModal: () => void;
     closeTaskModal: () => void;
-    openEmployeeModal: () => void;
-    closeEmployeeModal: () => void;
+    openEmployeeCreateModal: () => void;
+    closeEmployeeCreateModal: () => void;
+    openEmployeeDetailsModal: (employee: User) => void;
+    closeEmployeeDetailsModal: () => void;
     refreshData: () => void;
 }
 
@@ -66,7 +71,9 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
-    const [isEmployeeModalOpen, setEmployeeModalOpen] = useState(false);
+    const [isEmployeeCreateModalOpen, setEmployeeCreateModalOpen] = useState(false);
+    const [isEmployeeDetailsModalOpen, setEmployeeDetailsModalOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -96,6 +103,16 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         fetchData();
     }, [fetchData]);
 
+    const handleOpenEmployeeDetails = (employee: User) => {
+        setSelectedEmployee(employee);
+        setEmployeeDetailsModalOpen(true);
+    };
+
+    const handleCloseEmployeeDetails = () => {
+        setEmployeeDetailsModalOpen(false);
+        setSelectedEmployee(null);
+    };
+
     return (
         <ProjectsContext.Provider value={{
             projects,
@@ -105,13 +122,17 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             loading,
             isProjectModalOpen,
             isTaskModalOpen,
-            isEmployeeModalOpen,
+            isEmployeeCreateModalOpen,
+            isEmployeeDetailsModalOpen,
+            selectedEmployee,
             openProjectModal: () => setProjectModalOpen(true),
             closeProjectModal: () => setProjectModalOpen(false),
             openTaskModal: () => setTaskModalOpen(true),
             closeTaskModal: () => setTaskModalOpen(false),
-            openEmployeeModal: () => setEmployeeModalOpen(true),
-            closeEmployeeModal: () => setEmployeeModalOpen(false),
+            openEmployeeCreateModal: () => setEmployeeCreateModalOpen(true),
+            closeEmployeeCreateModal: () => setEmployeeCreateModalOpen(false),
+            openEmployeeDetailsModal: handleOpenEmployeeDetails,
+            closeEmployeeDetailsModal: handleCloseEmployeeDetails,
             refreshData: fetchData
         }}>
             {children}
