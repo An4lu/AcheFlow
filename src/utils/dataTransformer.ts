@@ -30,16 +30,16 @@ function parseValidDate(dateString: string | undefined): Date | null {
     if (!dateString) {
         return null;
     }
-    
+
     // Remove o horário (T...) se existir
     const dateOnlyString = dateString.split('T')[0];
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnlyString)) {
         return null;
     }
-    
+
     const date = new Date(dateOnlyString + 'T00:00:00Z');
-    
+
     if (isNaN(date.getTime())) {
         return null;
     }
@@ -58,41 +58,36 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     const ganttTasks: Task[] = [];
     const projectMap = new Map<string, ApiProject>(projects.map(p => [p._id, p]));
 
-    for (const project of projects) {
-        const projectDate = parseValidDate(project.prazo); // Usa o prazo do projeto
-        if (!projectDate) continue;
-        
-        const endDate = new Date(projectDate);
-        // Adiciona 1 dia para o projeto ser uma "linha" visível
-        endDate.setDate(projectDate.getDate() + 1); 
+    // for (const project of projects) {
+    //     const projectDate = parseValidDate(project.prazo); 
+    //     if (!projectDate) continue;
 
-        ganttTasks.push({
-            id: project._id,
-            name: `[PROJETO] ${project.nome}`,
-            type: 'project',
-            start: projectDate, // Início do projeto (baseado no prazo)
-            end: endDate,
-            progress: 100,
-            isDisabled: true,
-            styles: {
-                backgroundColor: theme.colors.brandSecondary.value,
-                progressColor: theme.colors.brandSecondaryHover.value
-            },
-        });
-    }
+    //     const endDate = new Date(projectDate);
+    //     endDate.setDate(projectDate.getDate() + 1); 
+
+    //     ganttTasks.push({
+    //         id: project._id,
+    //         name: `[PROJETO] ${project.nome}`,
+    //         type: 'project',
+    //         start: projectDate, 
+    //         end: endDate,
+    //         progress: 100,
+    //         isDisabled: true,
+    //         styles: {
+    //             backgroundColor: theme.colors.brandSecondary.value,
+    //             progressColor: theme.colors.brandSecondaryHover.value
+    //         },
+    //     });
+    // }
 
     for (const task of tasks) {
-        // *** A CORREÇÃO PRINCIPAL ESTÁ AQUI ***
-        // Ele tenta ler "dataCriacao" OU "data_inicio"
         const startDate = parseValidDate(task.dataCriacao || task.data_inicio);
-        // Ele tenta ler "prazo" OU "data_fim"
         const endDate = parseValidDate(task.prazo || task.data_fim);
-        
+
         const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
 
-        // Validação mais robusta para pular tarefas incompletas (como a que tinha "collection: funcionarios")
         if (!startDate || !endDate || !parentProject || !task.responsavel?.nome) {
-            console.warn("Tarefa pulada por dados ausentes:", task.nome, {startDate, endDate, parentProject, resp: task.responsavel});
+            console.warn("Tarefa pulada por dados ausentes:", task.nome, { startDate, endDate, parentProject, resp: task.responsavel });
             continue;
         }
 
@@ -137,6 +132,7 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             project: parentProject._id,
             styles: barStyles,
             extra: {
+                projetoNome: parentProject.nome, 
                 status: task.status,
                 responsavel: `${task.responsavel.nome} ${task.responsavel.sobrenome || ''}`.trim(),
             },
