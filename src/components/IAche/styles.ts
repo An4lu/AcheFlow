@@ -41,9 +41,37 @@ export const ModalContent = styled('div', {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0.5rem 1rem',
+    padding: '0.5rem 1rem 0.5rem 0.8rem',
     borderBottom: '1px solid #eee',
     backgroundColor: '#f8f9fa',
+  },
+
+  '.header-left': {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+  },
+
+  '.clear-context-button': {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      padding: '4px',
+      margin: '0',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#888',
+
+      '&:hover': {
+          color: '$primaryPink',
+      },
+      '&:disabled': {
+          color: '#ccc',
+          cursor: 'not-allowed',
+          backgroundColor: 'transparent',
+      }
   },
 
   '.close-button': {

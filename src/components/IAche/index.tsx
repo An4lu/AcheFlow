@@ -3,7 +3,7 @@ import { ModalBackground, ModalContent } from "./styles";
 import { Title } from "../Title";
 import React, { useState, useEffect, useRef, useContext, type ChangeEvent } from 'react';
 import { api_ia } from '../../services/api';
-import { PaperPlaneRight, Paperclip, X } from "@phosphor-icons/react"; 
+import { PaperPlaneRight, Paperclip, X, Trash } from "@phosphor-icons/react"; 
 import { ProjectsContext } from "../../contexts/ProjectContext"; 
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -241,6 +241,49 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
         }
     };
 
+    const handleClearContext = async () => {
+        if (isLoading || isImportLoading || !user) return; 
+
+        setIsLoading(true); 
+
+        try {
+            await api_ia.post(
+                '/ai/clear-context',
+                {
+                    pergunta: '',
+                    history: null,
+                    nome_usuario: user.nome,
+                    email_usuario: user.email,
+                    id_usuario: user._id
+                },
+                {
+                    headers: { "x-api-key": apiKey } 
+                }
+            );
+
+            setMessages([
+                { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
+            ]);
+            
+            setAttachedPdf(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""; 
+            }
+
+        } catch (error) {
+            const errorMessage: Message = { 
+                sender: 'ai', 
+                content: { 
+                    tipo_resposta: 'TEXTO', 
+                    conteudo_texto: 'Desculpe, não consegui limpar a memória. Tente novamente.' 
+                } 
+            };
+            setMessages(prev => [...prev, errorMessage]);
+            console.error("Erro ao limpar contexto:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -249,7 +292,18 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
             <ModalContent onClick={(e) => e.stopPropagation()} css={css}>
                 <div className="chat-container">
                     <div className="chat-header">
-                        <Title>IAche</Title>
+                        <div className="header-left">
+                            <button 
+                                onClick={handleClearContext} 
+                                className="clear-context-button" 
+                                aria-label="Limpar contexto do arquivo"
+                                title="Esquecer o arquivo PDF/XLSX atual"
+                                disabled={isLoading || isImportLoading}
+                            >
+                                <Trash size={24} />
+                            </button>
+                            <Title>IAche</Title>
+                        </div>
                         <button onClick={onClose} className="close-button" aria-label="Fechar">X</button>
                     </div>
 
