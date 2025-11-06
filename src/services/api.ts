@@ -1,8 +1,6 @@
-// src/services/api.ts
 import axios from 'axios';
 
-// --- 1. API Principal (Render) ---
-// Usada para login, projetos, tarefas, etc.
+
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 if (!baseURL) {
     throw new Error('A variável de ambiente VITE_API_BASE_URL (API Principal/Render) não está definida.');
@@ -12,8 +10,6 @@ const api = axios.create({
     baseURL: baseURL,
 });
 
-// Interceptor para a API Principal (Render)
-// Adiciona o token de login automaticamente
 api.interceptors.request.use(async (config) => {
     const token = localStorage.getItem('@AcheFlow:token');
     if (token && !config.headers.Authorization) {
@@ -22,8 +18,7 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-// --- 2. API da IA (Cloud Run) ---
-// Usada para /ai/chat e /tasks/from-xlsx
+
 const iaBaseURL = import.meta.env.VITE_IA_SERVICE_URL;
 if (!iaBaseURL) {
     throw new Error('A variável de ambiente VITE_IA_SERVICE_URL (Serviço de IA/Cloud Run) não está definida.');
@@ -37,7 +32,7 @@ if (!iaApiKey) {
 export const api_ia = axios.create({
     baseURL: iaBaseURL,
     headers: {
-        'x-api-key': iaApiKey // Adiciona a chave de segurança para o main.py
+        'x-api-key': iaApiKey 
     }
 });
 
