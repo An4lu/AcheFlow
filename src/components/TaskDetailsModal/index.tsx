@@ -11,6 +11,12 @@ interface TaskDetailsModalProps {
 export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProps) {
     if (!task) return null;
 
+    // Função auxiliar para formatar a data (lidando com T00:00:00Z)
+    const formatDate = (dateStr: string | undefined) => {
+        if (!dateStr) return 'N/A';
+        return new Date(dateStr.split('T')[0] + 'T00:00:00Z').toLocaleDateString('pt-BR');
+    }
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Detalhes da Tarefa">
             <DetailsContainer>
@@ -32,11 +38,13 @@ export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProp
                 </DetailItem>
                 <DetailItem>
                     <Label>Data de Início:</Label>
-                    <Value>{new Date(task.data_inicio + 'T00:00:00Z').toLocaleDateString()}</Value>
+                    {/* Correção: Usa dataCriacao ou data_inicio */}
+                    <Value>{formatDate(task.dataCriacao || task.data_inicio)}</Value>
                 </DetailItem>
                 <DetailItem>
-                    <Label>Data de Fim:</Label>
-                    <Value>{new Date(task.data_fim + 'T00:00:00Z').toLocaleDateString()}</Value>
+                    <Label>Data de Fim (Prazo):</Label>
+                    {/* Correção: Usa prazo ou data_fim */}
+                    <Value>{formatDate(task.prazo || task.data_fim)}</Value>
                 </DetailItem>
                 <DetailItem>
                     <Label>Descrição:</Label>

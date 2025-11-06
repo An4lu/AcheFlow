@@ -1,17 +1,18 @@
 import { useContext, useMemo } from 'react';
 import { Title } from "../../components/Title";
-import { ProjectsContext } from '../../contexts/ProjectContext';
+import { ProjectsContext, type Task } from '../../contexts/ProjectContext'; // Importa Task
 import { useAuth } from '../../hooks/useAuth';
-import { Container, Header, DailyGrid } from "./styles"; // Importa DailyGrid
+import { Container, Header, DailyGrid } from "./styles";
 import { Dashboard } from '../../components/Dashboard';
-import { PageLoader } from '../../components/PageLoader'; // Importa Loader
-import { MyTasks } from '../../components/MyTasks'; // Importa Novo Componente
-import { UpcomingDeadlines } from '../../components/UpcomingDeadlines'; // Importa Novo Componente
-import { UpcomingEvents } from '../../components/UpcomingEvents'; // Importa Novo Componente
+import { PageLoader } from '../../components/PageLoader';
+import { MyTasks } from '../../components/MyTasks';
+import { UpcomingDeadlines } from '../../components/UpcomingDeadlines';
+import { UpcomingEvents } from '../../components/UpcomingEvents';
+
+const getEndDate = (task: Task) => (task.prazo || task.data_fim);
 
 export const Home = () => {
   const { user } = useAuth();
-  // Adiciona 'loading' do contexto
   const { projects, tasks, funcionarios, loading } = useContext(ProjectsContext);
 
   const dashboardMetrics = useMemo(() => {
@@ -26,11 +27,14 @@ export const Home = () => {
     // --- Métricas de Tarefas ---
     const overdueTasks = tasks
       .filter(task => {
-        const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+        const endDateStr = getEndDate(task); // Correção
+        if (!endDateStr) return false;
+
+        const dataFim = new Date(endDateStr + 'T00:00:00Z');
         return dataFim < now && task.status?.toLowerCase() !== 'concluída';
       })
       .map(task => {
-        const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+        const dataFim = new Date(getEndDate(task) + 'T00:00:00Z'); // Correção
         const diffTime = Math.abs(now.getTime() - dataFim.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return { name: task.nome, days: diffDays };
@@ -90,8 +94,6 @@ export const Home = () => {
             tasksByStatus={dashboardMetrics.tasksByStatus}
             busiestEmployee={dashboardMetrics.busiestEmployee}
           />
-
-          {/* Nova Seção */}
           <Title css={{ fontSize: '$2xl', marginTop: '$6' }}>Seu Dia a Dia</Title>
           <DailyGrid>
             <MyTasks />

@@ -1,9 +1,12 @@
 import { useContext, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { ProjectsContext } from '../../contexts/ProjectContext';
+import { ProjectsContext, type Task } from '../../contexts/ProjectContext'; // Importa Task
 import { Card, CardTitle, TaskGroup, TaskItem, TaskList, TaskProject, Placeholder } from './styles';
 import { UserFocusIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
+
+// Função helper para obter a data final (prazo ou data_fim)
+const getEndDate = (task: Task) => new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
 
 export function MyTasks() {
     const { user } = useAuth();
@@ -14,14 +17,13 @@ export function MyTasks() {
 
         const filtered = tasks.filter(task => task.responsavel?.id === user._id);
 
-
         const todo = filtered
             .filter(t => t.status === 'não iniciada')
-            .sort((a, b) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime());
+            .sort((a, b) => getEndDate(a).getTime() - getEndDate(b).getTime()); // Correção
 
         const inProgress = filtered
             .filter(t => t.status === 'em andamento')
-            .sort((a, b) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime());
+            .sort((a, b) => getEndDate(a).getTime() - getEndDate(b).getTime()); // Correção
 
         return { todo, inProgress };
     }, [tasks, user]);

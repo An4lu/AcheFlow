@@ -6,19 +6,28 @@ import { ProjectFilters, type ActiveFilters, type FilterValues } from '../../com
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { getFilteredTasks, updateTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
-import type { User } from '../../types/user';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
 import { PageLoader } from '../../components/PageLoader';
 
+interface TaskResponsavel {
+  id: string;
+  nome: string;
+  sobrenome: string;
+  email: string;
+}
+
+// Interface corrigida para aceitar os dois tipos de data
 export interface ApiTask {
   _id: string;
   nome: string;
-  data_inicio: string;
-  data_fim: string;
+  dataCriacao?: string; // Correção
+  data_inicio?: string; // Antigo
+  prazo?: string;       // Correção
+  data_fim?: string;    // Antigo
   descricao: string | null;
   projeto: { id: string; nome: string; };
-  responsavel: User;
+  responsavel: TaskResponsavel;
   status: string;
 }
 
@@ -53,7 +62,8 @@ export const Project = () => {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            const dataFim = new Date(task.data_fim + 'T00:00:00Z');
+            // Correção: usar prazo ou data_fim
+            const dataFim = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return dataFim < now && task.status?.toLowerCase() !== 'concluída';
           });
         }
@@ -62,12 +72,19 @@ export const Project = () => {
           const start = new Date(filterValues.startDate + 'T00:00:00Z');
           const end = new Date(filterValues.endDate + 'T23:59:59Z');
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            const taskDate = new Date(task.data_fim + 'T00:00:00Z');
+            // Correção: usar prazo ou data_fim
+            const taskDate = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
 
-        processedTasks.sort((a: any, b: any) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime());
+        // Correção: usar prazo ou data_fim para ordenar
+        processedTasks.sort((a: ApiTask, b: ApiTask) => {
+            const dateA = new Date((a.prazo || a.data_fim) + 'T00:00:00Z').getTime();
+            const dateB = new Date((b.prazo || b.data_fim) + 'T00:00:00Z').getTime();
+            return dateA - dateB;
+        });
+        
         setTasks(processedTasks);
       } catch (error) {
         console.error("Falha ao buscar tarefas:", error);
@@ -80,7 +97,7 @@ export const Project = () => {
     fetchAndProcessTasks();
   }, [filterValues, activeFilters]);
 
-  const handleTaskDoubleClick = (task: Task) => {
+  const handleTaskClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
     if (foundTask) {
       setSelectedTask(foundTask);
@@ -132,7 +149,7 @@ export const Project = () => {
         ) : ganttData.length > 0 ? (
           <GanttChart
             data={ganttData}
-            onTaskClick={handleTaskDoubleClick}
+            onTaskClick={handleTaskClick} // Mantido como onClick
             viewMode={view}
           />
         ) : (

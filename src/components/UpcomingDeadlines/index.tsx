@@ -1,12 +1,16 @@
 import { useContext, useMemo } from 'react';
-import { ProjectsContext } from '../../contexts/ProjectContext';
+import { ProjectsContext, type Task } from '../../contexts/ProjectContext'; // Importa Task
 import { Card, CardTitle } from '../Dashboard/styles';
 import { ClockCountdownIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
 import { Placeholder } from '../MyTasks/styles';
 import { DeadlineDate, TaskItem, TaskList, TaskOwner } from './styles';
 
-const getDaysRemaining = (dateStr: string): number => {
+// Função helper para obter a data final (prazo ou data_fim)
+const getEndDate = (task: Task) => (task.prazo || task.data_fim);
+
+const getDaysRemaining = (dateStr: string | undefined): number => {
+    if (!dateStr) return 0; // Retorna 0 se a data for indefinida
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const endDate = new Date(dateStr + 'T00:00:00Z');
@@ -27,10 +31,17 @@ export function UpcomingDeadlines() {
         return tasks
             .filter(task => {
                 if (task.status === 'concluída') return false;
-                const endDate = new Date(task.data_fim + 'T00:00:00Z');
+                const endDateStr = getEndDate(task); // Correção
+                if (!endDateStr) return false; // Pula se não tiver data
+
+                const endDate = new Date(endDateStr + 'T00:00:00Z');
                 return endDate >= today && endDate <= nextWeek;
             })
-            .sort((a, b) => new Date(a.data_fim).getTime() - new Date(b.data_fim).getTime())
+            .sort((a, b) => {
+                const dateA = new Date(getEndDate(a) + 'T00:00:00Z').getTime();
+                const dateB = new Date(getEndDate(b) + 'T00:00:00Z').getTime();
+                return dateA - dateB;
+            })
             .slice(0, 7);
     }, [tasks]);
 
@@ -44,7 +55,7 @@ export function UpcomingDeadlines() {
             ) : (
                 <TaskList>
                     {upcomingTasks.map(task => {
-                        const daysLeft = getDaysRemaining(task.data_fim);
+                        const daysLeft = getDaysRemaining(getEndDate(task)); // Correção
                         return (
                             <TaskItem key={task._id}>
                                 <div>

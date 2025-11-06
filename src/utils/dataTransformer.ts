@@ -1,5 +1,4 @@
 import type { Task } from "gantt-task-react";
-import type { User } from "../types/user";
 import { theme } from "../styles";
 
 interface ApiProject {
@@ -7,21 +6,40 @@ interface ApiProject {
     nome: string;
     prazo: string;
 }
+
+// Interface local atualizada para refletir a API (com "dataCriacao" e "prazo")
+// e também os nomes antigos como opcionais
 interface ApiTask {
     _id: string;
     nome: string;
-    data_inicio: string;
-    data_fim: string;
+    dataCriacao?: string; // Campo novo
+    data_inicio?: string; // Campo antigo
+    prazo?: string;       // Campo novo
+    data_fim?: string;    // Campo antigo
     projeto: { id: string; nome: string };
     status: string;
-    responsavel: User;
+    responsavel: {
+        id: string;
+        nome: string;
+        sobrenome: string;
+        email: string;
+    };
 }
 
-function parseValidDate(dateString: string): Date | null {
-    if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+function parseValidDate(dateString: string | undefined): Date | null {
+    if (!dateString) {
         return null;
     }
-    const date = new Date(dateString + 'T00:00:00Z');
+    
+    // Remove o horário (T...) se existir
+    const dateOnlyString = dateString.split('T')[0];
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnlyString)) {
+        return null;
+    }
+    
+    const date = new Date(dateOnlyString + 'T00:00:00Z');
+    
     if (isNaN(date.getTime())) {
         return null;
     }
@@ -41,20 +59,21 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     const projectMap = new Map<string, ApiProject>(projects.map(p => [p._id, p]));
 
     for (const project of projects) {
-        const startDate = parseValidDate(project.prazo);
-        if (!startDate) continue;
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 1);
+        const projectDate = parseValidDate(project.prazo); // Usa o prazo do projeto
+        if (!projectDate) continue;
+        
+        const endDate = new Date(projectDate);
+        // Adiciona 1 dia para o projeto ser uma "linha" visível
+        endDate.setDate(projectDate.getDate() + 1); 
 
         ganttTasks.push({
             id: project._id,
             name: `[PROJETO] ${project.nome}`,
             type: 'project',
-            start: startDate,
+            start: projectDate, // Início do projeto (baseado no prazo)
             end: endDate,
             progress: 100,
             isDisabled: true,
-            // Cores do Tema
             styles: {
                 backgroundColor: theme.colors.brandSecondary.value,
                 progressColor: theme.colors.brandSecondaryHover.value
@@ -63,19 +82,25 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     }
 
     for (const task of tasks) {
-        const startDate = parseValidDate(task.data_inicio);
-        const endDate = parseValidDate(task.data_fim);
+        // *** A CORREÇÃO PRINCIPAL ESTÁ AQUI ***
+        // Ele tenta ler "dataCriacao" OU "data_inicio"
+        const startDate = parseValidDate(task.dataCriacao || task.data_inicio);
+        // Ele tenta ler "prazo" OU "data_fim"
+        const endDate = parseValidDate(task.prazo || task.data_fim);
+        
         const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
 
-        if (!startDate || !endDate || !parentProject || !task.responsavel) continue;
+        // Validação mais robusta para pular tarefas incompletas (como a que tinha "collection: funcionarios")
+        if (!startDate || !endDate || !parentProject || !task.responsavel?.nome) {
+            console.warn("Tarefa pulada por dados ausentes:", task.nome, {startDate, endDate, parentProject, resp: task.responsavel});
+            continue;
+        }
 
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isOverdue = endDate < now && task.status?.toLowerCase() !== 'concluída';
         const status = task.status?.toLowerCase();
 
-
-        // Cores do Tema
         let barStyles = {
             backgroundColor: theme.colors.brandPrimary.value,
             progressColor: theme.colors.brandQuaternary.value,
@@ -113,7 +138,7 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
             styles: barStyles,
             extra: {
                 status: task.status,
-                responsavel: `${task.responsavel.nome} ${task.responsavel.sobrenome}`.trim(),
+                responsavel: `${task.responsavel.nome} ${task.responsavel.sobrenome || ''}`.trim(),
             },
         } as Task;
         ganttTasks.push(ganttTask);

@@ -52,7 +52,8 @@ export function GanttChart({ data, onTaskClick, viewDate, viewMode }: GanttChart
                 tasks={data}
                 viewMode={viewMode}
                 locale="pt-BR"
-                onDoubleClick={(task) => { if (task.type !== 'project') onTaskClick(task) }}
+                // Correção: Alterado de onDoubleClick para onClick
+                onClick={(task) => { if (task.type !== 'project') onTaskClick(task) }}
                 TooltipContent={TooltipContent}
                 barFill={60}
                 barCornerRadius={5}

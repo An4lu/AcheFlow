@@ -1,11 +1,13 @@
 import { useContext, useMemo } from 'react';
 import { Modal } from '../Modal';
-import { ProjectsContext } from '../../contexts/ProjectContext';
+import { ProjectsContext,type Task } from '../../contexts/ProjectContext'; // Importa Task
 import { DetailsContainer, DetailItem, Label, Value, StatsGrid } from './styles';
-// Reutilizando estilos do card de funcionário para consistência
 import { Stat, ProjectList, ProjectTag } from '../../pages/Employees/styles';
 import { UserIcon, EnvelopeIcon, BriefcaseIcon, CalendarIcon, CheckCircleIcon, WarningCircleIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
+
+// Função helper para obter a data final (prazo ou data_fim)
+const getEndDate = (task: Task) => (task.prazo || task.data_fim);
 
 export function EmployeeDetailsModal() {
     const {
@@ -27,7 +29,10 @@ export function EmployeeDetailsModal() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const overdueTasks = allTasks.filter(t => {
-            const dataFim = new Date(t.data_fim + 'T00:00:00Z');
+            const endDateStr = getEndDate(t); // Correção
+            if (!endDateStr) return false;
+            
+            const dataFim = new Date(endDateStr + 'T00:00:00Z');
             return dataFim < now && t.status !== 'concluída';
         });
 

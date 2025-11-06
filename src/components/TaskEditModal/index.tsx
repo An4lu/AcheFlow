@@ -12,17 +12,32 @@ interface TaskEditModalProps {
     onSave: (taskId: string, payload: TaskUpdatePayload) => Promise<void>;
 }
 
+// Interface local para os dados do formulário
+interface FormData {
+    nome?: string;
+    descricao?: string | null;
+    status?: string;
+    data_inicio?: string; // Campo do formulário para data de início
+    data_fim?: string;    // Campo do formulário para data de fim (prazo)
+    responsavel?: ApiTask['responsavel'];
+    projeto?: { id: string; nome: string; };
+}
+
 export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalProps) {
     const { funcionarios } = useContext(ProjectsContext);
-    const [formData, setFormData] = useState<Partial<ApiTask>>({});
+    const [formData, setFormData] = useState<FormData>({});
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (task) {
+            // Correção: Mapeia os campos da API para os campos do formulário
+            const startDate = (task.dataCriacao || task.data_inicio || '').split('T')[0];
+            const endDate = (task.prazo || task.data_fim || '').split('T')[0];
+
             setFormData({
                 ...task,
-                data_inicio: task.data_inicio ? task.data_inicio.split('T')[0] : '',
-                data_fim: task.data_fim ? task.data_fim.split('T')[0] : '',
+                data_inicio: startDate,
+                data_fim: endDate,
             });
         }
     }, [task]);
@@ -37,21 +52,32 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
     const handleResponsavelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const responsavel = funcionarios.find(f => f._id === e.target.value);
         if (responsavel) {
-            setFormData(prev => ({ ...prev, responsavel }));
+            setFormData(prev => ({ 
+                ...prev, 
+                responsavel: {
+                    id: responsavel._id,
+                    nome: responsavel.nome,
+                    sobrenome: responsavel.sobrenome,
+                    email: responsavel.email
+                } 
+            }));
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+
+        // O Payload para a API (PUT /tarefas/{id}) espera data_inicio e data_fim
         const payload: TaskUpdatePayload = {
             nome: formData.nome,
             descricao: formData.descricao || '',
             status: formData.status as any,
-            data_inicio: formData.data_inicio,
-            data_fim: formData.data_fim,
-            responsavel_id: formData.responsavel?._id,
+            data_inicio: formData.data_inicio, // Envia o estado do formulário
+            data_fim: formData.data_fim,       // Envia o estado do formulário (que veio do prazo)
+            responsavel_id: formData.responsavel?.id,
         };
+        
         await onSave(task._id, payload);
         setIsLoading(false);
     };
@@ -64,14 +90,13 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
                     <Input id="nome" name="nome" value={formData.nome || ''} onChange={handleChange} />
                 </FormGroup>
 
-                {/* CAMPO DE PROJETO ALTERADO PARA APENAS LEITURA */}
                 <FormGroup>
                     <Label htmlFor="projeto">Projeto</Label>
                     <Input
                         id="projeto"
                         name="projeto"
                         value={formData.projeto?.nome || ''}
-                        disabled // Desabilita a edição
+                        disabled 
                     />
                 </FormGroup>
 
@@ -86,7 +111,7 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
                 </FormGroup>
                 <FormGroup>
                     <Label htmlFor="responsavel">Responsável</Label>
-                    <Select id="responsavel" name="responsavel" value={formData.responsavel?._id || ''} onChange={handleResponsavelChange}>
+                    <Select id="responsavel" name="responsavel" value={formData.responsavel?.id || ''} onChange={handleResponsavelChange}>
                         {funcionarios.map(f => (
                             <option key={f._id} value={f._id}>{f.nome} {f.sobrenome}</option>
                         ))}
@@ -97,7 +122,7 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
                     <Input type="date" id="data_inicio" name="data_inicio" value={formData.data_inicio || ''} onChange={handleChange} />
                 </FormGroup>
                 <FormGroup>
-                    <Label htmlFor="data_fim">Data de Fim</Label>
+                    <Label htmlFor="data_fim">Data de Fim (Prazo)</Label>
                     <Input type="date" id="data_fim" name="data_fim" value={formData.data_fim || ''} onChange={handleChange} />
                 </FormGroup>
 

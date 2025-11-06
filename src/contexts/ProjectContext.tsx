@@ -23,11 +23,15 @@ export interface Project {
 export interface Task {
     _id: string;
     nome: string;
-    data_inicio: string;
-    data_fim: string;
+    dataCriacao?: string; // Correção: Campo novo
+    data_inicio?: string; // Campo antigo
+    prazo?: string;       // Correção: Campo novo
+    data_fim?: string;    // Campo antigo
     status: string;
     responsavel: NestedResponsible;
     projeto: { id: string; nome: string; };
+    descricao?: string | null;
+    dataConclusao?: string | null;
 }
 
 export interface CalendarEvent {
