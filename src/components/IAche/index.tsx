@@ -2,8 +2,7 @@ import type { CSS } from "@stitches/react";
 import { ModalBackground, ModalContent } from "./styles";
 import { Title } from "../Title";
 import React, { useState, useEffect, useRef, useContext, type ChangeEvent } from 'react';
-// Importa ambas as instâncias da API
-import { api_ia } from '../../services/api'; // <--- CORREÇÃO 2: Removido 'api'
+import { api_ia } from '../../services/api';
 import { PaperPlaneRight, Paperclip, X } from "@phosphor-icons/react"; 
 import { ProjectsContext } from "../../contexts/ProjectContext"; 
 import { AuthContext } from "../../contexts/AuthContext";
@@ -25,78 +24,99 @@ interface ModalProps {
 
 export function IAche({ isOpen, onClose, css }: ModalProps) {
     const [messages, setMessages] = useState<Message[]>([
-        { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá! Como posso te ajudar hoje? (Você também pode me enviar um arquivo .xlsx para importar tarefas)' } }
+        { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messageListRef = useRef<HTMLDivElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null); 
 
-    // --- Estados para Importação ---
-    const { projects, refreshData } = useContext(ProjectsContext); // Pega projetos e refresh
-    const { user } = useContext(AuthContext); // Pega dados do usuário
+    const { projects, refreshData } = useContext(ProjectsContext); 
+    const { user } = useContext(AuthContext); 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [attachedPdf, setAttachedPdf] = useState<File | null>(null);
     const [targetProjectId, setTargetProjectId] = useState<string>(''); 
     const [newProjectName, setNewProjectName] = useState('');
     const [isImportLoading, setIsImportLoading] = useState(false);
+    
+    const apiKey = import.meta.env.VITE_API_KEY;
 
-    // Scrolla para o final
     useEffect(() => {
         if (messageListRef.current) {
             messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
         }
     }, [messages, isLoading, isImportLoading]);
 
-    // (Função que estava faltando)
     const cancelImport = () => {
         setSelectedFile(null);
+        setAttachedPdf(null);
         setTargetProjectId('');
         setNewProjectName('');
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Limpa o seletor de arquivo
+            fileInputRef.current.value = ""; 
         }
     };
     
-    // Limpa o estado ao fechar o modal
     useEffect(() => {
         if (!isOpen) {
-            cancelImport(); // <--- Esta função estava faltando
+            cancelImport(); 
         }
     }, [isOpen]);
 
-    // --- Lógica de Chat (Texto) ---
-    // (Esta era a função que estava duplicada e quebrada)
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // --- CORREÇÃO 1: Adicionada verificação de 'user' ---
-        // Se a mensagem estiver vazia OU o usuário não estiver logado, não faz nada.
         if (!inputValue.trim() || !user) return;
+
+        let userMessageText = inputValue;
+        const fileToSubmit = attachedPdf;
+
+        if (fileToSubmit) {
+            userMessageText = `[Analisando: ${fileToSubmit.name}]\n\n${inputValue}`;
+        }
 
         const userMessage: Message = {
             sender: 'user',
-            content: { tipo_resposta: 'TEXTO', conteudo_texto: inputValue }
+            content: { tipo_resposta: 'TEXTO', conteudo_texto: userMessageText }
         };
-        // Adiciona a mensagem do usuário à lista ANTES de enviar
+        
         const newMessages = [...messages, userMessage];
         setMessages(newMessages);
 
-        const currentInput = inputValue; // <--- 'currentInput' estava faltando
+        const currentInput = inputValue;
         setInputValue('');
         setIsLoading(true);
+        setAttachedPdf(null);
 
         try {
-            // Chama a IA de chat (vertex_ai_service.py)
-            const response = await api_ia.post( 
-                '/ai/chat', 
-                {
-                    pergunta: currentInput,
-                    history: messages, 
-                    nome_usuario: user.nome,
-                    email_usuario: user.email,
-                    id_usuario: user._id
+            let response; 
+
+            if (fileToSubmit) {
+                const formData = new FormData();
+                formData.append('file', fileToSubmit, fileToSubmit.name);
+                formData.append('pergunta', currentInput);
+                if (user) {
+                    formData.append('nome_usuario', user.nome);
+                    formData.append('email_usuario', user.email);
+                    formData.append('id_usuario', user._id);
                 }
-            );
+                
+                response = await api_ia.post('/ai/chat-with-pdf', formData, {
+                    headers: { "x-api-key": apiKey, 'Content-Type': 'multipart/form-data' } 
+                });
+
+            } else {
+                response = await api_ia.post( 
+                    '/ai/chat', 
+                    {
+                        pergunta: currentInput,
+                        history: newMessages.slice(0, -1),
+                        nome_usuario: user.nome,
+                        email_usuario: user.email,
+                        id_usuario: user._id
+                    }
+                );
+            }
             
             const aiContent = response.data;
 
@@ -121,7 +141,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
 
         } catch (error) {
             const errorMessage: Message = { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Desculpe, ocorreu um erro. Tente novamente.' } };
-            // Adiciona a mensagem de erro
             setMessages(prev => [...prev, errorMessage]);
             console.error("Erro ao chamar a API de chat:", error);
         } finally {
@@ -129,24 +148,40 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
         }
     };
 
-    // --- Lógica de Upload de Arquivo ---
-
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setSelectedFile(file);
-            // Define o projeto padrão como o primeiro da lista, se houver
-            if (projects.length > 0) {
-                setTargetProjectId(projects[0]._id);
+            const fileType = file.type;
+            const fileName = file.name.toLowerCase();
+
+            if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
+                setAttachedPdf(file);
+                setSelectedFile(null);
+            } 
+            else if (
+                fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                fileType === 'application/vnd.ms-excel' ||
+                fileName.endsWith('.xlsx') ||
+                fileName.endsWith('.xls') ||
+                fileName.endsWith('.csv')
+            ) {
+                setSelectedFile(file);
+                setAttachedPdf(null); 
+                
+                if (projects.length > 0) {
+                    setTargetProjectId(projects[0]._id);
+                } else {
+                    setTargetProjectId('NEW'); 
+                }
             } else {
-                setTargetProjectId('NEW'); // Força "novo projeto" se não houver existentes
+                alert('Tipo de arquivo não suportado. Por favor, envie .xlsx, .xls, .csv ou .pdf');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
             }
         }
     };
 
-    const apiKey = import.meta.env.VITE_API_KEY;
-
-    // (Esta função estava faltando)
     const handleSendImport = async () => {
         if (!selectedFile) return;
         if (targetProjectId === 'NEW' && !newProjectName.trim()) {
@@ -178,7 +213,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
         setMessages(prev => [...prev, loadingMessage]);
 
         try {
-            // Chama a API de importação (ai_api.py)
             const response = await api_ia.post('/tasks/from-xlsx', formData, {
                 headers: { "x-api-key": apiKey, 'Content-Type': 'multipart/form-data' } 
             });
@@ -191,7 +225,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 content: { tipo_resposta: 'TEXTO', conteudo_texto: `Sucesso! Importei ${total} tarefas para o projeto '${nome}'.` }
             };
             setMessages(prev => [...prev.slice(0, -1), successMessage]); 
-            refreshData(); // Atualiza a lista de projetos no app
+            refreshData(); 
 
         } catch (error: any) {
             const errorMsg = error.response?.data?.erro || error.response?.data?.detail || 'Falha ao importar o arquivo.';
@@ -216,16 +250,14 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 <div className="chat-container">
                     <div className="chat-header">
                         <Title>IAche</Title>
-                        {/* Correção de acessibilidade (Erro 1) */}
                         <button onClick={onClose} className="close-button" aria-label="Fechar">X</button>
                     </div>
 
-                    {/* LISTA DE MENSAGENS */}
                     <div className="message-list" ref={messageListRef}>
                         {messages.map((msg, index) => (
                             <div key={index} className={`message-bubble-container sender-${msg.sender}`}>
                                <div className="message-bubble">
-                                    <p>{msg.content.conteudo_texto}</p>
+                                    <p className="chat-pre-wrap">{msg.content.conteudo_texto}</p>
                                 </div>
                             </div>
                         ))}
@@ -238,17 +270,13 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                         )}
                     </div>
 
-                    {/* RENDERIZAÇÃO CONDICIONAL: MODO IMPORTAÇÃO OU MODO CHAT */}
                     {selectedFile ? (
-                        // --- MODO IMPORTAÇÃO ---
                         <div className="import-container">
                             <div className="file-info">
                                 <span>{selectedFile.name}</span>
-                                {/* Correção de acessibilidade (Erro 1) */}
                                 <button onClick={cancelImport} aria-label="Cancelar importação"><X size={16} weight="bold" /></button>
                             </div>
                             <div className="import-controls">
-                                {/* Correção de acessibilidade (Erro 2) */}
                                 <select 
                                     className="import-select"
                                     value={targetProjectId}
@@ -273,7 +301,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                                 )}
                                 <button 
                                     className="import-button"
-                                    onClick={handleSendImport} // <--- Corrigido
+                                    onClick={handleSendImport}
                                     disabled={isImportLoading}
                                 >
                                     {isImportLoading ? 'Importando...' : 'Importar Arquivo'}
@@ -281,35 +309,48 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                             </div>
                         </div>
                     ) : (
-                        // --- MODO CHAT (TEXTO) ---
                         <form className="message-input-container" onSubmit={handleSendMessage}>
                             <input 
                                 ref={fileInputRef}
                                 type="file" 
-                                accept=".xlsx, .xls, .csv"
-                                onChange={handleFileChange} // <--- Corrigido
-                                style={{ display: 'none' }}
+                                accept=".xlsx, .xls, .csv, .pdf"
+                                onChange={handleFileChange}
+                                className="hidden-file-input"
                                 id="ia-file-upload"
-                                // Correção de acessibilidade (Erro 3)
                                 aria-label="Input de arquivo" 
                             />
                             <button 
                                 type="button" 
                                 className="attach-button" 
-                                aria-label="Anexar arquivo para importação" // <--- Corrigido (title -> aria-label)
+                                aria-label="Anexar arquivo"
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 <Paperclip size={22} />
                             </button>
+
+                            {attachedPdf && (
+                                <div className="attached-file-info">
+                                    <Paperclip size={16} />
+                                    <span>{attachedPdf.name.length > 20 ? `${attachedPdf.name.substring(0, 20)}...` : attachedPdf.name}</span>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setAttachedPdf(null)}
+                                        aria-label="Remover PDF anexo"
+                                    >
+                                        <X size={16} weight="bold" />
+                                    </button>
+                                </div>
+                            )}
+
                             <input
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Digite sua mensagem..."
+                                placeholder={attachedPdf ? "Qual sua pergunta sobre o PDF?" : "Digite sua mensagem..."}
                                 autoComplete="off"
                                 disabled={isLoading}
                             />
-                            <button type="submit" aria-label="Enviar mensagem" className="send-button" disabled={isLoading}>
+                            <button type="submit" aria-label="Enviar mensagem" className="send-button" disabled={isLoading || !inputValue.trim()}>
                                 <PaperPlaneRight size={24} color="#ffffff" weight="bold" />
                             </button>
                         </form>

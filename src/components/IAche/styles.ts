@@ -108,6 +108,7 @@ export const ModalContent = styled('div', {
     background: '#fff',
     alignItems: 'center', // Alinha o botão de anexo
     gap: '8px',
+    position: 'relative',
 
     input: {
       flexGrow: 1,
@@ -148,6 +149,48 @@ export const ModalContent = styled('div', {
     },
   },
 
+  '.hidden-file-input': {
+    display: 'none',
+  },
+
+  '.chat-pre-wrap': {
+      whiteSpace: 'pre-wrap',
+      wordBreak: 'break-word',
+  },
+  
+  '.attached-file-info': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    backgroundColor: '#f0f0f0', 
+    borderRadius: '16px',
+    padding: '4px 12px',
+    fontSize: '14px',
+    position: 'absolute',
+    bottom: '100%', 
+    left: '16px',
+    marginBottom: '8px', 
+    maxWidth: '80%',
+
+    span: {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+
+    button: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '0',
+        margin: '0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#555',
+    }
+  },
+
   '.typing-indicator span': {
     height: '8px',
     width: '8px',
@@ -159,7 +202,6 @@ export const ModalContent = styled('div', {
     '&:nth-child(2)': { animationDelay: '-0.16s' },
   },
 
-  // --- NOVOS ESTILOS PARA IMPORTAÇÃO ---
   '.import-container': {
     display: 'flex',
     flexDirection: 'column',
