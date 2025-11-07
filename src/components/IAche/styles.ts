@@ -22,47 +22,86 @@ export const ModalContent = styled('div', {
   backgroundColor: '$white',
   borderRadius: '12px',
   display: 'flex',
-  flexDirection: 'column',
-  width: '400px',
-  height: '600px',
-  maxHeight: '90vh',
+  flexDirection: 'row', 
+  
+  // --- ALTERAÇÕES AQUI ---
+  width: '40vw', // Antes: 400px
+  height: '80vh', // Antes: 600px (Usei vh, não vw)
+  
+  minWidth: '350px', // Garante que não fique muito pequeno
+  minHeight: '400px', // Garante que não fique muito pequeno
+  maxHeight: '90vh', // Mantém o limite
+  
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
   padding: '0',
-  overflow: 'hidden',
+  overflow: 'hidden', 
+  position: 'relative', 
+  transition: 'width 0.3s ease-in-out', 
+
+  // CLASSE ADICIONADA PARA EXPANDIR
+  '&.history-open': {
+    // 45vw (chat) + 25vw (histórico) = 70vw
+    width: '55vw', // Antes: 700px
+    
+    '.history-panel-container': {
+      marginLeft: '0px', // Painel desliza para a vista
+    },
+  },
 
   '.chat-container': {
-    width: '100%',
+    width: '40vw', // <-- DEVE BATER COM O width DO ModalContent
+    minWidth: '350px', // Garante que não encolha demais
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    flexShrink: 0, // Impede que o container do chat encolha
   },
 
   '.chat-header': {
-    display: 'flex',
-    justifyContent: 'space-between',
+    display: 'grid', 
+    gridTemplateColumns: '1fr auto 1fr', 
     alignItems: 'center',
-    padding: '0.5rem 1rem 0.5rem 0.8rem',
+    padding: '0.5rem 0.8rem',
     borderBottom: '1px solid #eee',
     backgroundColor: '#f8f9fa',
+    
+    // Alvo no componente <Title> que vira <h2>
+    'h2': {
+        textAlign: 'center',
+        margin: 0,
+        fontSize: '1.25rem', // Ajuste o tamanho se necessário
+    }
   },
 
   '.header-left': {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
+      justifyContent: 'flex-start', // Alinha botões à esquerda
+  },
+  
+  // Novo container para o botão de fechar
+  '.header-right': {
+      display: 'flex',
+      justifyContent: 'flex-end', // Alinha botão à direita
   },
 
-  '.clear-context-button': {
+  // Botão genérico para os ícones do header (Histórico, Arquivar)
+  '.header-button': {
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px',
+      padding: '0', // Padding removido para controle de tamanho
       margin: '0',
       borderRadius: '4px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       color: '#888',
+      
+      // FORÇA O TAMANHO IGUAL
+      width: '32px', 
+      height: '32px',
 
       '&:hover': {
           color: '$primaryPink',
@@ -74,12 +113,22 @@ export const ModalContent = styled('div', {
       }
   },
 
+  // Botão de fechar (X)
   '.close-button': {
     background: 'none',
     border: 'none',
-    fontSize: '1.5rem',
     cursor: 'pointer',
     color: '#888',
+    padding: '0', // Reset
+    display: 'flex', // Para centralizar o ícone
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '32px', // Mesmo tamanho dos outros botões
+    height: '32px',
+    
+    '&:hover': {
+        color: '$primaryPink',
+    },
   },
 
   '.message-list': {
@@ -228,5 +277,91 @@ export const ModalContent = styled('div', {
     animation: `${bounce} 1.4s infinite ease-in-out both`,
     '&:nth-child(1)': { animationDelay: '-0.32s' },
     '&:nth-child(2)': { animationDelay: '-0.16s' },
+  },
+  
+  // --- ESTILOS DO HISTÓRICO (Com mudança) ---
+  
+  '.history-panel-container': {
+    width: '15vw', // <-- MUDANÇA AQUI
+    minWidth: '250px', // Garante que não fique muito pequeno
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#f8f9fa', 
+    borderLeft: '1px solid #eee',
+    flexShrink: 0,
+    
+    // Animação de entrada
+    marginLeft: '-15vw', // <-- MUDANÇA AQUI
+    transition: 'margin-left 0.3s ease-in-out',
+  },
+
+  '.history-header': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '0.5rem 1rem',
+    borderBottom: '1px solid #eee',
+  },
+
+  '.close-history-button': {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#888',
+    padding: '4px',
+  },
+
+  '.history-list': {
+    flexGrow: 1,
+    overflowY: 'auto',
+    padding: '0.5rem',
+  },
+
+  '.history-list-item': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginBottom: '4px',
+
+    '&:hover': {
+      backgroundColor: '#eee',
+    },
+    
+    '.history-item-title': {
+      flexGrow: 1,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      fontSize: '14px',
+    },
+    
+    '.history-item-delete': {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      color: '#aaa',
+      padding: '4px',
+      marginLeft: '8px',
+      display: 'none', // Oculto por padrão
+    },
+    
+    // Mostra o botão de deletar no hover
+    '&:hover .history-item-delete': {
+        display: 'block',
+        '&:hover': {
+            color: '$primaryPink',
+        }
+    }
+  },
+  
+  '.history-empty': {
+      textAlign: 'center',
+      color: '#888',
+      fontSize: '14px',
+      padding: '1rem',
   },
 });

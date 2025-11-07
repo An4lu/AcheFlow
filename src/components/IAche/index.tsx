@@ -1,9 +1,10 @@
 import type { CSS } from "@stitches/react";
 import { ModalBackground, ModalContent } from "./styles";
 import { Title } from "../Title";
-import React, { useState, useEffect, useRef, useContext, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useRef, useContext, type ChangeEvent, useCallback } from 'react';
 import { api_ia } from '../../services/api';
-import { PaperPlaneRight, Paperclip, X, Trash } from "@phosphor-icons/react"; 
+// Ícones atualizados
+import { PaperPlaneRight, Paperclip, X, Clock, Archive, Trash } from "@phosphor-icons/react"; 
 import { ProjectsContext } from "../../contexts/ProjectContext"; 
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -15,6 +16,15 @@ interface Message {
         dados?: any;
     };
 }
+
+// Interface para o chat salvo
+interface ArchivedChat {
+  id: string; // Um ID único, ex: Date.now().toString()
+  title: string;
+  messages: Message[];
+  lastUpdated: number;
+}
+
 
 interface ModalProps {
     isOpen: boolean;
@@ -31,9 +41,21 @@ const SPREADSHEET_TYPES = [
 const SPREADSHEET_EXTENSIONS = ['.xlsx', '.xls', '.csv'];
 
 export function IAche({ isOpen, onClose, css }: ModalProps) {
+    
+    // O 'messages' agora representa o chat ATIVO
     const [messages, setMessages] = useState<Message[]>([
         { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
     ]);
+    
+    // Novo estado para o ID do chat ativo ('new' = chat ainda não salvo)
+    const [activeChatId, setActiveChatId] = useState<string>('new');
+    
+    // Novo estado para o histórico (carregado do localStorage)
+    const [archivedChats, setArchivedChats] = useState<ArchivedChat[]>([]);
+    
+    // Novo estado para o painel de histórico
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messageListRef = useRef<HTMLDivElement | null>(null);
@@ -43,24 +65,107 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
     const { user } = useContext(AuthContext); 
     
     const [attachedFile, setAttachedFile] = useState<File | null>(null);
-    
     const apiKey = import.meta.env.VITE_API_KEY;
 
+    // --- CARREGAR HISTÓRICO DO LOCALSTORAGE ---
+    useEffect(() => {
+        if (isOpen && user) {
+            try {
+                const storedChats = localStorage.getItem(`iache_history_${user._id}`);
+                if (storedChats) {
+                    const parsedChats: ArchivedChat[] = JSON.parse(storedChats);
+                    // Ordena para que os mais recentes apareçam primeiro
+                    parsedChats.sort((a, b) => b.lastUpdated - a.lastUpdated);
+                    setArchivedChats(parsedChats);
+                }
+            } catch (error) {
+                console.error("Falha ao carregar histórico do chat:", error);
+                localStorage.removeItem(`iache_history_${user._id}`); // Limpa dados corrompidos
+            }
+        } else if (!isOpen) {
+            // Reseta para um novo chat quando o modal é fechado
+            setMessages([
+                { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
+            ]);
+            setActiveChatId('new');
+            setIsHistoryOpen(false);
+            setAttachedFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""; 
+            }
+        }
+    }, [isOpen, user]);
+
+    // Scroll
     useEffect(() => {
         if (messageListRef.current) {
             messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
         }
     }, [messages, isLoading]);
 
-    useEffect(() => {
-        if (!isOpen) {
-            setAttachedFile(null);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ""; 
-            }
+    // --- NOVA FUNÇÃO: GERAR E OBTER TÍTULO ---
+    const getChatTitle = async (firstUserMessage: string): Promise<string> => {
+        if (!user) return "Chat";
+        try {
+            const response = await api_ia.post(
+                '/ai/generate-title',
+                { first_message: firstUserMessage },
+                { headers: { "x-api-key": apiKey } }
+            );
+            return response.data.title || "Chat";
+        } catch (error) {
+            console.error("Erro ao gerar título:", error);
+            // Fallback simples
+            return firstUserMessage.substring(0, 30) + "...";
         }
-    }, [isOpen]);
+    };
 
+    // --- NOVA FUNÇÃO: SALVAR/ATUALIZAR CHATS ---
+    const saveChatHistory = useCallback((updatedMessages: Message[], chatId: string, chatTitle?: string) => {
+        if (!user) return;
+
+        setArchivedChats(prevChats => {
+            const now = Date.now();
+            const existingChatIndex = prevChats.findIndex(c => c.id === chatId);
+            
+            let newChats: ArchivedChat[];
+
+            if (existingChatIndex !== -1) {
+                // Atualiza chat existente
+                const updatedChat = {
+                    ...prevChats[existingChatIndex],
+                    messages: updatedMessages,
+                    lastUpdated: now
+                };
+                newChats = [
+                    updatedChat, // Coloca o atualizado no topo
+                    ...prevChats.slice(0, existingChatIndex),
+                    ...prevChats.slice(existingChatIndex + 1)
+                ];
+            } else {
+                // Cria novo chat
+                const newChat: ArchivedChat = {
+                    id: chatId,
+                    title: chatTitle || "Novo Chat",
+                    messages: updatedMessages,
+                    lastUpdated: now
+                };
+                newChats = [newChat, ...prevChats]; // Adiciona no topo
+            }
+
+            try {
+                localStorage.setItem(`iache_history_${user._id}`, JSON.stringify(newChats));
+            } catch (error) {
+                console.error("Falha ao salvar histórico no localStorage:", error);
+            }
+            
+            return newChats;
+        });
+
+    }, [user, apiKey]);
+
+
+    // --- LÓGICA DE ENVIO MODIFICADA ---
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -78,6 +183,8 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
             content: { tipo_resposta: 'TEXTO', conteudo_texto: userMessageText }
         };
         
+        // Mantém o histórico do chat ativo
+        const historyForApi = activeChatId === 'new' ? [] : messages.slice(1); // Ignora o 1º "Olá"
         const newMessages = [...messages, userMessage];
         setMessages(newMessages);
 
@@ -85,6 +192,15 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
         setInputValue('');
         setIsLoading(true);
         setAttachedFile(null);
+
+        // Lógica para Título e ID
+        let currentChatId = activeChatId;
+        let isNewChat = activeChatId === 'new';
+
+        if (isNewChat) {
+            currentChatId = Date.now().toString(); // Gera novo ID
+            setActiveChatId(currentChatId);
+        }
 
         try {
             let response; 
@@ -115,7 +231,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
 
             } else {
                 
-                // --- INÍCIO DA CORREÇÃO ---
                 // Regex 1: Encontra a primeira URL completa na mensagem
                 const urlFinderRegex = /(https?:\/\/[^\s]+)/i;
                 // Regex 2: Verifica se a URL encontrada é do tipo que queremos
@@ -128,7 +243,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                     const foundUrl = urlMatch[0]; // Esta é a URL *completa*
                     
                     console.log("Detectada URL de PDF, roteando para /ai/chat-with-pdf-url");
-                    console.log("URL Completa:", foundUrl); // Novo log para depuração
                     
                     endpoint = '/ai/chat-with-pdf-url';
                     
@@ -150,7 +264,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                         endpoint, 
                             {
                                 pergunta: currentInput,
-                                history: newMessages.slice(0, -1),
+                                history: historyForApi, // Usa o histórico do chat ativo
                                 nome_usuario: user.nome,
                                 email_usuario: user.email,
                                 id_usuario: user._id
@@ -163,9 +277,20 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
             }
             
             const aiContent = response.data;
-
             const aiResponse: Message = { sender: 'ai', content: aiContent };
-            setMessages(prev => [...prev, aiResponse]);
+            
+            const finalMessages = [...newMessages, aiResponse];
+            setMessages(finalMessages);
+
+            // --- SALVAR NO HISTÓRICO ---
+            if (isNewChat) {
+                // Se é novo, precisamos gerar um título
+                const title = await getChatTitle(currentInput);
+                saveChatHistory(finalMessages, currentChatId, title);
+            } else {
+                // Se é existente, apenas salvamos as novas mensagens
+                saveChatHistory(finalMessages, currentChatId);
+            }
 
             const toolSteps = aiContent.dados || []; 
             const didCreateOrUpdate = toolSteps.some((step: any) => 
@@ -212,7 +337,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
             } 
             // Verifica se é Planilha
             else if (SPREADSHEET_TYPES.includes(fileType) || SPREADSHEET_EXTENSIONS.some(ext => fileName.endsWith(ext))) {
-                setAttachedFile(file); // << MUDANÇA PRINCIPAL: Apenas anexa, não muda a UI
+                setAttachedFile(file);
             } else {
                 alert('Tipo de arquivo não suportado. Por favor, envie .xlsx, .xls, .csv ou .pdf');
                 if (fileInputRef.current) {
@@ -222,71 +347,155 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
         }
     };
 
-    const handleClearContext = async () => {
-        if (isLoading || !user) return; 
+    // --- NOVA FUNÇÃO: CARREGAR CHAT DO HISTÓRICO ---
+    const handleLoadChat = (chatId: string) => {
+        const chatToLoad = archivedChats.find(c => c.id === chatId);
+        if (chatToLoad) {
+            setMessages(chatToLoad.messages);
+            setActiveChatId(chatToLoad.id);
+            setIsHistoryOpen(false); // Fecha o painel
+            setAttachedFile(null); // Limpa qualquer anexo
+        }
+    };
 
-        setIsLoading(true); 
+    // --- FUNÇÃO MODIFICADA: ARQUIVAR CHAT (antiga handleClearContext) ---
+    const handleNewChat = async () => {
+        if (isLoading) return;
 
+        // Se o chat atual for 'new' e tiver mais do que a saudação, salvamos antes de resetar.
+        if (activeChatId === 'new' && messages.length > 1) {
+            setIsLoading(true);
+            const firstUserMessage = messages.find(m => m.sender === 'user')?.content.conteudo_texto || "Chat";
+            const title = await getChatTitle(firstUserMessage);
+            const newChatId = Date.now().toString();
+            saveChatHistory(messages, newChatId, title);
+            setIsLoading(false);
+        }
+
+        // Reseta o estado para um novo chat
+        setMessages([
+            { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
+        ]);
+        setActiveChatId('new');
+        setAttachedFile(null);
+        setInputValue('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; 
+        }
+        
+        // Limpa o contexto do backend (PDF/XLSX)
+        if(user) {
+            try {
+                await api_ia.post(
+                    '/ai/clear-context',
+                    { 
+                        pergunta: '',
+                        history: null,
+                        nome_usuario: user.nome, 
+                        email_usuario: user.email, 
+                        id_usuario: user._id 
+                    },
+                    { headers: { "x-api-key": apiKey } }
+                );
+                console.log("Contexto do backend limpo.");
+            } catch (error) {
+                console.error("Falha ao limpar contexto do backend:", error);
+            }
+        }
+    };
+
+    // --- NOVA FUNÇÃO: DELETAR CHAT DO HISTÓRICO ---
+    const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
+        e.stopPropagation(); // Impede que o clique carregue o chat
+        if (!user) return;
+
+        const newChats = archivedChats.filter(c => c.id !== chatId);
+        setArchivedChats(newChats);
         try {
-            await api_ia.post(
-                '/ai/clear-context',
-                {
-                    pergunta: '',
-                    history: null,
-                    nome_usuario: user.nome,
-                    email_usuario: user.email,
-                    id_usuario: user._id
-                },
-                {
-                    headers: { "x-api-key": apiKey } 
-                }
-            );
+            localStorage.setItem(`iache_history_${user._id}`, JSON.stringify(newChats));
+        } catch (error) {
+            console.error("Falha ao deletar do localStorage:", error);
+        }
 
-            // Limpa o frontend
+        // Se o chat deletado era o ativo, reseta para 'new'
+        if (activeChatId === chatId) {
+            // Reutiliza a lógica de resetar, mas sem salvar
             setMessages([
                 { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Olá, eu sou a IAche! Como posso te ajudar hoje?' } }
             ]);
-            
-            setAttachedFile(null); // Limpa o anexo local
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ""; 
-            }
-
-        } catch (error) {
-            const errorMessage: Message = { 
-                sender: 'ai', 
-                content: { 
-                    tipo_resposta: 'TEXTO', 
-                    conteudo_texto: 'Desculpe, não consegui limpar a memória. Tente novamente.' 
-                } 
-            };
-            setMessages(prev => [...prev, errorMessage]);
-            console.error("Erro ao limpar contexto:", error);
-        } finally {
-            setIsLoading(false);
+            setActiveChatId('new');
+            setAttachedFile(null);
+            setInputValue('');
         }
     };
 
     if (!isOpen) return null;
 
+    // --- RENDER (JSX) MODIFICADO ---
     return (
         <ModalBackground onClick={onClose}>
-            <ModalContent onClick={(e) => e.stopPropagation()} css={css}>
+            {/* O 'className' aqui controla a largura do modal */}
+            <ModalContent onClick={(e) => e.stopPropagation()} css={css} className={isHistoryOpen ? 'history-open' : ''}>
+                
+                {/* PAINEL DE HISTÓRICO (Novo) */}
+                <div className="history-panel-container">
+                    <div className="history-header">
+                        <Title>Histórico</Title>
+                        <button onClick={() => setIsHistoryOpen(false)} className="close-history-button" aria-label="Fechar histórico">
+                            <X size={20} />
+                        </button>
+                    </div>
+                    <div className="history-list">
+                        {archivedChats.length === 0 && (
+                            <p className="history-empty">Nenhum chat arquivado.</p>
+                        )}
+                        {archivedChats.map((chat) => (
+                            <div key={chat.id} className="history-list-item" onClick={() => handleLoadChat(chat.id)}>
+                                <span className="history-item-title">{chat.title}</span>
+                                <button 
+                                    className="history-item-delete" 
+                                    onClick={(e) => handleDeleteChat(e, chat.id)}
+                                    aria-label="Deletar chat"
+                                    title="Deletar chat"
+                                >
+                                    <Trash size={16} /> 
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="chat-container">
                     <div className="chat-header">
                         <div className="header-left">
                             <button 
-                                onClick={handleClearContext} 
-                                className="clear-context-button" 
-                                aria-label="Limpar contexto do arquivo"
-                                title="Esquecer o arquivo PDF/XLSX atual"
-                                disabled={isLoading} // Apenas o isLoading geral agora
+                                onClick={() => setIsHistoryOpen(true)} 
+                                className="header-button" 
+                                aria-label="Abrir histórico de chats"
+                                title="Abrir histórico"
+                                disabled={isLoading}
                             >
-                                <Trash size={24} />
+                                <Clock size={24} />
                             </button>
-                            <Title>IAche</Title>
+                            
+                            <button 
+                                onClick={handleNewChat} 
+                                className="header-button" 
+                                aria-label="Iniciar novo chat e arquivar o atual"
+                                title="Novo Chat (Arquivar atual)"
+                                disabled={isLoading}
+                            >
+                                <Archive size={26} /> 
+                            </button>
                         </div>
-                        <button onClick={onClose} className="close-button" aria-label="Fechar">X</button>
+
+                        <Title>IAche</Title>
+
+                        <div className="header-right">
+                            <button onClick={onClose} className="close-button" aria-label="Fechar">
+                                <X size={26} /> {/* Tamanho ajustado para bater com os ícones */}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="message-list" ref={messageListRef}>
@@ -297,7 +506,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                                 </div>
                             </div>
                         ))}
-                        {isLoading && ( // Apenas o isLoading geral
+                        {isLoading && (
                              <div className="message-bubble-container sender-ai">
                                 <div className="message-bubble">
                                     <p className="typing-indicator"><span>.</span><span>.</span><span>.</span></p>
@@ -310,7 +519,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                         <input 
                             ref={fileInputRef}
                             type="file" 
-                            accept=".xlsx, .xls, .csv, .pdf" // Mantém os tipos aceitos
+                            accept=".xlsx, .xls, .csv, .pdf"
                             onChange={handleFileChange}
                             className="hidden-file-input"
                             id="ia-file-upload"
@@ -322,16 +531,16 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                             aria-label="Anexar arquivo"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <Paperclip size={22} />
+                            <Paperclip size={24} />
                         </button>
 
-                        {attachedFile && ( // Lógica de exibição do anexo
+                        {attachedFile && (
                             <div className="attached-file-info">
-                                <Paperclip size={16} />
+                                <Paperclip size={18} />
                                 <span>{attachedFile.name.length > 20 ? `${attachedFile.name.substring(0, 20)}...` : attachedFile.name}</span>
                                 <button 
                                     type="button" 
-                                    onClick={() => setAttachedFile(null)} // Botão para remover o anexo
+                                    onClick={() => setAttachedFile(null)}
                                     aria-label="Remover PDF anexo"
                                 >
                                     <X size={16} weight="bold" />
