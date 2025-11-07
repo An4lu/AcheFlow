@@ -9,7 +9,7 @@ import { transformDataForGantt } from '../../utils/dataTransformer';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
 import { PageLoader } from '../../components/PageLoader';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 
 interface TaskResponsavel {
   id: string;
@@ -33,6 +33,7 @@ export interface ApiTask {
 
 export const Project = () => {
   const { openProjectModal, projects: allProjects, refreshData, loading } = useContext(ProjectsContext);
+  
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
 
@@ -48,8 +49,9 @@ export const Project = () => {
   });
 
   useEffect(() => {
-    const fetchAndProcessTasks = async () => {
+    if (loading) return;
 
+    const fetchAndProcessTasks = async () => {
       const params: Omit<TaskFilterParams, 'urgencia'> = {};
       if (activeFilters.projeto && filterValues.projeto_id) params.projeto_id = filterValues.projeto_id;
       if (activeFilters.responsavel && filterValues.responsavel_id) params.responsavel_id = filterValues.responsavel_id;
@@ -89,7 +91,7 @@ export const Project = () => {
     };
 
     fetchAndProcessTasks();
-  }, [filterValues, activeFilters]);
+  }, [filterValues, activeFilters, loading]); 
 
   const handleTaskClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
@@ -104,7 +106,7 @@ export const Project = () => {
       await updateTask(taskId, payload);
       toast.success('Tarefa atualizada com sucesso!');
       setEditModalOpen(false);
-      refreshData();
+      refreshData(); 
     } catch (error) {
       toast.error('Falha ao atualizar a tarefa.');
     }
@@ -116,8 +118,12 @@ export const Project = () => {
           toast.success('Tarefa excluída com sucesso!');
           setEditModalOpen(false); 
           refreshData(); 
-      } catch (error) {
-          toast.error('Falha ao excluir a tarefa.'); 
+      } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+              toast.error('Erro 404: A API (backend) não encontrou a rota de exclusão. Verifique o CORS.');
+          } else {
+              toast.error('Falha ao excluir a tarefa.');
+          }
       }
   };
 
@@ -145,7 +151,6 @@ export const Project = () => {
         onToggleFilter={(name) => setActiveFilters(prev => ({ ...prev, [name]: !prev[name] }))}
         onFilterValueChange={(name, value) => setFilterValues(prev => ({ ...prev, [name]: value }))}
       />
-
 
       <ChartArea>
         {loading ? (
