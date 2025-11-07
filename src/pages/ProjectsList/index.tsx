@@ -5,10 +5,10 @@ import { ProjectsContext, type Project } from '../../contexts/ProjectContext';
 import { PageLoader } from '../../components/PageLoader';
 import { ConfirmDeleteModal } from '../../components/ConfirmDeleteModal';
 import { ProjectEditModal } from '../../components/ProjectEditModal';
-import { 
-    KanbanContainer, 
-    Header, 
-    ActionButton, 
+import {
+    KanbanContainer,
+    Header,
+    ActionButton,
     FilterWrapper,
     FilterSelect,
     ProjectGrid,
@@ -27,30 +27,34 @@ import {
     DeleteButton
 } from './styles';
 import { deleteProject, updateProject, type ProjectPayload } from '../../services/api';
-import { PencilSimpleIcon, TrashIcon, WarningIcon, ListChecksIcon, FolderOpenIcon } from '@phosphor-icons/react';
+import { FolderOpenIcon, ListChecksIcon, WarningIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
 
 type ProjectStatusVariant = 'Não iniciado' | 'Em planejamento' | 'Em andamento' | 'Concluído' | 'Atrasado';
-
 interface CalculatedProject extends Project {
     taskCount: number;
     completedTasks: number;
     progress: number;
     isOverdue: boolean;
-    displayStatus: ProjectStatusVariant; 
+    displayStatus: ProjectStatusVariant;
 }
 
 export function ProjectsList() {
-    const { projects, tasks, funcionarios, loading, refreshData, openProjectModal } = useContext(ProjectsContext);
+    const {
+        projects,
+        tasks,
+        funcionarios,
+        loading,
+        refreshData,
+        openProjectModal
+    } = useContext(ProjectsContext);
 
     const [selectedSituacao, setSelectedSituacao] = useState('');
     const [selectedResponsavelId, setSelectedResponsavelId] = useState('');
-    
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedProjectForEdit, setSelectedProjectForEdit] = useState<Project | null>(null);
-    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
-
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
     const filteredProjects = useMemo((): CalculatedProject[] => {
         const today = new Date();
@@ -62,11 +66,18 @@ export function ProjectsList() {
                 const taskCount = projectTasks.length;
                 const completedTasks = projectTasks.filter(t => t.status === 'concluída').length;
                 const progress = taskCount > 0 ? Math.round((completedTasks / taskCount) * 100) : 0;
-                
+
                 const prazoDate = new Date(project.prazo + 'T00:00:00Z');
                 const isOverdue = prazoDate < today && project.situacao !== 'Concluído';
-                
-                const displayStatus: ProjectStatusVariant = isOverdue ? "Atrasado" : (project.situacao as ProjectStatusVariant);
+
+                let displayStatus: ProjectStatusVariant;
+                if (isOverdue) {
+                    displayStatus = "Atrasado";
+                } else if (['Não iniciado', 'Em planejamento', 'Em andamento', 'Concluído'].includes(project.situacao)) {
+                    displayStatus = project.situacao as ProjectStatusVariant;
+                } else {
+                    displayStatus = 'Não iniciado';
+                }
 
                 return {
                     ...project,
@@ -86,47 +97,43 @@ export function ProjectsList() {
 
     // Handlers para os modais
     const handleEditClick = (project: Project) => {
-        setSelectedProjectForEdit(project);
+        setSelectedProject(project);
         setIsEditModalOpen(true);
     };
 
     const handleDeleteClick = (project: Project) => {
-        setProjectToDelete(project);
+        setSelectedProject(project);
         setIsDeleteModalOpen(true);
     };
 
-    const handleCloseEditModal = () => {
+    const handleCloseModals = () => {
         setIsEditModalOpen(false);
-        setSelectedProjectForEdit(null);
-    }
-    const handleCloseDeleteModal = () => {
         setIsDeleteModalOpen(false);
-        setProjectToDelete(null);
+        setSelectedProject(null);
     };
 
-    // Handlers de API
     const handleConfirmDelete = async () => {
-        if (!projectToDelete) return;
+        if (!selectedProject) return;
         try {
-            await deleteProject(projectToDelete._id);
-            toast.success(`Projeto "${projectToDelete.nome}" excluído com sucesso!`);
+            await deleteProject(selectedProject._id);
+            toast.success(`Projeto "${selectedProject.nome}" excluído com sucesso!`);
             refreshData();
         } catch (error) {
             toast.error('Falha ao excluir o projeto.');
         } finally {
-            handleCloseDeleteModal();
+            handleCloseModals();
         }
     };
-    
+
     const handleUpdateProject = async (id: string, payload: Partial<ProjectPayload>) => {
         try {
             await updateProject(id, payload);
             toast.success('Projeto atualizado com sucesso!');
             refreshData();
         } catch (error) {
-             toast.error('Falha ao atualizar o projeto.');
+            toast.error('Falha ao atualizar o projeto.');
         } finally {
-            handleCloseEditModal();
+            handleCloseModals();
         }
     };
 
@@ -145,7 +152,8 @@ export function ProjectsList() {
             <Header>
                 <Title>Projetos</Title>
                 <FilterWrapper>
-                    <FilterSelect 
+                    <FilterSelect
+                        aria-label="Filtrar por situação"
                         value={selectedSituacao}
                         onChange={(e) => setSelectedSituacao(e.target.value)}
                     >
@@ -155,6 +163,7 @@ export function ProjectsList() {
                         ))}
                     </FilterSelect>
                     <FilterSelect
+                        aria-label="Filtrar por responsável"
                         value={selectedResponsavelId}
                         onChange={(e) => setSelectedResponsavelId(e.target.value)}
                     >
@@ -200,12 +209,12 @@ export function ProjectsList() {
                                 <StatItem>
                                     <WarningIcon size={24} weight="light" color={project.isOverdue ? theme.colors.danger.value : theme.colors.textMuted.value} />
                                     <span>Status</span>
-                                    <p style={{color: project.isOverdue ? theme.colors.danger.value : 'inherit'}}>
+                                    <p style={{ color: project.isOverdue ? theme.colors.danger.value : 'inherit' }}>
                                         {project.isOverdue ? 'Atrasado' : 'No Prazo'}
                                     </p>
                                 </StatItem>
                             </CardStats>
-                            
+
                             <ProgressBarContainer>
                                 <ProgressBarFill css={{ width: `${project.progress}%` }} />
                             </ProgressBarContainer>
@@ -231,16 +240,16 @@ export function ProjectsList() {
 
             <ProjectEditModal
                 isOpen={isEditModalOpen}
-                onClose={handleCloseEditModal}
-                project={selectedProjectForEdit}
+                onClose={handleCloseModals}
+                project={selectedProject}
                 onSave={handleUpdateProject}
             />
             <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
-                onClose={handleCloseDeleteModal}
+                onClose={handleCloseModals}
                 onConfirm={handleConfirmDelete}
                 title="Confirmar Exclusão"
-                message={`Tem certeza que deseja excluir o projeto "${projectToDelete?.nome}"? Todas as tarefas associadas também serão perdidas.`}
+                message={`Tem certeza que deseja excluir o projeto "${selectedProject?.nome}"? Todas as tarefas associadas também serão perdidas.`}
             />
         </KanbanContainer>
     );

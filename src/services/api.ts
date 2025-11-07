@@ -131,12 +131,6 @@ export const deleteFuncionario = (id: string) => {
     return api.delete(`/funcionarios/${id}`);
 };
 
-export const exportTasks = () => {
-    return api.get('/tarefas/exportar', {
-        responseType: 'blob', 
-    });
-};
-
 export const importTasks = (formData: FormData) => {
     return api.post('/tarefas/importar', formData, {
         headers: {

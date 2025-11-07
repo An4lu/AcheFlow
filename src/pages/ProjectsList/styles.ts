@@ -10,15 +10,16 @@ export const FilterWrapper = styled('div', {
     flexShrink: 0,
 });
 
-// Reutiliza o select do Kanban
 export { FilterSelect } from '../Kanban/styles';
 
 export const ProjectGrid = styled('div', {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
     gap: '$5',
-    overflowY: 'auto', // Permite scroll se os cards passarem da altura
-    padding: '$2', // Pequeno padding para a sombra do card
+    overflowY: 'auto',
+    padding: '$2',
+    flex: 1, 
+    minHeight: 0, 
 });
 
 export const ProjectCard = styled('div', {
@@ -46,7 +47,7 @@ export const ProjectCard = styled('div', {
             'Concluído': { borderColor: '$success' },
             'Atrasado': { 
                 borderColor: '$danger',
-                backgroundColor: '$brandTertiary', // Fundo rosa claro
+                backgroundColor: '$brandTertiary', 
              },
         }
     }
@@ -64,7 +65,6 @@ export const CardTitle = styled('h3', {
     color: '$textPrimary',
     fontWeight: '700',
     margin: 0,
-    // Permite quebra de linha para nomes longos
     wordBreak: 'break-word',
 });
 
