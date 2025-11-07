@@ -4,7 +4,7 @@ import { Container, Header, ActionButton, ChartArea, Placeholder, ViewSwitcher, 
 import { GanttChart } from '../../components/GanttChart';
 import { ProjectFilters, type ActiveFilters, type FilterValues } from '../../components/ProjectFilters';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { getFilteredTasks, updateTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
+import { getFilteredTasks, updateTask, deleteTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
@@ -62,7 +62,6 @@ export const Project = () => {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            // Correção: usar prazo ou data_fim
             const dataFim = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return dataFim < now && task.status?.toLowerCase() !== 'concluída';
           });
@@ -72,13 +71,11 @@ export const Project = () => {
           const start = new Date(filterValues.startDate + 'T00:00:00Z');
           const end = new Date(filterValues.endDate + 'T23:59:59Z');
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            // Correção: usar prazo ou data_fim
             const taskDate = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
 
-        // Correção: usar prazo ou data_fim para ordenar
         processedTasks.sort((a: ApiTask, b: ApiTask) => {
             const dateA = new Date((a.prazo || a.data_fim) + 'T00:00:00Z').getTime();
             const dateB = new Date((b.prazo || b.data_fim) + 'T00:00:00Z').getTime();
@@ -89,8 +86,6 @@ export const Project = () => {
       } catch (error) {
         console.error("Falha ao buscar tarefas:", error);
         setTasks([]);
-      } finally {
-        // setLoading(false);
       }
     };
 
@@ -114,6 +109,19 @@ export const Project = () => {
     } catch (error) {
       alert('Falha ao atualizar a tarefa.');
       console.error(error);
+    }
+  };
+
+  // *** ADICIONADO ***
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+        await deleteTask(taskId);
+        alert('Tarefa excluída com sucesso!');
+        setEditModalOpen(false); // Fecha o modal
+        refreshData(); // Atualiza os dados do contexto (e o gráfico)
+    } catch (error) {
+        alert('Falha ao excluir a tarefa.');
+        console.error(error);
     }
   };
 
@@ -149,7 +157,7 @@ export const Project = () => {
         ) : ganttData.length > 0 ? (
           <GanttChart
             data={ganttData}
-            onTaskClick={handleTaskClick} // Mantido como onClick
+            onTaskClick={handleTaskClick}
             viewMode={view}
           />
         ) : (
@@ -161,6 +169,7 @@ export const Project = () => {
         onClose={() => setEditModalOpen(false)}
         task={selectedTask}
         onSave={handleUpdateTask}
+        onDelete={handleDeleteTask}
       />
     </Container>
   );

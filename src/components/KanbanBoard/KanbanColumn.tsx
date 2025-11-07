@@ -9,9 +9,10 @@ interface KanbanColumnProps {
     id: string;
     title: string;
     tasks: Task[];
+    onTaskClick: (task: Task) => void; 
 }
 
-export function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
+export function KanbanColumn({ id, title, tasks, onTaskClick }: KanbanColumnProps) { 
     const { setNodeRef, transform, transition } = useSortable({ id });
 
     const style = {
@@ -26,7 +27,11 @@ export function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
                 <SortableContext items={tasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
                     <TaskList>
                         {tasks.map(task => (
-                            <KanbanTask key={task._id} task={task} />
+                            <KanbanTask 
+                                key={task._id} 
+                                task={task} 
+                                onClick={onTaskClick}
+                            />
                         ))}
                     </TaskList>
                 </SortableContext>

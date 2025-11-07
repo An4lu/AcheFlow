@@ -56,3 +56,34 @@ export const SubmitButton = styled('button', {
         cursor: 'not-allowed',
     }
 });
+
+export const ButtonContainer = styled('div', {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '$4',
+});
+
+export const DeleteButton = styled('button', {
+    padding: '$3 $4',
+    border: 'none',
+    borderRadius: '$md',
+    backgroundColor: 'transparent',
+    color: '$danger',
+    fontWeight: '600',
+    fontSize: '$sm',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '$2',
+
+    '&:hover:not(:disabled)': {
+        backgroundColor: '$brandTertiary', 
+    },
+
+    '&:disabled': {
+        opacity: 0.5,
+        cursor: 'not-allowed',
+    },
+});

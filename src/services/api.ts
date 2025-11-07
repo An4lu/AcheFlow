@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 if (!baseURL) {
     throw new Error('A variável de ambiente VITE_API_BASE_URL (API Principal/Render) não está definida.');
@@ -108,6 +107,10 @@ export const createTask = (data: TaskPayload) => {
 };
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
     return api.put(`/tarefas/${id}`, data);
+};
+
+export const deleteTask = (id: string) => {
+    return api.delete(`/tarefas/${id}`);
 };
 
 export const createFuncionario = (data: FuncionarioPayload) => {

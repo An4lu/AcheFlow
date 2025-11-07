@@ -2,17 +2,17 @@ import { styled } from '../../styles';
 
 export const BoardContainer = styled('div', {
     display: 'flex',
-    gap: '$4', // 1rem
-    padding: '$4', // 1rem
+    gap: '$4',
+    padding: '$4', 
     overflowX: 'auto',
     height: 'calc(100vh - 90px)',
 });
 
 export const ColumnContainer = styled('div', {
     width: '300px',
-    backgroundColor: '$bgSecondary', // Alterado para $bgSecondary para combinar com a Sidebar
-    borderRadius: '$md', // 8px
-    padding: '$4', // 1rem
+    backgroundColor: '$bgSecondary', 
+    borderRadius: '$md', 
+    padding: '$4',
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -21,10 +21,10 @@ export const ColumnContainer = styled('div', {
 export const ColumnTitle = styled('h3', {
     fontSize: '1rem',
     fontWeight: '600',
-    color: '$textPrimary', // $lightdark -> $textPrimary
-    marginBottom: '$4', // 1rem
-    paddingBottom: '$2', // 0.5rem
-    borderBottom: '2px solid $brandTertiary', // $tertiaryPink -> $brandTertiary
+    color: '$textPrimary',
+    marginBottom: '$4', 
+    paddingBottom: '$2',
+    borderBottom: '2px solid $brandTertiary',
 });
 
 export const TaskList = styled('div', {
@@ -36,37 +36,39 @@ export const TaskList = styled('div', {
 });
 
 export const TaskCard = styled('div', {
-    backgroundColor: '$bgTertiary', // $white -> $bgTertiary
-    padding: '$4', // 1rem
-    borderRadius: '$md', // 6px -> $md
-    boxShadow: '$shadows.small', // Sombra hardcoded removida
-    cursor: 'grab',
+    backgroundColor: '$bgTertiary', 
+    padding: '$4',
+    borderRadius: '$md',
+    boxShadow: '$shadows.small',
+    
+    cursor: 'pointer', 
+    
     transition: 'box-shadow 0.2s ease',
 
     '&:active': {
         cursor: 'grabbing',
-        boxShadow: '$shadows.medium', // Sombra hardcoded removida
+        boxShadow: '$shadows.medium',
     },
 });
 
 export const TaskTitle = styled('p', {
     fontSize: '15px',
-    color: '$textPrimary', // $lightdark -> $textPrimary
+    color: '$textPrimary', 
     fontWeight: '500',
 });
 
 export const TaskFooter = styled('div', {
-    marginTop: '$4', // 1rem
+    marginTop: '$4', 
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
 });
 
 export const TaskOwner = styled('span', {
-    fontSize: '$xs', // 12px
-    backgroundColor: '$brandSecondary', // $tertiaryOrange -> $brandSecondary
-    color: '$bgTertiary', // $white -> $bgTertiary
-    padding: '$1 $2', // 2px 8px
-    borderRadius: '$full', // 12px -> $full
+    fontSize: '$xs',
+    backgroundColor: '$brandSecondary', 
+    color: '$bgTertiary', 
+    padding: '$1 $2', 
+    borderRadius: '$full', 
     fontWeight: 'bold',
 });
