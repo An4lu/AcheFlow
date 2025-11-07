@@ -102,11 +102,9 @@ export const getFilteredTasks = (params: TaskFilterParams) => {
 export const createProject = (data: ProjectPayload) => {
     return api.post('/projetos', data);
 };
-
 export const updateProject = (id: string, data: Partial<ProjectPayload>) => {
     return api.put(`/projetos/${id}`, data);
 };
-
 export const deleteProject = (id: string) => {
     return api.delete(`/projetos/${id}`);
 };
@@ -131,11 +129,6 @@ export const deleteFuncionario = (id: string) => {
     return api.delete(`/funcionarios/${id}`);
 };
 
-export const exportTasks = () => {
-    return api.get('/tarefas/exportar', {
-        responseType: 'blob', 
-    });
-};
 
 export const importTasks = (formData: FormData) => {
     return api.post('/tarefas/importar', formData, {

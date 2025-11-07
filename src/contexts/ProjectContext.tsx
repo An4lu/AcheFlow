@@ -118,7 +118,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         setSelectedEmployee(null);
     };
 
-   return (
+    return (
         <ProjectsContext.Provider value={{
             projects,
             funcionarios,
@@ -139,7 +139,6 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             openEmployeeDetailsModal: handleOpenEmployeeDetails,
             closeEmployeeDetailsModal: handleCloseEmployeeDetails,
             refreshData: fetchData,
-
         }}>
             {children}
         </ProjectsContext.Provider>

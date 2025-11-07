@@ -27,6 +27,7 @@ export function ProjectEditModal({ isOpen, onClose, project, onSave }: ProjectEd
 
     useEffect(() => {
         if (!isOpen) {
+            setIsLoading(false);
             setFormData({});
         }
     }, [isOpen]);
@@ -36,6 +37,21 @@ export function ProjectEditModal({ isOpen, onClose, project, onSave }: ProjectEd
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const handleResponsavelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const func = funcionarios.find(f => f._id === e.target.value);
+        if (func) {
+            setFormData(prev => ({ 
+                ...prev, 
+                responsavel: { 
+                    id: func._id, 
+                    nome: func.nome, 
+                    sobrenome: func.sobrenome, 
+                    email: func.email 
+                } 
+            }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -53,6 +69,7 @@ export function ProjectEditModal({ isOpen, onClose, project, onSave }: ProjectEd
         
         await onSave(project._id, payload);
         setIsLoading(false);
+        onClose(); // Fecha o modal
     };
 
     return (
@@ -69,12 +86,7 @@ export function ProjectEditModal({ isOpen, onClose, project, onSave }: ProjectEd
                         id="responsavel_id" 
                         name="responsavel_id" 
                         value={formData.responsavel?.id || ''} 
-                        onChange={(e) => {
-                            const func = funcionarios.find(f => f._id === e.target.value);
-                            if (func) {
-                                setFormData(prev => ({ ...prev, responsavel: { id: func._id, nome: func.nome, sobrenome: func.sobrenome, email: func.email } }));
-                            }
-                        }}
+                        onChange={handleResponsavelChange}
                         required 
                         disabled={isLoading}
                     >
