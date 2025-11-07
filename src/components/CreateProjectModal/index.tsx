@@ -92,7 +92,7 @@ export function CreateProjectModal() {
                     const taskPayload: Partial<TaskPayload> = {
                         nome: task.Nome,
                         projeto_id: newProjectId,
-                        responsavel_id: task.responsavel_id || undefined,
+                        responsavel_id: task.responsavel_id || user._id,
                         descricao: task['Como Fazer'] || '',
                         prioridade: 'média',
                         status: task.status as TaskPayload['status'],
