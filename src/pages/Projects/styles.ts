@@ -32,25 +32,6 @@ export const ActionButton = styled('button', {
   },
 });
 
-// *** ADICIONADO: Botão de exportação (sutil) ***
-export const ExportButton = styled(ActionButton, {
-    backgroundColor: '$borderDefault',
-    color: '$textSecondary',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '$2',
-    '&:hover': {
-        backgroundColor: '$borderSubtle',
-        opacity: 0.9,
-    }
-});
-
-// *** ADICIONADO: Container para os botões da direita ***
-export const HeaderActions = styled('div', {
-    display: 'flex',
-    gap: '$3',
-});
-
 export const ChartArea = styled('div', {
   flex: 1,
   display: 'flex',
