@@ -25,7 +25,7 @@ export const ModalContent = styled('div', {
   flexDirection: 'row', 
   
   // --- ALTERAÇÕES AQUI ---
-  width: '40vw', // Antes: 400px
+  width: '40rem', // Antes: 400px
   height: '80vh', // Antes: 600px (Usei vh, não vw)
   
   minWidth: '350px', // Garante que não fique muito pequeno
@@ -41,7 +41,7 @@ export const ModalContent = styled('div', {
   // CLASSE ADICIONADA PARA EXPANDIR
   '&.history-open': {
     // 45vw (chat) + 25vw (histórico) = 70vw
-    width: '55vw', // Antes: 700px
+    width: '55rem', // Antes: 700px
     
     '.history-panel-container': {
       marginLeft: '0px', // Painel desliza para a vista
@@ -49,7 +49,7 @@ export const ModalContent = styled('div', {
   },
 
   '.chat-container': {
-    width: '40vw', // <-- DEVE BATER COM O width DO ModalContent
+    width: '40rem', // <-- DEVE BATER COM O width DO ModalContent
     minWidth: '350px', // Garante que não encolha demais
     height: '100%',
     display: 'flex',
@@ -278,12 +278,10 @@ export const ModalContent = styled('div', {
     '&:nth-child(1)': { animationDelay: '-0.32s' },
     '&:nth-child(2)': { animationDelay: '-0.16s' },
   },
-  
-  // --- ESTILOS DO HISTÓRICO (Com mudança) ---
-  
+    
   '.history-panel-container': {
-    width: '15vw', // <-- MUDANÇA AQUI
-    minWidth: '250px', // Garante que não fique muito pequeno
+    width: '15rem', // <-- MUDANÇA AQUI
+    minWidth: '10rem', // Garante que não fique muito pequeno
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -292,7 +290,7 @@ export const ModalContent = styled('div', {
     flexShrink: 0,
     
     // Animação de entrada
-    marginLeft: '-15vw', // <-- MUDANÇA AQUI
+    marginLeft: '-15rem', // <-- MUDANÇA AQUI
     transition: 'margin-left 0.3s ease-in-out',
   },
 
@@ -309,7 +307,16 @@ export const ModalContent = styled('div', {
     border: 'none',
     cursor: 'pointer',
     color: '#888',
-    padding: '4px',
+    padding: '0', // Reset
+    display: 'flex', // Para centralizar o ícone
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '32px', // Mesmo tamanho dos outros botões
+    height: '32px',
+    
+    '&:hover': {
+        color: '$primaryPink',
+    },
   },
 
   '.history-list': {
