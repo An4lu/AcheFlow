@@ -2,7 +2,6 @@ import { createContext, useState, type ReactNode, useCallback, useEffect, useCon
 import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
-import { toast } from 'react-toastify';
 
 interface NestedResponsible {
     id: string;
@@ -24,10 +23,10 @@ export interface Project {
 export interface Task {
     _id: string;
     nome: string;
-    dataCriacao?: string; 
-    data_inicio?: string; 
-    prazo?: string;       
-    data_fim?: string;    
+    dataCriacao?: string;
+    data_inicio?: string;
+    prazo?: string;
+    data_fim?: string;
     status: string;
     responsavel: NestedResponsible;
     projeto: { id: string; nome: string; };
@@ -74,11 +73,13 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
+
     const [isProjectModalOpen, setProjectModalOpen] = useState(false);
     const [isTaskModalOpen, setTaskModalOpen] = useState(false);
     const [isEmployeeCreateModalOpen, setEmployeeCreateModalOpen] = useState(false);
     const [isEmployeeDetailsModalOpen, setEmployeeDetailsModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
+
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -95,7 +96,6 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
                 setTasks(tasksRes.data);
                 setEvents(eventsRes.data);
             } catch (error) {
-                toast.error('Erro ao carregar dados do projeto.');
             } finally {
                 setLoading(false);
             }
@@ -118,7 +118,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
         setSelectedEmployee(null);
     };
 
-    return (
+   return (
         <ProjectsContext.Provider value={{
             projects,
             funcionarios,
@@ -138,7 +138,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
             closeEmployeeCreateModal: () => setEmployeeCreateModalOpen(false),
             openEmployeeDetailsModal: handleOpenEmployeeDetails,
             closeEmployeeDetailsModal: handleCloseEmployeeDetails,
-            refreshData: fetchData
+            refreshData: fetchData,
+
         }}>
             {children}
         </ProjectsContext.Provider>

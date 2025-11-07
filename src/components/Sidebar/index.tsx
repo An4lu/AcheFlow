@@ -1,4 +1,4 @@
-import { BandaidsIcon, HandPalmIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon, UsersIcon } from '@phosphor-icons/react';
+import { ArchiveIcon, BandaidsIcon, HandPalmIcon, HouseSimpleIcon, KanbanIcon, SignOutIcon, UsersIcon } from '@phosphor-icons/react';
 import { ContentContainer, Div, LogoContainer, SidebarButton, SidebarContainer, SidebarItem, TextLink, Logo } from './styles';
 import { useState } from 'react';
 import { IAche } from '../IAche';
@@ -30,6 +30,10 @@ export function Sidebar() {
                     <SidebarItem to='/flow/kanban'>
                         <HandPalmIcon weight='fill' />
                         <TextLink>KANBAN</TextLink>
+                    </SidebarItem>
+                    <SidebarItem to='/flow/projects'>
+                        <ArchiveIcon weight='fill' />
+                        <TextLink>PROJETOS</TextLink>
                     </SidebarItem>
                     <SidebarItem to='/flow/funcionarios'>
                         <UsersIcon weight='fill' />

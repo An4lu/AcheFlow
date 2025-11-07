@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 if (!baseURL) {
     throw new Error('A variável de ambiente VITE_API_BASE_URL (API Principal/Render) não está definida.');
@@ -56,7 +57,7 @@ export interface TaskUpdatePayload {
     prioridade?: 'baixa' | 'média' | 'alta';
     status?: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
     data_inicio?: string;
-    data_fim?: string;
+    data_fim?: string; 
     responsavel_id?: string;
     projeto_id?: string;
 }
@@ -101,6 +102,15 @@ export const getFilteredTasks = (params: TaskFilterParams) => {
 export const createProject = (data: ProjectPayload) => {
     return api.post('/projetos', data);
 };
+
+export const updateProject = (id: string, data: Partial<ProjectPayload>) => {
+    return api.put(`/projetos/${id}`, data);
+};
+
+export const deleteProject = (id: string) => {
+    return api.delete(`/projetos/${id}`);
+};
+
 export const createTask = (data: TaskPayload) => {
     return api.post('/tarefas', data);
 };
@@ -115,6 +125,7 @@ export const deleteTask = (id: string) => {
 export const createFuncionario = (data: FuncionarioPayload) => {
     return api.post('/funcionarios', data);
 };
+
 
 export const deleteFuncionario = (id: string) => {
     return api.delete(`/funcionarios/${id}`);
