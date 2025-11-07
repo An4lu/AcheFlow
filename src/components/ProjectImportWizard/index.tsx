@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Actions, PreviewTable, SaveButton, UploadStep, WizardContainer } from './styles';
+import { toast } from 'react-toastify'; 
 
 interface ParsedTask {
     Nome: string;
@@ -24,7 +25,6 @@ export function ProjectImportWizard({ onComplete }: ProjectImportWizardProps) {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        // Extrai o nome do projeto do nome do arquivo (ex: "ProjetoAlpha.xlsx" -> "ProjetoAlpha")
         setProjectName(file.name.split('.').slice(0, -1).join('.'));
 
         const reader = new FileReader();
@@ -59,8 +59,7 @@ export function ProjectImportWizard({ onComplete }: ProjectImportWizardProps) {
     const handleSaveProject = async () => {
         setIsLoading(true);
 
-        console.log({ projectName, tasks });
-        alert("Projeto salvo! (simulação)");
+        toast.success("Projeto salvo! (simulação)"); 
         setIsLoading(false);
         onComplete();
     };

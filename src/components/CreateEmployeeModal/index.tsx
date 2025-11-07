@@ -3,6 +3,7 @@ import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { FormContainer, FormGroup, Input, Label, SubmitButton } from '../Form/styles';
 import { createFuncionario, type FuncionarioPayload } from '../../services/api';
+import { toast } from 'react-toastify';
 
 export function CreateEmployeeModal() {
     const { isEmployeeCreateModalOpen, closeEmployeeCreateModal, refreshData } = useContext(ProjectsContext);
@@ -38,14 +39,12 @@ export function CreateEmployeeModal() {
         try {
             await createFuncionario(payload);
 
-            alert('Funcionário criado com sucesso!');
+            toast.success('Funcionário criado com sucesso!'); 
             form.reset();
             closeEmployeeCreateModal();
             refreshData();
         } catch (err: any) {
-            console.error(err);
             const errorMsg = err.response?.data?.detail || err.response?.data?.detalhe || 'Falha ao criar funcionário.';
-
 
             if (Array.isArray(errorMsg)) {
                 const details = errorMsg.map((e: any) => e.msg).join('\n');

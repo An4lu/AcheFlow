@@ -4,11 +4,12 @@ import { Container, Header, ActionButton, ChartArea, Placeholder, ViewSwitcher, 
 import { GanttChart } from '../../components/GanttChart';
 import { ProjectFilters, type ActiveFilters, type FilterValues } from '../../components/ProjectFilters';
 import { ProjectsContext } from '../../contexts/ProjectContext';
-import { getFilteredTasks, updateTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
+import { getFilteredTasks, updateTask, deleteTask, type TaskFilterParams, type TaskUpdatePayload } from '../../services/api';
 import { transformDataForGantt } from '../../utils/dataTransformer';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
 import { PageLoader } from '../../components/PageLoader';
+import { toast } from 'react-toastify';
 
 interface TaskResponsavel {
   id: string;
@@ -17,22 +18,22 @@ interface TaskResponsavel {
   email: string;
 }
 
-// Interface corrigida para aceitar os dois tipos de data
 export interface ApiTask {
   _id: string;
   nome: string;
-  dataCriacao?: string; // Correção
-  data_inicio?: string; // Antigo
-  prazo?: string;       // Correção
-  data_fim?: string;    // Antigo
+  dataCriacao?: string; 
+  data_inicio?: string; 
+  prazo?: string;       
+  data_fim?: string;    
   descricao: string | null;
   projeto: { id: string; nome: string; };
   responsavel: TaskResponsavel;
   status: string;
 }
 
-export const Project = () => {
+export const VisaoGeral = () => {
   const { openProjectModal, projects: allProjects, refreshData, loading } = useContext(ProjectsContext);
+  
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
 
@@ -48,8 +49,9 @@ export const Project = () => {
   });
 
   useEffect(() => {
-    const fetchAndProcessTasks = async () => {
+    if (loading) return;
 
+    const fetchAndProcessTasks = async () => {
       const params: Omit<TaskFilterParams, 'urgencia'> = {};
       if (activeFilters.projeto && filterValues.projeto_id) params.projeto_id = filterValues.projeto_id;
       if (activeFilters.responsavel && filterValues.responsavel_id) params.responsavel_id = filterValues.responsavel_id;
@@ -62,7 +64,6 @@ export const Project = () => {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            // Correção: usar prazo ou data_fim
             const dataFim = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return dataFim < now && task.status?.toLowerCase() !== 'concluída';
           });
@@ -72,13 +73,11 @@ export const Project = () => {
           const start = new Date(filterValues.startDate + 'T00:00:00Z');
           const end = new Date(filterValues.endDate + 'T23:59:59Z');
           processedTasks = processedTasks.filter((task: ApiTask) => {
-            // Correção: usar prazo ou data_fim
             const taskDate = new Date((task.prazo || task.data_fim) + 'T00:00:00Z');
             return taskDate >= start && taskDate <= end;
           });
         }
 
-        // Correção: usar prazo ou data_fim para ordenar
         processedTasks.sort((a: ApiTask, b: ApiTask) => {
             const dateA = new Date((a.prazo || a.data_fim) + 'T00:00:00Z').getTime();
             const dateB = new Date((b.prazo || b.data_fim) + 'T00:00:00Z').getTime();
@@ -87,15 +86,12 @@ export const Project = () => {
         
         setTasks(processedTasks);
       } catch (error) {
-        console.error("Falha ao buscar tarefas:", error);
         setTasks([]);
-      } finally {
-        // setLoading(false);
       }
     };
 
     fetchAndProcessTasks();
-  }, [filterValues, activeFilters]);
+  }, [filterValues, activeFilters, loading]); 
 
   const handleTaskClick = (task: Task) => {
     const foundTask = tasks.find(t => t._id === task.id);
@@ -108,13 +104,27 @@ export const Project = () => {
   const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
     try {
       await updateTask(taskId, payload);
-      alert('Tarefa atualizada com sucesso!');
+      toast.success('Tarefa atualizada com sucesso!');
       setEditModalOpen(false);
-      refreshData();
+      refreshData(); 
     } catch (error) {
-      alert('Falha ao atualizar a tarefa.');
-      console.error(error);
+      toast.error('Falha ao atualizar a tarefa.');
     }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+      try {
+          await deleteTask(taskId);
+          toast.success('Tarefa excluída com sucesso!');
+          setEditModalOpen(false); 
+          refreshData(); 
+      } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+              toast.error('Erro 404: A API (backend) não encontrou a rota de exclusão. Verifique o CORS.');
+          } else {
+              toast.error('Falha ao excluir a tarefa.');
+          }
+      }
   };
 
   const ganttData = useMemo(() => {
@@ -142,14 +152,13 @@ export const Project = () => {
         onFilterValueChange={(name, value) => setFilterValues(prev => ({ ...prev, [name]: value }))}
       />
 
-
       <ChartArea>
         {loading ? (
           <PageLoader />
         ) : ganttData.length > 0 ? (
           <GanttChart
             data={ganttData}
-            onTaskClick={handleTaskClick} // Mantido como onClick
+            onTaskClick={handleTaskClick}
             viewMode={view}
           />
         ) : (
@@ -161,6 +170,7 @@ export const Project = () => {
         onClose={() => setEditModalOpen(false)}
         task={selectedTask}
         onSave={handleUpdateTask}
+        onDelete={handleDeleteTask}
       />
     </Container>
   );

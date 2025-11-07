@@ -27,6 +27,7 @@ const TooltipContent: React.FC<{ task: Task }> = ({ task }) => {
             }}>{task.name}</h4>
             {extra && (
                 <>
+                    {/* <p><strong>Projeto:</strong><span>{extra.projeto}</span></p> */}
                     <p><strong>Status:</strong> <span style={{ textTransform: 'capitalize' }}>{extra.status}</span></p>
                     <p><strong>Responsável:</strong> {extra.responsavel}</p>
                 </>
@@ -52,18 +53,21 @@ export function GanttChart({ data, onTaskClick, viewDate, viewMode }: GanttChart
                 tasks={data}
                 viewMode={viewMode}
                 locale="pt-BR"
-                // Correção: Alterado de onDoubleClick para onClick
                 onClick={(task) => { if (task.type !== 'project') onTaskClick(task) }}
                 TooltipContent={TooltipContent}
                 barFill={60}
                 barCornerRadius={5}
                 rowHeight={40}
-                ganttHeight={0} // Permite que o container controle a altura
-                todayColor={theme.colors.brandOrange.value} // Cor do Tema
-                arrowColor={theme.colors.brandPrimary.value} // Cor do Tema
+                ganttHeight={0}
+                todayColor={theme.colors.brandOrange.value}
+                arrowColor={theme.colors.brandPrimary.value}
                 viewDate={viewDate}
-                listCellWidth={""} // Remove as colunas "From" e "To"
-                columnWidth={viewMode === ViewMode.Day ? 65 : 120}
+                listCellWidth={""}
+                columnWidth={
+                    viewMode === ViewMode.Day ? 65 :
+                        viewMode === ViewMode.Week ? 120 :
+                            300
+                }
             />
         </GanttContainer>
     );

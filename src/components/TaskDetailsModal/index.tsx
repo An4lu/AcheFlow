@@ -1,21 +1,36 @@
 import type { ApiTask } from '../../pages/Projects';
 import { Modal } from '../Modal';
-import { DetailsContainer, DetailItem, Label, Value } from './styles';
+import { DetailsContainer, DetailItem, Label, Value, DeleteButton } from './styles';
+import { TrashIcon } from '@phosphor-icons/react';
+import { useState } from 'react';
 
 interface TaskDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: ApiTask | null;
+    onDelete: (taskId: string) => Promise<void>; 
 }
 
-export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProps) {
+export function TaskDetailsModal({ isOpen, onClose, task, onDelete }: TaskDetailsModalProps) {
+    const [isLoading, setIsLoading] = useState(false);
+
     if (!task) return null;
 
-    // Função auxiliar para formatar a data (lidando com T00:00:00Z)
     const formatDate = (dateStr: string | undefined) => {
         if (!dateStr) return 'N/A';
         return new Date(dateStr.split('T')[0] + 'T00:00:00Z').toLocaleDateString('pt-BR');
     }
+
+    const handleDelete = async () => {
+        if (!task) return;
+        
+        if (window.confirm(`Tem certeza que deseja excluir a tarefa "${task.nome}"? Esta ação não pode ser desfeita.`)) {
+            setIsLoading(true);
+            await onDelete(task._id);
+            setIsLoading(false);
+            onClose(); 
+        }
+    };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Detalhes da Tarefa">
@@ -38,18 +53,21 @@ export function TaskDetailsModal({ isOpen, onClose, task }: TaskDetailsModalProp
                 </DetailItem>
                 <DetailItem>
                     <Label>Data de Início:</Label>
-                    {/* Correção: Usa dataCriacao ou data_inicio */}
                     <Value>{formatDate(task.dataCriacao || task.data_inicio)}</Value>
                 </DetailItem>
                 <DetailItem>
                     <Label>Data de Fim (Prazo):</Label>
-                    {/* Correção: Usa prazo ou data_fim */}
                     <Value>{formatDate(task.prazo || task.data_fim)}</Value>
                 </DetailItem>
                 <DetailItem>
                     <Label>Descrição:</Label>
                     <Value>{task.descricao || 'Nenhuma descrição fornecida.'}</Value>
                 </DetailItem>
+
+                <DeleteButton onClick={handleDelete} disabled={isLoading}>
+                    <TrashIcon size={16} />
+                    {isLoading ? 'Excluindo...' : 'Excluir Tarefa'}
+                </DeleteButton>
             </DetailsContainer>
         </Modal>
     );

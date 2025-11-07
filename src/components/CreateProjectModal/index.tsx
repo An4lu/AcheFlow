@@ -9,6 +9,7 @@ import { ImportSection, UploadInput, Divider, ImportTitle, PreviewTable, Preview
 import { createProject, createTask, type TaskPayload } from '../../services/api';
 import type { RawImportedTask, ProcessedTask } from '../../types/project';
 import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify';
 
 const calculatePrazo = (duration: string): string => {
     const today = new Date();
@@ -67,7 +68,10 @@ export function CreateProjectModal() {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-        if (!user) return alert('Você precisa estar logado.');
+        if (!user) {
+            toast.warn('Você precisa estar logado.');
+            return;
+        }
         setIsLoading(true);
         const formData = new FormData(event.target as HTMLFormElement);
         const projectData = Object.fromEntries(formData.entries());
@@ -82,6 +86,7 @@ export function CreateProjectModal() {
         try {
             const projectResponse = await createProject(projectPayload);
             const newProjectId = projectResponse.data._id;
+            
             if (importedTasks.length > 0) {
                 for (const task of importedTasks) {
                     const taskPayload: Partial<TaskPayload> = {
@@ -91,8 +96,7 @@ export function CreateProjectModal() {
                         descricao: task['Como Fazer'] || '',
                         prioridade: 'média',
                         status: task.status as TaskPayload['status'],
-                        data_fim: calculatePrazo(task.Duração),
-                        data_inicio: new Date().toISOString().split('T')[0],
+                        prazo: calculatePrazo(task.Duração), 
                         numero: String(task.Número),
                         classificacao: task.Classificação,
                         fase: task.Fase,
@@ -103,13 +107,12 @@ export function CreateProjectModal() {
                     await createTask(taskPayload as TaskPayload);
                 }
             }
-            alert(`Projeto "${projectPayload.nome}" criado com sucesso!`);
+            toast.success(`Projeto "${projectPayload.nome}" criado com sucesso!`);
             setImportedTasks([]);
             closeProjectModal();
             refreshData();
         } catch (error) {
-            alert('Falha ao criar o projeto ou as tarefas.');
-            console.error(error);
+            toast.error('Falha ao criar o projeto ou as tarefas.');
         } finally {
             setIsLoading(false);
         }

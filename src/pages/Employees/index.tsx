@@ -8,6 +8,7 @@ import { theme } from '../../styles';
 import { deleteFuncionario } from '../../services/api';
 import { ConfirmDeleteModal } from '../../components/ConfirmDeleteModal';
 import type { User as UserType } from '../../types/user';
+import { toast } from 'react-toastify'; 
 
 export function Employees() {
     const {
@@ -66,11 +67,10 @@ export function Employees() {
         if (!selectedFunc) return;
         try {
             await deleteFuncionario(selectedFunc._id);
-            alert('Funcionário excluído com sucesso!');
+            toast.success('Funcionário excluído com sucesso!'); 
             refreshData();
         } catch (err: any) {
-            console.error("Falha ao excluir funcionário:", err);
-            alert(err.response?.data?.detalhe || 'Não foi possível excluir o funcionário.');
+            toast.error(err.response?.data?.detalhe || 'Não foi possível excluir o funcionário.'); 
         } finally {
             setIsConfirmOpen(false);
             setSelectedFunc(null);

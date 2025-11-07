@@ -57,7 +57,7 @@ export interface TaskUpdatePayload {
     prioridade?: 'baixa' | 'média' | 'alta';
     status?: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
     data_inicio?: string;
-    data_fim?: string;
+    data_fim?: string; 
     responsavel_id?: string;
     projeto_id?: string;
 }
@@ -69,8 +69,7 @@ export interface TaskPayload {
     descricao?: string;
     prioridade: 'baixa' | 'média' | 'alta';
     status: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
-    data_inicio: string;
-    data_fim: string;
+    prazo: string; 
     como_fazer?: string;
     porcentagem?: number;
     numero?: string;
@@ -103,11 +102,24 @@ export const getFilteredTasks = (params: TaskFilterParams) => {
 export const createProject = (data: ProjectPayload) => {
     return api.post('/projetos', data);
 };
+
+export const updateProject = (id: string, data: Partial<ProjectPayload>) => {
+    return api.put(`/projetos/${id}`, data);
+};
+
+export const deleteProject = (id: string) => {
+    return api.delete(`/projetos/${id}`);
+};
+
 export const createTask = (data: TaskPayload) => {
     return api.post('/tarefas', data);
 };
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
     return api.put(`/tarefas/${id}`, data);
+};
+
+export const deleteTask = (id: string) => {
+    return api.delete(`/tarefas/${id}`);
 };
 
 export const createFuncionario = (data: FuncionarioPayload) => {
@@ -117,6 +129,20 @@ export const createFuncionario = (data: FuncionarioPayload) => {
 
 export const deleteFuncionario = (id: string) => {
     return api.delete(`/funcionarios/${id}`);
+};
+
+export const exportTasks = () => {
+    return api.get('/tarefas/exportar', {
+        responseType: 'blob', 
+    });
+};
+
+export const importTasks = (formData: FormData) => {
+    return api.post('/tarefas/importar', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 };
 
 export default api;

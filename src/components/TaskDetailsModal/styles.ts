@@ -25,3 +25,31 @@ export const Value = styled('span', {
     paddingLeft: '$2', // 0.5rem
     borderLeft: '3px solid $brandTertiary', // $tertiaryPink -> $brandTertiary
 });
+
+export const DeleteButton = styled('button', {
+    width: '100%',
+    padding: '$3 $4',
+    marginTop: '$4',
+    border: 'none',
+    borderRadius: '$md',
+    backgroundColor: '$dangerMuted',
+    color: '$danger',
+    fontWeight: '$medium',
+    fontSize: '$sm',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '$2',
+
+    '&:hover': {
+        backgroundColor: '$danger',
+        color: '$white',
+    },
+
+    '&:disabled': {
+        opacity: 0.5,
+        cursor: 'not-allowed',
+    },
+});

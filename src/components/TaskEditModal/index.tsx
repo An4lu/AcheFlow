@@ -1,36 +1,36 @@
 import { useState, useEffect, useContext } from 'react';
 import { Modal } from '../Modal';
-import { FormContainer, FormGroup, Label, Input, Select, TextArea, SubmitButton } from './styles';
+import { FormContainer, FormGroup, Label, Input, Select, TextArea, SubmitButton, ButtonContainer, DeleteButton } from './styles';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { type ApiTask } from '../../pages/Projects';
 import { type TaskUpdatePayload } from '../../services/api';
+import { TrashIcon } from '@phosphor-icons/react';
 
 interface TaskEditModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: ApiTask | null;
     onSave: (taskId: string, payload: TaskUpdatePayload) => Promise<void>;
+    onDelete: (taskId: string) => Promise<void>;
 }
 
-// Interface local para os dados do formulário
 interface FormData {
     nome?: string;
     descricao?: string | null;
     status?: string;
-    data_inicio?: string; // Campo do formulário para data de início
-    data_fim?: string;    // Campo do formulário para data de fim (prazo)
+    data_inicio?: string; 
+    data_fim?: string;    
     responsavel?: ApiTask['responsavel'];
     projeto?: { id: string; nome: string; };
 }
 
-export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalProps) {
+export function TaskEditModal({ isOpen, onClose, task, onSave, onDelete }: TaskEditModalProps) { // *** ATUALIZADO ***
     const { funcionarios } = useContext(ProjectsContext);
     const [formData, setFormData] = useState<FormData>({});
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (task) {
-            // Correção: Mapeia os campos da API para os campos do formulário
             const startDate = (task.dataCriacao || task.data_inicio || '').split('T')[0];
             const endDate = (task.prazo || task.data_fim || '').split('T')[0];
 
@@ -67,19 +67,29 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-
-        // O Payload para a API (PUT /tarefas/{id}) espera data_inicio e data_fim
+        
         const payload: TaskUpdatePayload = {
             nome: formData.nome,
             descricao: formData.descricao || '',
             status: formData.status as any,
-            data_inicio: formData.data_inicio, // Envia o estado do formulário
-            data_fim: formData.data_fim,       // Envia o estado do formulário (que veio do prazo)
+            data_inicio: formData.data_inicio,
+            data_fim: formData.data_fim,
             responsavel_id: formData.responsavel?.id,
         };
         
         await onSave(task._id, payload);
         setIsLoading(false);
+    };
+
+    const handleDelete = async () => {
+        if (!task) return;
+        
+        if (window.confirm(`Tem certeza que deseja excluir a tarefa "${task.nome}"? Esta ação não pode ser desfeita.`)) {
+            setIsLoading(true);
+            await onDelete(task._id);
+            setIsLoading(false);
+            onClose(); 
+        }
     };
 
     return (
@@ -130,9 +140,15 @@ export function TaskEditModal({ isOpen, onClose, task, onSave }: TaskEditModalPr
                     <Label htmlFor="descricao">Descrição</Label>
                     <TextArea id="descricao" name="descricao" value={formData.descricao || ''} onChange={handleChange} rows={4} />
                 </FormGroup>
-                <SubmitButton type="submit" disabled={isLoading}>
-                    {isLoading ? 'Salvando...' : 'Salvar Alterações'}
-                </SubmitButton>
+                
+                <ButtonContainer>
+                    <DeleteButton type="button" onClick={handleDelete} disabled={isLoading}>
+                        <TrashIcon size={16} /> Excluir Tarefa
+                    </DeleteButton>
+                    <SubmitButton type="submit" disabled={isLoading}>
+                        {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+                    </SubmitButton>
+                </ButtonContainer>
             </FormContainer>
         </Modal>
     );
