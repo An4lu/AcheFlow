@@ -9,7 +9,7 @@ interface KanbanColumnProps {
     onEditClick: (task: Task) => void;
 }
 
-export function KanbanColumn({ title, tasks, onEditClick }: KanbanColumnProps) { 
+export function KanbanColumn({ id, title, tasks, onEditClick }: KanbanColumnProps) { 
 
     return (
         <div>

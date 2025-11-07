@@ -7,7 +7,7 @@ import { KanbanContainer, Header, FilterSelect } from './styles';
 import { PageLoader } from '../../components/PageLoader';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { type ApiTask } from '../Projects'; 
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 
 export function Kanban() {
   const { tasks, refreshData, loading, funcionarios } = useContext(ProjectsContext);
@@ -37,7 +37,7 @@ export function Kanban() {
   const handleDeleteTask = async (taskId: string) => {
     try {
         await deleteTask(taskId);
-        toast.success('Tarefa excluída com sucesso!'); 
+        toast.success('Tarefa excluída com sucesso!');
         handleCloseEditModal();   
         refreshData(); 
     } catch (error) {
@@ -48,7 +48,7 @@ export function Kanban() {
   const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
     try {
       await updateTask(taskId, payload);
-      toast.success('Tarefa atualizada com sucesso!'); 
+      toast.success('Tarefa atualizada com sucesso!');
       handleCloseEditModal();
       refreshData();
     } catch (error) {

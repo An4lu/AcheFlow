@@ -14,8 +14,6 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ columns, onEditClick }: KanbanBoardProps) { 
-
-
     return (
         <BoardContainer>
             {columns.map(column => (

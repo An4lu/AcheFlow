@@ -68,8 +68,7 @@ export interface TaskPayload {
     descricao?: string;
     prioridade: 'baixa' | 'média' | 'alta';
     status: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
-    data_inicio: string;
-    data_fim: string;
+    prazo: string; 
     como_fazer?: string;
     porcentagem?: number;
     numero?: string;
@@ -117,9 +116,22 @@ export const createFuncionario = (data: FuncionarioPayload) => {
     return api.post('/funcionarios', data);
 };
 
-
 export const deleteFuncionario = (id: string) => {
     return api.delete(`/funcionarios/${id}`);
+};
+
+export const exportTasks = () => {
+    return api.get('/tarefas/exportar', {
+        responseType: 'blob', 
+    });
+};
+
+export const importTasks = (formData: FormData) => {
+    return api.post('/tarefas/importar', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 };
 
 export default api;

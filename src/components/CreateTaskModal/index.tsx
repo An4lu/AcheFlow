@@ -3,7 +3,7 @@ import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea } from '../Form/styles';
 import { createTask, type TaskPayload } from '../../services/api';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 
 export function CreateTaskModal() {
     const { isTaskModalOpen, closeTaskModal, projects, funcionarios, refreshData } = useContext(ProjectsContext);
@@ -23,17 +23,16 @@ export function CreateTaskModal() {
             descricao: data.descricao as string,
             prioridade: data.prioridade as 'baixa' | 'média' | 'alta',
             status: data.status as 'em andamento' | 'congelada' | 'não iniciada' | 'concluída',
-            data_inicio: data.data_inicio as string, 
-            data_fim: data.data_fim as string,
+            prazo: data.prazo as string,
         };
 
         try {
             await createTask(payload);
-            toast.success('Tarefa criada com sucesso!'); 
+            toast.success('Tarefa criada com sucesso!');
             closeTaskModal();
             refreshData();
         } catch (error) {
-            toast.error('Falha ao criar tarefa.'); 
+            toast.error('Falha ao criar tarefa.');
         } finally {
             setIsLoading(false);
         }
@@ -91,14 +90,9 @@ export function CreateTaskModal() {
                     </Select>
                 </FormGroup>
 
-               <FormGroup>
-                    <Label htmlFor="data_inicio">Data de Início*</Label>
-                    <Input id="data_inicio" name="data_inicio" type="date" required disabled={isLoading} />
-                </FormGroup>
-                
                 <FormGroup>
-                    <Label htmlFor="data_fim">Data de Fim*</Label>
-                    <Input id="data_fim" name="data_fim" type="date" required disabled={isLoading} />
+                    <Label htmlFor="prazo">Prazo*</Label>
+                    <Input id="prazo" name="prazo" type="date" required disabled={isLoading} />
                 </FormGroup>
 
                 <SubmitButton type="submit" disabled={isLoading}>
