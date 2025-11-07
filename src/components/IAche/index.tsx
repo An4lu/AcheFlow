@@ -114,19 +114,52 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 });
 
             } else {
-                response = await api_ia.post( 
-                    '/ai/chat', 
-                    {
-                        pergunta: currentInput,
-                        history: newMessages.slice(0, -1),
-                        nome_usuario: user.nome,
-                        email_usuario: user.email,
-                        id_usuario: user._id
-                    },
-                    {
+                
+                // --- INÍCIO DA CORREÇÃO ---
+                // Regex 1: Encontra a primeira URL completa na mensagem
+                const urlFinderRegex = /(https?:\/\/[^\s]+)/i;
+                // Regex 2: Verifica se a URL encontrada é do tipo que queremos
+                const pdfQualifierRegex = /(drive\.google\.com\/file|\.pdf|sharepoint\.com)/i;
+
+                const urlMatch = currentInput.match(urlFinderRegex);
+                
+                // Verifica se encontramos uma URL (urlMatch[0]) E se ela passa na nossa verificação
+                if (urlMatch && pdfQualifierRegex.test(urlMatch[0])) {
+                    const foundUrl = urlMatch[0]; // Esta é a URL *completa*
+                    
+                    console.log("Detectada URL de PDF, roteando para /ai/chat-with-pdf-url");
+                    console.log("URL Completa:", foundUrl); // Novo log para depuração
+                    
+                    endpoint = '/ai/chat-with-pdf-url';
+                    
+                    response = await api_ia.post(endpoint, {
+                        pergunta: currentInput,
+                        pdf_url: foundUrl, // <-- CORRIGIDO: Envia a URL completa
+                        nome_usuario: user.nome,
+                        email_usuario: user.email,
+                        id_usuario: user._id
+                    }, {
                         headers: { "x-api-key": apiKey }
-                    }
-                );
+                    });
+
+                } else {
+                    console.log("Nenhum anexo ou URL de PDF, roteando para /ai/chat");
+                    endpoint = '/ai/chat';
+                    
+                    response = await api_ia.post( 
+                        endpoint, 
+                            {
+                                pergunta: currentInput,
+                                history: newMessages.slice(0, -1),
+                                nome_usuario: user.nome,
+                                email_usuario: user.email,
+                                id_usuario: user._id
+                            },
+                            {
+                                headers: { "x-api-key": apiKey }
+                            }
+                        );
+                }
             }
             
             const aiContent = response.data;
