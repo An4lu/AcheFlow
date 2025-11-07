@@ -39,7 +39,6 @@ export const Login = () => {
 
     } catch (err) {
       setError('Falha no login. Verifique seu e-mail e senha.');
-      console.error("Erro no handleLogin:", err);
     } finally {
       setIsLoading(false);
     }

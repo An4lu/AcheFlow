@@ -7,15 +7,13 @@ interface ApiProject {
     prazo: string;
 }
 
-// Interface local atualizada para refletir a API (com "dataCriacao" e "prazo")
-// e também os nomes antigos como opcionais
 interface ApiTask {
     _id: string;
     nome: string;
-    dataCriacao?: string; // Campo novo
-    data_inicio?: string; // Campo antigo
-    prazo?: string;       // Campo novo
-    data_fim?: string;    // Campo antigo
+    dataCriacao?: string; 
+    data_inicio?: string; 
+    prazo?: string;       
+    data_fim?: string;  
     projeto: { id: string; nome: string };
     status: string;
     responsavel: {
@@ -30,16 +28,15 @@ function parseValidDate(dateString: string | undefined): Date | null {
     if (!dateString) {
         return null;
     }
-
-    // Remove o horário (T...) se existir
+    
     const dateOnlyString = dateString.split('T')[0];
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOnlyString)) {
         return null;
     }
-
+    
     const date = new Date(dateOnlyString + 'T00:00:00Z');
-
+    
     if (isNaN(date.getTime())) {
         return null;
     }
@@ -61,7 +58,7 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     // for (const project of projects) {
     //     const projectDate = parseValidDate(project.prazo); 
     //     if (!projectDate) continue;
-
+        
     //     const endDate = new Date(projectDate);
     //     endDate.setDate(projectDate.getDate() + 1); 
 
@@ -69,7 +66,7 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     //         id: project._id,
     //         name: `[PROJETO] ${project.nome}`,
     //         type: 'project',
-    //         start: projectDate, 
+    //         start: projectDate,
     //         end: endDate,
     //         progress: 100,
     //         isDisabled: true,
@@ -83,11 +80,10 @@ export const transformDataForGantt = (projects: ApiProject[], tasks: ApiTask[]):
     for (const task of tasks) {
         const startDate = parseValidDate(task.dataCriacao || task.data_inicio);
         const endDate = parseValidDate(task.prazo || task.data_fim);
-
+        
         const parentProject = task.projeto ? projectMap.get(task.projeto.id) : undefined;
 
         if (!startDate || !endDate || !parentProject || !task.responsavel?.nome) {
-            console.warn("Tarefa pulada por dados ausentes:", task.nome, { startDate, endDate, parentProject, resp: task.responsavel });
             continue;
         }
 

@@ -9,6 +9,7 @@ import { transformDataForGantt } from '../../utils/dataTransformer';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { ViewMode, type Task } from 'gantt-task-react';
 import { PageLoader } from '../../components/PageLoader';
+import { toast } from 'react-toastify'; 
 
 interface TaskResponsavel {
   id: string;
@@ -17,14 +18,13 @@ interface TaskResponsavel {
   email: string;
 }
 
-// Interface corrigida para aceitar os dois tipos de data
 export interface ApiTask {
   _id: string;
   nome: string;
-  dataCriacao?: string; // Correção
-  data_inicio?: string; // Antigo
-  prazo?: string;       // Correção
-  data_fim?: string;    // Antigo
+  dataCriacao?: string; 
+  data_inicio?: string; 
+  prazo?: string;       
+  data_fim?: string;    
   descricao: string | null;
   projeto: { id: string; nome: string; };
   responsavel: TaskResponsavel;
@@ -84,7 +84,6 @@ export const Project = () => {
         
         setTasks(processedTasks);
       } catch (error) {
-        console.error("Falha ao buscar tarefas:", error);
         setTasks([]);
       }
     };
@@ -103,26 +102,23 @@ export const Project = () => {
   const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
     try {
       await updateTask(taskId, payload);
-      alert('Tarefa atualizada com sucesso!');
+      toast.success('Tarefa atualizada com sucesso!');
       setEditModalOpen(false);
       refreshData();
     } catch (error) {
-      alert('Falha ao atualizar a tarefa.');
-      console.error(error);
+      toast.error('Falha ao atualizar a tarefa.');
     }
   };
 
-  // *** ADICIONADO ***
   const handleDeleteTask = async (taskId: string) => {
-    try {
-        await deleteTask(taskId);
-        alert('Tarefa excluída com sucesso!');
-        setEditModalOpen(false); // Fecha o modal
-        refreshData(); // Atualiza os dados do contexto (e o gráfico)
-    } catch (error) {
-        alert('Falha ao excluir a tarefa.');
-        console.error(error);
-    }
+      try {
+          await deleteTask(taskId);
+          toast.success('Tarefa excluída com sucesso!');
+          setEditModalOpen(false); 
+          refreshData(); 
+      } catch (error) {
+          toast.error('Falha ao excluir a tarefa.'); 
+      }
   };
 
   const ganttData = useMemo(() => {

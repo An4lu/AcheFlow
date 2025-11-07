@@ -2,11 +2,12 @@ import { useContext, useMemo, useState } from 'react';
 import { Title } from '../../components/Title';
 import { ProjectsContext, type Task } from '../../contexts/ProjectContext';
 import { KanbanBoard } from '../../components/KanbanBoard';
-import { deleteTask, updateTask, type TaskUpdatePayload } from '../../services/api'; // 'api' não é mais necessário
+import { deleteTask, updateTask, type TaskUpdatePayload } from '../../services/api'; 
 import { KanbanContainer, Header, FilterSelect } from './styles';
 import { PageLoader } from '../../components/PageLoader';
 import { TaskEditModal } from '../../components/TaskEditModal';
 import { type ApiTask } from '../Projects'; 
+import { toast } from 'react-toastify'; 
 
 export function Kanban() {
   const { tasks, refreshData, loading, funcionarios } = useContext(ProjectsContext);
@@ -36,25 +37,22 @@ export function Kanban() {
   const handleDeleteTask = async (taskId: string) => {
     try {
         await deleteTask(taskId);
-        alert('Tarefa excluída com sucesso!');
+        toast.success('Tarefa excluída com sucesso!'); 
         handleCloseEditModal();   
         refreshData(); 
     } catch (error) {
-        alert('Falha ao excluir a tarefa.');
-        console.error(error);
+        toast.error('Falha ao excluir a tarefa.');
     }
   };
 
-  // Handler para SALVAR a edição
   const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
     try {
       await updateTask(taskId, payload);
-      alert('Tarefa atualizada com sucesso!');
+      toast.success('Tarefa atualizada com sucesso!'); 
       handleCloseEditModal();
       refreshData();
     } catch (error) {
-      alert('Falha ao atualizar a tarefa.');
-      console.error(error);
+      toast.error('Falha ao atualizar a tarefa.');
     }
   };
 
@@ -103,7 +101,6 @@ export function Kanban() {
           />
         </>
       )}
-
 
       <TaskEditModal
         isOpen={isEditModalOpen}

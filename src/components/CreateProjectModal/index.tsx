@@ -9,6 +9,7 @@ import { ImportSection, UploadInput, Divider, ImportTitle, PreviewTable, Preview
 import { createProject, createTask, type TaskPayload } from '../../services/api';
 import type { RawImportedTask, ProcessedTask } from '../../types/project';
 import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify'; // *** ADICIONADO ***
 
 const calculatePrazo = (duration: string): string => {
     const today = new Date();
@@ -67,7 +68,10 @@ export function CreateProjectModal() {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-        if (!user) return alert('Você precisa estar logado.');
+        if (!user) {
+            toast.warn('Você precisa estar logado.'); 
+            return;
+        }
         setIsLoading(true);
         const formData = new FormData(event.target as HTMLFormElement);
         const projectData = Object.fromEntries(formData.entries());
@@ -103,13 +107,12 @@ export function CreateProjectModal() {
                     await createTask(taskPayload as TaskPayload);
                 }
             }
-            alert(`Projeto "${projectPayload.nome}" criado com sucesso!`);
+            toast.success(`Projeto "${projectPayload.nome}" criado com sucesso!`); 
             setImportedTasks([]);
             closeProjectModal();
             refreshData();
         } catch (error) {
-            alert('Falha ao criar o projeto ou as tarefas.');
-            console.error(error);
+            toast.error('Falha ao criar o projeto ou as tarefas.'); 
         } finally {
             setIsLoading(false);
         }

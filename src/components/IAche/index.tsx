@@ -3,9 +3,10 @@ import { ModalBackground, ModalContent } from "./styles";
 import { Title } from "../Title";
 import React, { useState, useEffect, useRef, useContext, type ChangeEvent } from 'react';
 import { api_ia } from '../../services/api';
-import { PaperPlaneRight, Paperclip, X } from "@phosphor-icons/react"; 
+import { PaperPlaneRightIcon, PaperclipIcon, X } from "@phosphor-icons/react"; 
 import { ProjectsContext } from "../../contexts/ProjectContext"; 
 import { AuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 interface Message {
     sender: 'user' | 'ai' | 'system';
@@ -135,14 +136,12 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
             );
 
             if (didCreateOrUpdate) {
-                console.log("IA detectou mudança nos dados, atualizando a lista...");
                 refreshData();
             }
 
         } catch (error) {
             const errorMessage: Message = { sender: 'ai', content: { tipo_resposta: 'TEXTO', conteudo_texto: 'Desculpe, ocorreu um erro. Tente novamente.' } };
             setMessages(prev => [...prev, errorMessage]);
-            console.error("Erro ao chamar a API de chat:", error);
         } finally {
             setIsLoading(false);
         }
@@ -174,7 +173,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                     setTargetProjectId('NEW'); 
                 }
             } else {
-                alert('Tipo de arquivo não suportado. Por favor, envie .xlsx, .xls, .csv ou .pdf');
+                toast.warn('Tipo de arquivo não suportado. Por favor, envie .xlsx, .xls, .csv ou .pdf'); // *** ATUALIZADO ***
                 if (fileInputRef.current) {
                     fileInputRef.current.value = "";
                 }
@@ -185,7 +184,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
     const handleSendImport = async () => {
         if (!selectedFile) return;
         if (targetProjectId === 'NEW' && !newProjectName.trim()) {
-            alert('Por favor, digite um nome para o novo projeto.');
+            toast.warn('Por favor, digite um nome para o novo projeto.'); 
             return;
         }
 
@@ -234,7 +233,6 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 content: { tipo_resposta: 'TEXTO', conteudo_texto: `Desculpe, falhei ao importar: ${errorMsg}` }
             };
             setMessages(prev => [...prev.slice(0, -1), errorMessage]); 
-            console.error("Erro ao chamar a API de importação:", error);
         } finally {
             setIsImportLoading(false);
             cancelImport();
@@ -325,12 +323,12 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                                 aria-label="Anexar arquivo"
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                <Paperclip size={22} />
+                                <PaperclipIcon size={22} />
                             </button>
 
                             {attachedPdf && (
                                 <div className="attached-file-info">
-                                    <Paperclip size={16} />
+                                    <PaperclipIcon size={16} />
                                     <span>{attachedPdf.name.length > 20 ? `${attachedPdf.name.substring(0, 20)}...` : attachedPdf.name}</span>
                                     <button 
                                         type="button" 
@@ -351,7 +349,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                                 disabled={isLoading}
                             />
                             <button type="submit" aria-label="Enviar mensagem" className="send-button" disabled={isLoading || !inputValue.trim()}>
-                                <PaperPlaneRight size={24} color="#ffffff" weight="bold" />
+                                <PaperPlaneRightIcon size={24} color="#ffffff" weight="bold" />
                             </button>
                         </form>
                     )}

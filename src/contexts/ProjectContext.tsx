@@ -2,6 +2,7 @@ import { createContext, useState, type ReactNode, useCallback, useEffect, useCon
 import api from '../services/api';
 import type { User } from '../types/user';
 import { AuthContext } from './AuthContext';
+import { toast } from 'react-toastify';
 
 interface NestedResponsible {
     id: string;
@@ -23,10 +24,10 @@ export interface Project {
 export interface Task {
     _id: string;
     nome: string;
-    dataCriacao?: string; // Correção: Campo novo
-    data_inicio?: string; // Campo antigo
-    prazo?: string;       // Correção: Campo novo
-    data_fim?: string;    // Campo antigo
+    dataCriacao?: string; 
+    data_inicio?: string; 
+    prazo?: string;       
+    data_fim?: string;    
     status: string;
     responsavel: NestedResponsible;
     projeto: { id: string; nome: string; };
@@ -94,7 +95,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
                 setTasks(tasksRes.data);
                 setEvents(eventsRes.data);
             } catch (error) {
-                console.error("Falha ao buscar dados para o contexto", error);
+                toast.error('Erro ao carregar dados do projeto.');
             } finally {
                 setLoading(false);
             }

@@ -3,6 +3,7 @@ import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea } from '../Form/styles';
 import { createTask, type TaskPayload } from '../../services/api';
+import { toast } from 'react-toastify'; 
 
 export function CreateTaskModal() {
     const { isTaskModalOpen, closeTaskModal, projects, funcionarios, refreshData } = useContext(ProjectsContext);
@@ -28,12 +29,11 @@ export function CreateTaskModal() {
 
         try {
             await createTask(payload);
-            alert('Tarefa criada com sucesso!');
+            toast.success('Tarefa criada com sucesso!'); 
             closeTaskModal();
             refreshData();
         } catch (error) {
-            alert('Falha ao criar tarefa.');
-            console.error(error);
+            toast.error('Falha ao criar tarefa.'); 
         } finally {
             setIsLoading(false);
         }
