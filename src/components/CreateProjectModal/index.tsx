@@ -27,34 +27,81 @@ export function CreateProjectModal() {
     const [isLoading, setIsLoading] = useState(false);
     const [importedTasks, setImportedTasks] = useState<ProcessedTask[]>([]);
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target?.result;
-            if (!data) return;
-            let rawData: RawImportedTask[] = [];
-            const fileExtension = file.name.split('.').pop()?.toLowerCase();
+const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const data = e.target?.result;
+        if (!data) return;
+
+        let processed: ProcessedTask[] = [];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+
+        try {
             if (fileExtension === 'csv') {
-                rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true }).data as RawImportedTask[];
+                const rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true }).data as RawImportedTask[];
+                processed = rawData
+                    .filter(t => t.Nome)
+                    .map(t => ({
+                        ...t,
+                        'Documento Referência': t['Documento Referência'] || '', 
+                        responsavel_id: null,
+                        status: t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : 'não iniciada',
+                    }));
             } else {
                 const workbook = XLSX.read(data, { type: 'binary' });
                 const sheetName = workbook.SheetNames[0];
-                rawData = XLSX.utils.sheet_to_json<RawImportedTask>(workbook.Sheets[sheetName]);
-            }
+                const worksheet = workbook.Sheets[sheetName];
 
-            const processed = rawData
-                .filter(t => t.Nome)
-                .map(t => ({
-                    ...t,
-                    responsavel_id: null,
-                    status: t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : 'não iniciada',
-                }));
+                const headers: string[] = [];
+                const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+                const C = range.s.c;
+                for (let c = C; c <= range.e.c; ++c) {
+                    const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c })];
+                    let hdr = "UNKNOWN " + c;
+                    if (cell && cell.t) hdr = XLSX.utils.format_cell(cell);
+                    headers[c] = hdr;
+                }
+
+                const docRefColIndex = headers.findIndex(h => h.trim() === 'Documento Referência');
+                
+                const rawData = XLSX.utils.sheet_to_json<RawImportedTask>(worksheet, {
+                    blankrows: false
+                });
+
+                processed = rawData
+                    .filter(t => t.Nome)
+                    .map((row, rowIndex) => {
+                        let hyperlink = '';
+                        
+                        if (docRefColIndex !== -1) {
+                            const cellAddress = XLSX.utils.encode_cell({ r: rowIndex + 1, c: docRefColIndex });
+                            const cell = worksheet[cellAddress];
+
+                            if (cell && cell.l) {
+                                hyperlink = cell.l.Target;
+                            }
+                        }
+
+                        return {
+                            ...row,
+                            'Documento Referência': hyperlink || row['Documento Referência'] || '',
+                            
+                            responsavel_id: null,
+                            status: row['Status'] && statusOptions.includes(row['Status'].toLowerCase()) ? row['Status'].toLowerCase() : 'não iniciada',
+                        };
+                    });
+            }
             setImportedTasks(processed);
-        };
-        reader.readAsBinaryString(file);
+        } catch (err) {
+            console.error("Erro ao processar arquivo:", err);
+            toast.error("Não foi possível ler o arquivo XLSX. Verifique o formato.");
+        }
     };
+    reader.readAsBinaryString(file);
+};
 
     const handleTaskAttributeChange = (index: number, field: 'responsavel_id' | 'status', value: string) => {
         const updatedTasks = [...importedTasks];

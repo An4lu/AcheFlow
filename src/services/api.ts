@@ -112,7 +112,7 @@ export const deleteProject = (id: string) => {
 };
 
 export const createTask = (data: TaskPayload) => {
-    return api.post('/tarefas', data);
+    return api_ia.post('/tasks/create-with-logic', data);
 };
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
     return api.put(`/tarefas/${id}`, data);
