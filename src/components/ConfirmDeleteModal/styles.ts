@@ -14,6 +14,7 @@ export const Message = styled('p', {
     fontSize: '$md',
     color: '$textSecondary',
     lineHeight: 1.6,
+    whiteSpace: 'pre-line',
 });
 
 export const ButtonContainer = styled('div', {

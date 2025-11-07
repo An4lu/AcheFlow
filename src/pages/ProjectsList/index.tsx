@@ -249,7 +249,7 @@ export function ProjectsList() {
                 onClose={handleCloseModals}
                 onConfirm={handleConfirmDelete}
                 title="Confirmar Exclusão"
-                message={`Tem certeza que deseja excluir o projeto "${selectedProject?.nome}"? Todas as tarefas associadas também serão perdidas.`}
+                message={`Tem certeza que deseja excluir o projeto "${selectedProject?.nome}"?\nTodas as tarefas associadas também serão perdidas.`}
             />
         </KanbanContainer>
     );
