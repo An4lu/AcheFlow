@@ -2,16 +2,17 @@ import { useContext, useMemo, useState } from 'react';
 import { Title } from '../../components/Title';
 import { ProjectsContext, type Task } from '../../contexts/ProjectContext';
 import { KanbanBoard } from '../../components/KanbanBoard';
-import api, { deleteTask } from '../../services/api';
+import { deleteTask, updateTask, type TaskUpdatePayload } from '../../services/api'; // 'api' não é mais necessário
 import { KanbanContainer, Header, FilterSelect } from './styles';
 import { PageLoader } from '../../components/PageLoader';
-import { TaskDetailsModal } from '../../components/TaskDetailsModal';
+import { TaskEditModal } from '../../components/TaskEditModal';
+import { type ApiTask } from '../Projects'; 
 
 export function Kanban() {
   const { tasks, refreshData, loading, funcionarios } = useContext(ProjectsContext);
 
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedTaskEdit, setSelectedTaskEdit] = useState<ApiTask | null>(null);
 
   const [selectedResponsavelId, setSelectedResponsavelId] = useState<string>('');
 
@@ -22,37 +23,37 @@ export function Kanban() {
     'congelada': 'Congelada',
   };
 
-  const onTaskMove = async (taskId: string, newStatus: string) => {
-    const originalTask = tasks.find(t => t._id === taskId);
-    if (!originalTask) return;
-
-    try {
-      await api.put(`/tarefas/${taskId}`, { status: newStatus });
-      refreshData();
-    } catch (error) {
-      console.error("Falha ao atualizar o status da tarefa:", error);
-      refreshData();
-    }
+  const handleEditClick = (task: Task) => {
+    setSelectedTaskEdit(task as ApiTask); 
+    setEditModalOpen(true);
   };
 
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedTask(null);
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedTaskEdit(null);
   };
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      await deleteTask(taskId);
-      alert('Tarefa excluída com sucesso!');
-      handleCloseModal();
+        await deleteTask(taskId);
+        alert('Tarefa excluída com sucesso!');
+        handleCloseEditModal();   
+        refreshData(); 
+    } catch (error) {
+        alert('Falha ao excluir a tarefa.');
+        console.error(error);
+    }
+  };
+
+  // Handler para SALVAR a edição
+  const handleUpdateTask = async (taskId: string, payload: TaskUpdatePayload) => {
+    try {
+      await updateTask(taskId, payload);
+      alert('Tarefa atualizada com sucesso!');
+      handleCloseEditModal();
       refreshData();
     } catch (error) {
-      alert('Falha ao excluir a tarefa.');
+      alert('Falha ao atualizar a tarefa.');
       console.error(error);
     }
   };
@@ -61,17 +62,17 @@ export function Kanban() {
     const statuses = ['não iniciada', 'em andamento', 'concluída', 'congelada'];
 
     const tasksToShow = tasks.filter(task => {
-      if (selectedResponsavelId === '') {
-        return true;
-      }
-      return task.responsavel?.id === selectedResponsavelId;
+        if (selectedResponsavelId === '') {
+            return true;
+        }
+        return task.responsavel?.id === selectedResponsavelId;
     });
 
     return statuses.map(status => ({
       id: status,
       title: columnMapping[status],
       tasks: tasksToShow.filter(task => task.status === status)
-        .sort((a, b) => new Date(a.prazo || a.data_fim || 0).getTime() - new Date(b.prazo || b.data_fim || 0).getTime())
+                   .sort((a, b) => new Date(a.prazo || a.data_fim || 0).getTime() - new Date(b.prazo || b.data_fim || 0).getTime())
     }));
   }, [tasks, selectedResponsavelId]);
 
@@ -83,8 +84,8 @@ export function Kanban() {
         <>
           <Header>
             <Title>Quadro Kanban</Title>
-            <FilterSelect
-              value={selectedResponsavelId}
+            <FilterSelect 
+              value={selectedResponsavelId} 
               onChange={(e) => setSelectedResponsavelId(e.target.value)}
             >
               <option value="">Todos os Responsáveis</option>
@@ -95,19 +96,20 @@ export function Kanban() {
               ))}
             </FilterSelect>
           </Header>
-
-          <KanbanBoard
-            columns={columns}
-            onTaskMove={onTaskMove}
-            onTaskClick={handleTaskClick}
+          
+          <KanbanBoard 
+            columns={columns} 
+            onEditClick={handleEditClick}  
           />
         </>
       )}
 
-      <TaskDetailsModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        task={selectedTask as any}
+
+      <TaskEditModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        task={selectedTaskEdit}
+        onSave={handleUpdateTask}
         onDelete={handleDeleteTask}
       />
     </KanbanContainer>

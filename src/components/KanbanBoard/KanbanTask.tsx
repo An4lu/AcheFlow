@@ -1,26 +1,28 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { TaskCard, TaskTitle, TaskFooter, TaskOwner } from './styles';
+import { TaskCard, TaskTitle, TaskFooter, TaskOwner, EditButton } from './styles';
 import type { Task } from '../../contexts/ProjectContext';
+import { PencilSimpleIcon } from '@phosphor-icons/react';
 
 interface KanbanTaskProps {
     task: Task;
-    onClick: (task: Task) => void; 
+    onEditClick: (task: Task) => void;
 }
 
-export function KanbanTask({ task, onClick }: KanbanTaskProps) { 
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task._id });
+export function KanbanTask({ task, onEditClick }: KanbanTaskProps) { 
 
-    const style = {
-        transition,
-        transform: CSS.Transform.toString(transform),
+
+    const handleEditClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); 
+        onEditClick(task);
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <TaskCard onClick={() => onClick(task)}> 
+        <div>
+            <TaskCard> 
                 <TaskTitle>{task.nome}</TaskTitle>
                 <TaskFooter>
+                    <EditButton onClick={handleEditClick}>
+                        <PencilSimpleIcon size={18} weight="bold" />
+                    </EditButton>
                     <TaskOwner>{`${task.responsavel.nome} ${task.responsavel.sobrenome || ''}`.trim()}</TaskOwner>
                 </TaskFooter>
             </TaskCard>
