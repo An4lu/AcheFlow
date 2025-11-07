@@ -23,9 +23,9 @@ export function Sidebar() {
                         <HouseSimpleIcon weight='fill' />
                         <TextLink>PRINCIPAL</TextLink>
                     </SidebarItem>
-                    <SidebarItem to='/flow/projects'>
+                    <SidebarItem to='/flow/geral'>
                         <KanbanIcon weight='fill' />
-                        <TextLink>PROJETOS</TextLink>
+                        <TextLink>VISÃO GERAL</TextLink>
                     </SidebarItem>
                     <SidebarItem to='/flow/kanban'>
                         <HandPalmIcon weight='fill' />

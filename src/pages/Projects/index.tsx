@@ -31,7 +31,7 @@ export interface ApiTask {
   status: string;
 }
 
-export const Project = () => {
+export const VisaoGeral = () => {
   const { openProjectModal, projects: allProjects, refreshData, loading } = useContext(ProjectsContext);
   
   const [tasks, setTasks] = useState<ApiTask[]>([]);
