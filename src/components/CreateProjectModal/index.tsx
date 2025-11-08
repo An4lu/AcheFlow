@@ -28,8 +28,8 @@ export function CreateProjectModal() {
     const [importedTasks, setImportedTasks] = useState<ProcessedTask[]>([]);
 
     const getStatusFromPercentage = (percent: number | undefined | null): string => {
-        const p = percent || 0;
-        if (p === 1) {
+        const p = parseFloat(String(percent)) || 0;
+        if (p === 100) {
             return 'concluída';
         }
         if (p > 0) {
@@ -56,11 +56,12 @@ export function CreateProjectModal() {
                 processed = rawData
                     .filter(t => t.Nome)
                     .map(t => {
+                        const percentValue = parseFloat(String(t['% Concluída'])) || 0; // <-- ADICIONE ISTO
                         const explicitStatus = t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : null;
-                        const derivedStatus = getStatusFromPercentage(t['% Concluída']);
-
+                        const derivedStatus = getStatusFromPercentage(percentValue); // <-- USE O NOVO VALOR
                         return {
                             ...t,
+                            '% Concluída': percentValue, // <-- ATUALIZE O VALOR NO OBJETO
                             'Documento Referência': t['Documento Referência'] || '', 
                             responsavel_id: null,
                             status: explicitStatus || derivedStatus,
@@ -101,11 +102,13 @@ export function CreateProjectModal() {
                             }
                         }
 
+                        const percentValue = parseFloat(String(row['% Concluída'])) || 0; // <-- ADICIONE ISTO
                         const explicitStatus = row['Status'] && statusOptions.includes(row['Status'].toLowerCase()) ? row['Status'].toLowerCase() : null;
-                        const derivedStatus = getStatusFromPercentage(row['% Concluída']);
-
+                        const derivedStatus = getStatusFromPercentage(percentValue); // <-- USE O NOVO VALOR
+                        
                         return {
                             ...row,
+                            '% Concluída': percentValue, // <-- ATUALIZE O VALOR NO OBJETO
                             'Documento Referência': hyperlink || row['Documento Referência'] || '',
                             responsavel_id: null,
                             status: explicitStatus || derivedStatus, // <-- CORRIGIDO
@@ -168,7 +171,7 @@ export function CreateProjectModal() {
                         condicao: task.Condição,
                         documento_referencia: task['Documento Referência'],
                         concluido: task.status === 'concluída',
-                        percentual_concluido: task['% Concluída'],
+                        percentual_concluido: (task['% Concluída'] || 0) / 100,
                     };
                     await createTask(taskPayload as TaskPayload);
                 }
