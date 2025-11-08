@@ -42,7 +42,16 @@ const baseInputStyles = {
 };
 
 export const Input = styled('input', baseInputStyles);
-export const Select = styled('select', baseInputStyles);
+
+// <<< MUDANÇA: Adicionada regra para estilizar os <option> filhos
+export const Select = styled('select', {
+    ...baseInputStyles,
+    '& option': {
+        textTransform: 'capitalize',
+    }
+});
+// <<< FIM DA MUDANÇA
+
 export const TextArea = styled('textarea', { 
     ...baseInputStyles, 
     height: 'auto',

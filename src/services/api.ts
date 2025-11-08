@@ -84,6 +84,30 @@ export interface TaskPayload {
     percentual_concluido: number;
 }
 
+// <<< MUDANÇA: ADICIONADAS INTERFACES PARA O ENVIO EM LOTE
+export interface BulkTaskPayload {
+    nome: string;
+    projeto_id: string;
+    responsavel_id: string;
+    descricao?: string;
+    prioridade: 'baixa' | 'média' | 'alta';
+    status: string;
+    prazo: string;
+    numero?: string;
+    classificacao?: string;
+    fase?: string;
+    condicao?: string;
+    documento_referencia?: string;
+    concluido?: boolean;
+    percentual_concluido: number;
+}
+
+export interface BulkTaskRequest {
+    tasks: BulkTaskPayload[];
+    user_id: string;
+}
+// <<< FIM DA MUDANÇA
+
 export interface FuncionarioPayload {
     nome: string;
     sobrenome: string;
@@ -116,6 +140,7 @@ export const deleteProject = (id: string) => {
 };
 
 export const createTask = (data: TaskPayload) => {
+    // Este endpoint (create-with-logic) é bom para UMA tarefa, mas lento para muitas.
     return api_ia.post('/tasks/create-with-logic', data);
 };
 export const updateTask = (id: string, data: TaskUpdatePayload) => {
@@ -141,6 +166,17 @@ export const importTasks = (formData: FormData) => {
             'Content-Type': 'multipart/form-data',
         },
     });
+};
+
+interface BulkTaskRequestPayload {
+    tasks: TaskPayload[]; // Reutiliza a interface TaskPayload existente
+    user_id: string | null;
+}
+
+// Nova função de importação em lote
+export const createTasksBulk = (data: BulkTaskRequestPayload) => {
+    // Chama o novo endpoint da API de IA
+    return api_ia.post('/tasks/create-bulk-from-json', data);
 };
 
 export default api;

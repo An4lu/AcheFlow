@@ -243,7 +243,7 @@ export function CreateProjectModal() {
                                         <ActionCell>
                                             <Select value={task.status} onChange={(e) => handleTaskAttributeChange(index, 'status', e.target.value)} >
                                                 {statusOptions.map(opt => (
-                                                    <option key={opt} value={opt} style={{ textTransform: 'capitalize' }}>{opt}</option>
+                                                    <option key={opt} value={opt}>{opt}</option>
                                                 ))}
                                             </Select>
                                         </ActionCell>

@@ -36,6 +36,7 @@ export interface Task {
     fase?: string;
     condicao?: string;
     percentual_concluido?: number;
+    documento_referencia?: string; // <<< MUDANÇA: Campo adicionado
 }
 
 export interface CalendarEvent {

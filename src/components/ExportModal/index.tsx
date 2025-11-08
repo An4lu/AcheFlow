@@ -74,23 +74,28 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             // 2. DADOS DAS TAREFAS DOS PROJETOS SELECIONADOS
             const tasksToExport = tasks
                 .filter(t => t.projeto?.id && selectedProjects.includes(t.projeto.id))
-                .map(t => ({
-                    'ID_Tarefa': t._id,
-                    'ID_Projeto': t.projeto.id,
-                    'Nome_Projeto': t.projeto.nome,
-                    'Nome_Tarefa': t.nome,
-                    'Responsavel': t.responsavel?.nome ? `${t.responsavel.nome} ${t.responsavel.sobrenome || ''}`.trim() : 'N/D',
-                    'Email_Responsavel': t.responsavel?.email || 'N/D',
-                    'Status': t.status,
-                    'Progresso_%': t.percentual_concluido ? Math.round(t.percentual_concluido * 100) : 0,
-                    'Data_Inicio': formatDate(t.data_inicio || t.dataCriacao),
-                    'Prazo_Final': formatDate(t.prazo || t.data_fim),
-                    'Data_Conclusao': formatDate(t.dataConclusao),
-                    'Categoria_Tarefa': t.classificacao || 'N/A',
-                    'Fase': t.fase || 'N/A',
-                    'Condicao': t.condicao || 'N/A',
-                    'Descricao_Tarefa': t.descricao || 'N/A',
-                }));
+                .map(t => {
+                    // <<< MUDANÇA: Lógica do link revertida e 'documento_referencia' adicionado
+                    return {
+                        'ID_Tarefa': t._id,
+                        'ID_Projeto': t.projeto.id,
+                        'Nome_Projeto': t.projeto.nome,
+                        'Nome_Tarefa': t.nome,
+                        'Responsavel': t.responsavel?.nome ? `${t.responsavel.nome} ${t.responsavel.sobrenome || ''}`.trim() : 'N/D',
+                        'Email_Responsavel': t.responsavel?.email || 'N/D',
+                        'Status': t.status,
+                        'Progresso_%': t.percentual_concluido ? Math.round(t.percentual_concluido * 100) : 0,
+                        'Data_Inicio': formatDate(t.data_inicio || t.dataCriacao),
+                        'Prazo_Final': formatDate(t.prazo || t.data_fim),
+                        'Data_Conclusao': formatDate(t.dataConclusao),
+                        'Categoria_Tarefa': t.classificacao || 'N/A',
+                        'Fase': t.fase || 'N/A',
+                        'Condicao': t.condicao || 'N/A',
+                        'Descricao_Tarefa': t.descricao || 'N/A', // <-- Revertido
+                        'Link_Referencia': t.documento_referencia || 'N/A', // <-- Adicionado
+                    };
+                    // <<< FIM DA MUDANÇA
+                });
 
             // 3. Criar Worksheets (Abas)
             const ws_projetos = XLSX.utils.json_to_sheet(projectsToExport);
@@ -107,7 +112,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 { wch: 20 }, // Categoria
                 { wch: 50 }, // Descricao
             ];
-            ws_tarefas['!cols'] = [
+            ws_tarefas['!cols'] = [ // <<< MUDANÇA: Colunas ajustadas
                 { wch: 24 }, // ID_Tarefa
                 { wch: 24 }, // ID_Projeto
                 { wch: 30 }, // Nome_Projeto
@@ -123,7 +128,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 { wch: 20 }, // Fase
                 { wch: 20 }, // Condicao
                 { wch: 50 }, // Descricao_Tarefa
-            ];
+                { wch: 50 }, // Link_Referencia
+            ]; // <<< FIM DA MUDANÇA
 
             // 4. Criar o Workbook e adicionar as abas
             const wb = XLSX.utils.book_new();

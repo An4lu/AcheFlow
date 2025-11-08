@@ -6,13 +6,19 @@ import {
     ToggleModeButton, ImportSection, UploadInput, ImportTitle,
     PreviewTable, PreviewHeader, PreviewRow, ActionCell, DeleteButton
 } from './styles'; 
-import { createTask, type TaskPayload } from '../../services/api';
+// <<< MUDANÇA: Imports atualizados para a lógica de lote
+import { 
+    createTask, createTasksBulk, type TaskPayload,
+    type BulkTaskPayload,
+    type BulkTaskRequest
+} from '../../services/api';
+// <<< FIM DA MUDANÇA
 import { toast } from 'react-toastify';
 import { useAuth } from '../../hooks/useAuth';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { TrashIcon } from '@phosphor-icons/react';
-import type { RawImportedTask, ProcessedTask } from '../../types/project'; // MUDANÇA: Importando tipos
+import type { RawImportedTask, ProcessedTask } from '../../types/project'; 
 
 // --- LÓGICA COPIADA DE CreateProjectModal ---
 const calculatePrazo = (duration: string): string => {
@@ -40,15 +46,15 @@ const getStatusFromPercentage = (percent: number | undefined | null): string => 
 
 export function CreateTaskModal() {
     const { isTaskModalOpen, closeTaskModal, projects, funcionarios, refreshData } = useContext(ProjectsContext);
-    const { user } = useAuth(); // MUDANÇA: Adicionado hook de autenticação
+    const { user } = useAuth(); 
     const [isLoading, setIsLoading] = useState(false);
 
-    // MUDANÇA: Novos estados para o modo de importação
+    
     const [isImportMode, setIsImportMode] = useState(false);
     const [importedTasks, setImportedTasks] = useState<ProcessedTask[]>([]);
-    const [targetProjectId, setTargetProjectId] = useState<string>(''); // Projeto selecionado no modo de importação
+    const [targetProjectId, setTargetProjectId] = useState<string>(''); 
 
-    // MUDANÇA: Reseta o estado ao fechar o modal
+    
     useEffect(() => {
         if (!isTaskModalOpen) {
             setIsLoading(false);
@@ -201,7 +207,7 @@ export function CreateTaskModal() {
         }
     };
 
-    // MUDANÇA: Nova função para o submit do modo de importação
+   // MUDANÇA: Nova função para o submit do modo de importação
     const handleImportSubmit = async (event: FormEvent) => {
         event.preventDefault();
         if (!user) {
@@ -218,13 +224,12 @@ export function CreateTaskModal() {
         }
 
         setIsLoading(true);
-        let successCount = 0;
-        let errorCount = 0;
-
         try {
-            // Itera e cria cada tarefa importada
-            for (const task of importedTasks) {
-                const taskPayload: Partial<TaskPayload> = {
+            // --- INÍCIO DA CORREÇÃO ---
+
+            // 1. Mapear todas as tarefas para o formato TaskPayload DE UMA VEZ
+            const tasksToCreate: TaskPayload[] = importedTasks.map(task => {
+                return {
                     nome: task.Nome,
                     projeto_id: targetProjectId, // Usa o ID do select
                     responsavel_id: task.responsavel_id || user._id, // Default para o usuário logado
@@ -240,28 +245,37 @@ export function CreateTaskModal() {
                     concluido: task.status === 'concluída',
                     percentual_concluido: (task['% Concluída'] || 0) / 100,
                 };
+            });
 
-                try {
-                    await createTask(taskPayload as TaskPayload);
-                    successCount++;
-                } catch (taskError) {
-                    console.error(`Falha ao criar tarefa: ${task.Nome}`, taskError);
-                    errorCount++;
-                }
-            }
+            // 2. Criar o payload final da requisição em lote
+            const bulkPayload = {
+                tasks: tasksToCreate,
+                user_id: user._id
+            };
+
+            // 3. Chamar a API em lote APENAS UMA VEZ
+            const response = await createTasksBulk(bulkPayload);
+            
+            // 4. Processar a resposta do lote
+            const successCount = response.data.total || 0;
+            const errorCount = response.data.erros?.length || 0;
+            
+            // --- FIM DA CORREÇÃO ---
 
             if (successCount > 0) {
                 toast.success(`${successCount} ${successCount === 1 ? 'tarefa foi' : 'tarefas foram'} importadas com sucesso!`);
             }
             if (errorCount > 0) {
                 toast.error(`${errorCount} ${errorCount === 1 ? 'tarefa falhou' : 'tarefas falharam'} ao importar.`);
+                console.error("Erros na importação em lote:", response.data.erros);
             }
 
             closeTaskModal();
             refreshData();
 
-        } catch (error) {
-            toast.error('Ocorreu um erro inesperado durante a importação.');
+        } catch (error: any) { // Pega erros da chamada da API (ex: 500)
+            const errorMsg = error.response?.data?.erro || error.response?.data?.detail || 'Ocorreu um erro inesperado durante a importação.';
+            toast.error(errorMsg);
         } finally {
             setIsLoading(false);
         }
@@ -315,9 +329,11 @@ export function CreateTaskModal() {
                                             <td>{task.Nome}</td>
                                             <ActionCell>
                                                 <Select value={task.status} onChange={(e) => handleTaskAttributeChange(index, 'status', e.target.value)} >
+                                                    {/* <<< MUDANÇA: Removido style inline */}
                                                     {statusOptions.map(opt => (
-                                                        <option key={opt} value={opt} style={{ textTransform: 'capitalize' }}>{opt}</option>
+                                                        <option key={opt} value={opt}>{opt}</option>
                                                     ))}
+                                                    {/* <<< FIM DA MUDANÇA */}
                                                 </Select>
                                             </ActionCell>
                                             <ActionCell>

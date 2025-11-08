@@ -35,6 +35,7 @@ export interface ApiTask {
   fase?: string;
   condicao?: string;
   percentual_concluido?: number;
+  documento_referencia?: string; // <<< MUDANÇA: Campo adicionado
 }
 
 export const VisaoGeral = () => {
