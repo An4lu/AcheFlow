@@ -27,7 +27,18 @@ export function CreateProjectModal() {
     const [isLoading, setIsLoading] = useState(false);
     const [importedTasks, setImportedTasks] = useState<ProcessedTask[]>([]);
 
-const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const getStatusFromPercentage = (percent: number | undefined | null): string => {
+        const p = percent || 0;
+        if (p === 1) {
+            return 'concluída';
+        }
+        if (p > 0) {
+            return 'em andamento';
+        }
+        return 'não iniciada';
+    };
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -44,12 +55,17 @@ const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
                 const rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true }).data as RawImportedTask[];
                 processed = rawData
                     .filter(t => t.Nome)
-                    .map(t => ({
-                        ...t,
-                        'Documento Referência': t['Documento Referência'] || '', 
-                        responsavel_id: null,
-                        status: t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : 'não iniciada',
-                    }));
+                    .map(t => {
+                        const explicitStatus = t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : null;
+                        const derivedStatus = getStatusFromPercentage(t['% Concluída']);
+
+                        return {
+                            ...t,
+                            'Documento Referência': t['Documento Referência'] || '', 
+                            responsavel_id: null,
+                            status: explicitStatus || derivedStatus,
+                        };
+                    });
             } else {
                 const workbook = XLSX.read(data, { type: 'binary' });
                 const sheetName = workbook.SheetNames[0];
@@ -85,12 +101,14 @@ const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
                             }
                         }
 
+                        const explicitStatus = row['Status'] && statusOptions.includes(row['Status'].toLowerCase()) ? row['Status'].toLowerCase() : null;
+                        const derivedStatus = getStatusFromPercentage(row['% Concluída']);
+
                         return {
                             ...row,
                             'Documento Referência': hyperlink || row['Documento Referência'] || '',
-                            
                             responsavel_id: null,
-                            status: row['Status'] && statusOptions.includes(row['Status'].toLowerCase()) ? row['Status'].toLowerCase() : 'não iniciada',
+                            status: explicitStatus || derivedStatus, // <-- CORRIGIDO
                         };
                     });
             }
@@ -145,11 +163,12 @@ const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
                         status: task.status as TaskPayload['status'],
                         prazo: calculatePrazo(task.Duração), 
                         numero: String(task.Número),
-                        classificacao: task.Classificação,
+                        classificacao: task.Categoria,
                         fase: task.Fase,
                         condicao: task.Condição,
                         documento_referencia: task['Documento Referência'],
                         concluido: task.status === 'concluída',
+                        percentual_concluido: task['% Concluída'],
                     };
                     await createTask(taskPayload as TaskPayload);
                 }

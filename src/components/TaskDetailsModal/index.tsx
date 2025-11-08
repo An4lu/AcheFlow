@@ -63,6 +63,22 @@ export function TaskDetailsModal({ isOpen, onClose, task, onDelete }: TaskDetail
                     <Label>Descrição:</Label>
                     <Value>{task.descricao || 'Nenhuma descrição fornecida.'}</Value>
                 </DetailItem>
+                <DetailItem>
+                    <label>Categoria:</label>
+                    <Value>{task.classificacao || 'Nenhuma categoria fornecida.'}</Value>
+                </DetailItem>
+                <DetailItem>
+                    <label>Fase:</label>
+                    <Value>{task.fase || 'Nenhuma fase fornecida.'}</Value>
+                </DetailItem>
+                <DetailItem>
+                    <label>Condição:</label>
+                    <Value>{task.condicao || 'Nenhuma condição fornecida.'}</Value>
+                </DetailItem>
+                <DetailItem>
+                    <label>Percentual Concluído:</label>
+                    <Value>{task.percentual_concluido ? `${task.percentual_concluido}%` : 'N/A'}</Value>
+                </DetailItem>
 
                 <DeleteButton onClick={handleDelete} disabled={isLoading}>
                     <TrashIcon size={16} />

@@ -60,6 +60,10 @@ export interface TaskUpdatePayload {
     data_fim?: string; 
     responsavel_id?: string;
     projeto_id?: string;
+    classificacao?: string;
+    condicao?: string;
+    fase?: string;
+    percentual_concluido?: number;
 }
 
 export interface TaskPayload {
@@ -71,13 +75,13 @@ export interface TaskPayload {
     status: 'em andamento' | 'congelada' | 'não iniciada' | 'concluída';
     prazo: string; 
     como_fazer?: string;
-    porcentagem?: number;
     numero?: string;
     classificacao?: string;
     fase?: string;
     condicao?: string;
     documento_referencia?: string;
     concluido?: boolean;
+    percentual_concluido: number;
 }
 
 export interface FuncionarioPayload {

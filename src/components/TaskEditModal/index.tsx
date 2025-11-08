@@ -22,6 +22,10 @@ interface FormData {
     data_fim?: string;    
     responsavel?: ApiTask['responsavel'];
     projeto?: { id: string; nome: string; };
+    classificacao?: string;
+    fase?: string;
+    condicao?: string;
+    percentual_concluido?: number;
 }
 
 export function TaskEditModal({ isOpen, onClose, task, onSave, onDelete }: TaskEditModalProps) { // *** ATUALIZADO ***
@@ -38,16 +42,43 @@ export function TaskEditModal({ isOpen, onClose, task, onSave, onDelete }: TaskE
                 ...task,
                 data_inicio: startDate,
                 data_fim: endDate,
+                classificacao: task.classificacao || '',
+                fase: task.fase || '',
+                condicao: task.condicao || '',
+                percentual_concluido: (task.percentual_concluido || 0) * 100,
             });
         }
     }, [task]);
 
     if (!task) return null;
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    if (name !== 'percentual_concluido') {
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
+        return; 
+    }
+
+    const percentNumber = parseFloat(value) || 0;
+    
+    const currentStatus = formData.status;
+    let newStatus = currentStatus;
+
+    if (percentNumber === 100) {
+        newStatus = 'concluída';
+    } else if (percentNumber > 0) {
+        newStatus = 'em andamento';
+    } else if (percentNumber === 0) {
+        newStatus = 'não iniciada';
+    }
+
+    setFormData(prev => ({
+        ...prev,
+        percentual_concluido: percentNumber,
+        status: newStatus
+    }));
+};
 
     const handleResponsavelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const responsavel = funcionarios.find(f => f._id === e.target.value);
@@ -75,6 +106,10 @@ export function TaskEditModal({ isOpen, onClose, task, onSave, onDelete }: TaskE
             data_inicio: formData.data_inicio,
             data_fim: formData.data_fim,
             responsavel_id: formData.responsavel?.id,
+            classificacao: formData.classificacao,
+            fase: formData.fase,
+            condicao: formData.condicao,
+            percentual_concluido: formData.percentual_concluido ? parseFloat(String(formData.percentual_concluido)) / 100 : 0
         };
         
         await onSave(task._id, payload);
@@ -134,6 +169,35 @@ export function TaskEditModal({ isOpen, onClose, task, onSave, onDelete }: TaskE
                 <FormGroup>
                     <Label htmlFor="data_fim">Data de Fim (Prazo)</Label>
                     <Input type="date" id="data_fim" name="data_fim" value={formData.data_fim || ''} onChange={handleChange} />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label htmlFor="classificacao">Categoria</Label>
+                    <Input id="classificacao" name="classificacao" value={formData.classificacao || ''} onChange={handleChange} />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label htmlFor="fase">Fase</Label>
+                    <Input id="fase" name="fase" value={formData.fase || ''} onChange={handleChange} />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label htmlFor="condicao">Condição</Label>
+                    <Input id="condicao" name="condicao" value={formData.condicao || ''} onChange={handleChange} />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label htmlFor="percentual_concluido">Progresso (%)</Label>
+                        <Input 
+                        type="number" 
+                        id="percentual_concluido" 
+                        name="percentual_concluido" 
+                        value={formData.percentual_concluido || 0} 
+                        onChange={handleChange} 
+                        min="0"
+                        max="100"
+                        step="1"
+                        /> 
                 </FormGroup>
 
                 <FormGroup>

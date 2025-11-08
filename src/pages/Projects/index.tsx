@@ -30,6 +30,10 @@ export interface ApiTask {
   projeto: { id: string; nome: string; };
   responsavel: TaskResponsavel;
   status: string;
+  classificacao?: string;
+  fase?: string;
+  condicao?: string;
+  percentual_concluido?: number;
 }
 
 export const VisaoGeral = () => {

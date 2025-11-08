@@ -32,6 +32,10 @@ export interface Task {
     projeto: { id: string; nome: string; };
     descricao?: string | null;
     dataConclusao?: string | null;
+    classificacao?: string;
+    fase?: string;
+    condicao?: string;
+    percentual_concluido?: number;
 }
 
 export interface CalendarEvent {

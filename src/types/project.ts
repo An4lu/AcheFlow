@@ -24,4 +24,8 @@ export interface TaskToCreate {
     prioridade: 'baixa' | 'média' | 'alta';
     prazo: string;
     responsavelEmail: string;
+    classificacao?: string;
+    condicao?: string;
+    fase?: string;
+    percentual_concluido?: number;
 }

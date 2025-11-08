@@ -95,3 +95,44 @@ export const EditButton = styled('button', {
         color: '$brandPrimary',
     },
 });
+
+export const TaskTag = styled('span', {
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '2px 8px',
+    borderRadius: '$md',
+    backgroundColor: '$bgSecondary',
+    color: '$brandSecondary',
+    borderColor: '$brandSecondary',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    marginBottom: '$2',
+    display: 'inline-block',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+});
+
+export const ProgressBarContainer = styled('div', {
+    width: '100%',
+    height: '20px',
+    backgroundColor: '$borderDefault',
+    borderRadius: '$full',
+    overflow: 'hidden',
+    marginTop: '$3',
+});
+
+export const ProgressBar = styled('div', {
+    height: '100%',
+    backgroundColor: '$brandPrimary',
+    borderRadius: '$full',
+    transition: 'width 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    color: '$bgTertiary',
+    whiteSpace: 'nowrap',
+});
