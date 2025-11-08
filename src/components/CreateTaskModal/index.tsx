@@ -1,6 +1,7 @@
-import { useState, useContext, type FormEvent, type ChangeEvent, useEffect } from 'react';
+import { useState, useContext, type FormEvent } from 'react';
 import { Modal } from '../Modal';
 import { ProjectsContext } from '../../contexts/ProjectContext';
+<<<<<<< HEAD
 import {
     FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea,
     ToggleModeButton, ImportSection, UploadInput, ImportTitle,
@@ -61,90 +62,55 @@ export function CreateTaskModal() {
             setTargetProjectId('');
         }
     }, [isTaskModalOpen]);
+=======
+import { FormContainer, FormGroup, Input, Label, Select, SubmitButton, TextArea } from '../Form/styles';
+import { createTask, type TaskPayload } from '../../services/api';
+import { toast } from 'react-toastify';
 
+export function CreateTaskModal() {
+    const { isTaskModalOpen, closeTaskModal, projects, funcionarios, refreshData } = useContext(ProjectsContext);
+    const [isLoading, setIsLoading] = useState(false);
 
-    // --- FUNÇÕES COPIADAS DE CreateProjectModal ---
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+    const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target?.result;
-            if (!data) return;
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+>>>>>>> parent of 17f73be (Exportar em lote - tarefas)
 
-            let processed: ProcessedTask[] = [];
-            const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const percentValue = parseFloat(data.percentual_concluido as string) || 0;
+    
+    let statusValue: string;
+    if (percentValue === 100) {
+        statusValue = 'concluída';
+    } else if (percentValue > 0) {
+        statusValue = 'em andamento';
+    } else {
+        statusValue = 'não iniciada';
+    }
+    
+    if (data.status === 'congelada') {
+         statusValue = 'congelada';
+    }
 
-            try {
-                if (fileExtension === 'csv') {
-                    const rawData = Papa.parse(data as string, { header: true, skipEmptyLines: true }).data as RawImportedTask[];
-                    processed = rawData
-                        .filter(t => t.Nome)
-                        .map(t => {
-                            const percentValue = parseFloat(String(t['% Concluída'])) || 0;
-                            const explicitStatus = t['Status'] && statusOptions.includes(t['Status'].toLowerCase()) ? t['Status'].toLowerCase() : null;
-                            const derivedStatus = getStatusFromPercentage(percentValue);
-                            return {
-                                ...t,
-                                '% Concluída': percentValue,
-                                'Documento Referência': t['Documento Referência'] || '',
-                                responsavel_id: null,
-                                status: explicitStatus || derivedStatus,
-                            };
-                        });
-                } else {
-                    const workbook = XLSX.read(data, { type: 'binary' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-
-                    const headers: string[] = [];
-                    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-                    const C = range.s.c;
-                    for (let c = C; c <= range.e.c; ++c) {
-                        const cell = worksheet[XLSX.utils.encode_cell({ r: 0, c })];
-                        let hdr = "UNKNOWN " + c;
-                        if (cell && cell.t) hdr = XLSX.utils.format_cell(cell);
-                        headers[c] = hdr;
-                    }
-
-                    const docRefColIndex = headers.findIndex(h => h.trim() === 'Documento Referência');
-
-                    const rawData = XLSX.utils.sheet_to_json<RawImportedTask>(worksheet, {
-                        blankrows: false
-                    });
-
-                    processed = rawData
-                        .filter(t => t.Nome)
-                        .map((row, rowIndex) => {
-                            let hyperlink = '';
-                            if (docRefColIndex !== -1) {
-                                const cellAddress = XLSX.utils.encode_cell({ r: rowIndex + 1, c: docRefColIndex });
-                                const cell = worksheet[cellAddress];
-                                if (cell && cell.l) {
-                                    hyperlink = cell.l.Target;
-                                }
-                            }
-                            const percentValue = parseFloat(String(row['% Concluída'])) || 0;
-                            const explicitStatus = row['Status'] && statusOptions.includes(row['Status'].toLowerCase()) ? row['Status'].toLowerCase() : null;
-                            const derivedStatus = getStatusFromPercentage(percentValue);
-                            return {
-                                ...row,
-                                '% Concluída': percentValue,
-                                'Documento Referência': hyperlink || row['Documento Referência'] || '',
-                                responsavel_id: null,
-                                status: explicitStatus || derivedStatus,
-                            };
-                        });
-                }
-                setImportedTasks(processed);
-            } catch (err) {
-                console.error("Erro ao processar arquivo:", err);
-                toast.error("Não foi possível ler o arquivo. Verifique o formato.");
-            }
-        };
-        reader.readAsBinaryString(file);
+    const payload: TaskPayload = {
+        nome: data.nome as string,
+        projeto_id: data.projeto_id as string,
+        responsavel_id: data.responsavel_id as string,
+        descricao: data.descricao as string,
+        prioridade: data.prioridade as 'baixa' | 'média' | 'alta',
+        
+        status: statusValue as any, 
+        
+        prazo: data.prazo as string,
+        classificacao: data.classificacao as string,
+        fase: data.fase as string,
+        condicao: data.condicao as string,
+        
+        percentual_concluido: percentValue / 100 
     };
+<<<<<<< HEAD
 
     const handleTaskAttributeChange = (index: number, field: 'responsavel_id' | 'status', value: string) => {
         const updatedTasks = [...importedTasks];
@@ -279,38 +245,55 @@ export function CreateTaskModal() {
         }
     };
 
+=======
+    
+    try {
+        await createTask(payload);
+        toast.success('Tarefa criada com sucesso!');
+        closeTaskModal();
+        refreshData();
+    } catch (error) {
+        toast.error('Falha ao criar tarefa.');
+    } finally {
+        setIsLoading(false);
+    }
+};
+>>>>>>> parent of 17f73be (Exportar em lote - tarefas)
 
     return (
-        <Modal isOpen={isTaskModalOpen} onClose={closeTaskModal} title={isImportMode ? "Importar Tarefas em Lote" : "Criar Nova Tarefa"}>
+        <Modal isOpen={isTaskModalOpen} onClose={closeTaskModal} title="Criar Nova Tarefa">
+            <FormContainer onSubmit={handleSubmit}>
+                <FormGroup>
+                    <Label htmlFor="projeto_id">Vincular ao Projeto*</Label>
+                    <Select id="projeto_id" name="projeto_id" required disabled={isLoading}>
+                        <option value="">Selecione um projeto</option>
+                        {projects.map(project => (
+                            <option key={project._id} value={project._id}>{project.nome}</option>
+                        ))}
+                    </Select>
+                </FormGroup>
 
-            <ToggleModeButton onClick={() => setIsImportMode(!isImportMode)} disabled={isLoading}>
-                {isImportMode ? 'Criar Tarefa Manualmente' : 'Importar Tarefas em Lote'}
-            </ToggleModeButton>
+                <FormGroup>
+                    <Label htmlFor="nome">Nome da Tarefa*</Label>
+                    <Input id="nome" name="nome" type="text" placeholder="Ex: Desenvolver tela de login" required disabled={isLoading} />
+                </FormGroup>
 
-            {isImportMode ? (
-                // --- MODO DE IMPORTAÇÃO ---
-                <FormContainer onSubmit={handleImportSubmit}>
-                    <FormGroup>
-                        <Label htmlFor="import_projeto_id">Vincular tarefas ao Projeto*</Label>
-                        <Select
-                            id="import_projeto_id"
-                            name="import_projeto_id"
-                            value={targetProjectId}
-                            onChange={(e) => setTargetProjectId(e.target.value)}
-                            required
-                            disabled={isLoading}
-                        >
-                            <option value="">Selecione um projeto</option>
-                            {projects.map(project => (
-                                <option key={project._id} value={project._id}>{project.nome}</option>
-                            ))}
-                        </Select>
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="responsavel_id">Responsável*</Label>
+                    <Select id="responsavel_id" name="responsavel_id" required disabled={isLoading}>
+                        <option value="">Selecione um funcionário</option>
+                        {funcionarios.map(func => (
+                            <option key={func._id} value={func._id}>{func.nome} {func.sobrenome}</option>
+                        ))}
+                    </Select>
+                </FormGroup>
 
-                    <ImportSection>
-                        <ImportTitle>Importar Arquivo de Tarefas (.xlsx, .csv)</ImportTitle>
-                        <UploadInput id="importFileTask" type="file" accept=".csv, .xlsx, .xls" onChange={handleFileChange} disabled={isLoading} />
+                <FormGroup>
+                    <Label htmlFor="descricao">Descrição</Label>
+                    <TextArea id="descricao" name="descricao" rows={3} placeholder="Detalhes sobre como executar a tarefa..." disabled={isLoading} />
+                </FormGroup>
 
+<<<<<<< HEAD
                         {importedTasks.length > 0 && (
                             <PreviewTable>
                                 <thead>
@@ -351,103 +334,66 @@ export function CreateTaskModal() {
                             </PreviewTable>
                         )}
                     </ImportSection>
+=======
+                <FormGroup>
+                    <Label htmlFor="prioridade">Prioridade*</Label>
+                    <Select id="prioridade" name="prioridade" defaultValue="média" required disabled={isLoading}>
+                        <option value="baixa">Baixa</option>
+                        <option value="média">Média</option>
+                        <option value="alta">Alta</option>
+                    </Select>
+                </FormGroup>
+>>>>>>> parent of 17f73be (Exportar em lote - tarefas)
 
-                    <SubmitButton type="submit" disabled={isLoading || importedTasks.length === 0}>
-                        {isLoading ? 'Importando...' : `Importar ${importedTasks.length} Tarefas`}
-                    </SubmitButton>
-                </FormContainer>
-            ) : (
-                // --- MODO MANUAL (ORIGINAL) ---
-                <FormContainer onSubmit={handleManualSubmit}>
-                    <FormGroup>
-                        <Label htmlFor="projeto_id">Vincular ao Projeto*</Label>
-                        <Select id="projeto_id" name="projeto_id" required disabled={isLoading}>
-                            <option value="">Selecione um projeto</option>
-                            {projects.map(project => (
-                                <option key={project._id} value={project._id}>{project.nome}</option>
-                            ))}
-                        </Select>
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="status">Status Inicial*</Label>
+                    <Select id="status" name="status" defaultValue="não iniciada" required disabled={isLoading}>
+                        <option value="não iniciada">Não Iniciada</option>
+                        <option value="em andamento">Em Andamento</option>
+                        <option value="congelada">Congelada</option>
+                        <option value="concluída">Concluída</option>
+                    </Select>
+                </FormGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="nome">Nome da Tarefa*</Label>
-                        <Input id="nome" name="nome" type="text" placeholder="Ex: Desenvolver tela de login" required disabled={isLoading} />
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="prazo">Prazo*</Label>
+                    <Input id="prazo" name="prazo" type="date" required disabled={isLoading} />
+                </FormGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="responsavel_id">Responsável*</Label>
-                        <Select id="responsavel_id" name="responsavel_id" required disabled={isLoading}>
-                            <option value="">Selecione um funcionário</option>
-                            {funcionarios.map(func => (
-                                <option key={func._id} value={func._id}>{func.nome} {func.sobrenome}</option>
-                            ))}
-                        </Select>
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="classificacao">Categoria</Label>
+                    <Input id="classificacao" name="classificacao" type="text" placeholder="Ex: Frascos de Vidro" disabled={isLoading} />
+                </FormGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="descricao">Descrição</Label>
-                        <TextArea id="descricao" name="descricao" rows={3} placeholder="Detalhes sobre como executar a tarefa..." disabled={isLoading} />
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="fase">Fase</Label>
+                    <Input id="fase" name="fase" type="text" placeholder="Ex: 1. Escopo & Briefing" disabled={isLoading} />
+                </FormGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="prioridade">Prioridade*</Label>
-                        <Select id="prioridade" name="prioridade" defaultValue="média" required disabled={isLoading}>
-                            <option value="baixa">Baixa</option>
-                            <option value="média">Média</option>
-                            <option value="alta">Alta</option>
-                        </Select>
-                    </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="condicao">Condição</Label>
+                    <Input id="condicao" name="condicao" type="text" placeholder="Ex: Sempre" disabled={isLoading} />
+                </FormGroup>
+                
+                <FormGroup>
+                    <Label htmlFor="percentual_concluido">Progresso (%)</Label>
+                    <Input 
+                        id="percentual_concluido" 
+                        name="percentual_concluido" 
+                        type="number" 
+                        min="0"
+                        max="100"
+                        step="1"
+                        placeholder="Ex: 95 (para 95%)" 
+                        defaultValue="0"
+                        disabled={isLoading} 
+                    />
+                </FormGroup>
 
-                    <FormGroup>
-                        <Label htmlFor="status">Status Inicial*</Label>
-                        <Select id="status" name="status" defaultValue="não iniciada" required disabled={isLoading}>
-                            <option value="não iniciada">Não Iniciada</option>
-                            <option value="em andamento">Em Andamento</option>
-                            <option value="congelada">Congelada</option>
-                            <option value="concluída">Concluída</option>
-                        </Select>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label htmlFor="prazo">Prazo*</Label>
-                        <Input id="prazo" name="prazo" type="date" required disabled={isLoading} />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label htmlFor="classificacao">Categoria</Label>
-                        <Input id="classificacao" name="classificacao" type="text" placeholder="Ex: Frascos de Vidro" disabled={isLoading} />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label htmlFor="fase">Fase</Label>
-                        <Input id="fase" name="fase" type="text" placeholder="Ex: 1. Escopo & Briefing" disabled={isLoading} />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label htmlFor="condicao">Condição</Label>
-                        <Input id="condicao" name="condicao" type="text" placeholder="Ex: Sempre" disabled={isLoading} />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label htmlFor="percentual_concluido">Progresso (%)</Label>
-                        <Input
-                            id="percentual_concluido"
-                            name="percentual_concluido"
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="1"
-                            placeholder="Ex: 95 (para 95%)"
-                            defaultValue="0"
-                            disabled={isLoading}
-                        />
-                    </FormGroup>
-
-                    <SubmitButton type="submit" disabled={isLoading}>
-                        {isLoading ? 'Criando...' : 'Criar Tarefa'}
-                    </SubmitButton>
-                </FormContainer>
-            )}
+                <SubmitButton type="submit" disabled={isLoading}>
+                    {isLoading ? 'Criando...' : 'Criar Tarefa'}
+                </SubmitButton>
+            </FormContainer>
         </Modal>
     );
 }
