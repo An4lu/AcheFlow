@@ -308,9 +308,15 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 ) && (step.result.ok === true || (step.result && step.result.total > 0))
             );
 
-            if (didCreateOrUpdate) {
-                console.log("IA detectou mudança nos dados, atualizando a lista...");
-                refreshData();
+            const aiResponseText = (aiContent.conteudo_texto || '').toLowerCase();
+            
+            const keywords = ["criado", "atualizado", "importado", "adicionado", "criada", "importei"];
+            
+            const textIndicatesUpdate = keywords.some(keyword => aiResponseText.includes(keyword));
+
+            if (didCreateOrUpdate || textIndicatesUpdate) {
+                console.log("IA detectou mudança nos dados (via 'dados' ou 'texto'), atualizando a lista...");
+                await refreshData(); // O 'await' que você já adicionou
             }
 
         } catch (error: any) {
@@ -468,7 +474,7 @@ export function IAche({ isOpen, onClose, css }: ModalProps) {
                 content: { tipo_resposta: 'TEXTO', conteudo_texto: `Sucesso! Importei ${total} tarefas para o projeto '${nome}'.` }
             };
             setMessages(prev => [...prev.slice(0, -1), successMessage]); 
-            refreshData(); 
+            await refreshData(); 
 
         } catch (error: any) {
             const errorMsg = error.response?.data?.erro || error.response?.data?.detail || 'Falha ao importar o arquivo.';
