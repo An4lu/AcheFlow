@@ -1,6 +1,6 @@
 import { BriefcaseIcon, ChartLineUpIcon, UserFocusIcon, WarningCircleIcon, CheckCircleIcon } from '@phosphor-icons/react';
 import { Chart } from "react-google-charts";
-import { Card, CardGrid, CardTitle, CardValue, CompletedList, CompletedListItem, Container, ChartContainer, OverdueList, OverdueListItem } from './styles';
+import { Card, CardGrid, CardTitle, CardValue, CompletedList, CompletedListItem, Container, ChartContainer, OverdueList, OverdueListItem, Card2 } from './styles';
 import { theme } from '../../styles';
 
 interface DashboardProps {
@@ -50,8 +50,9 @@ export function Dashboard({
                 )}
 
                 <Card style={{ gridColumn: '1 / -1' }}>
-                    <WarningCircleIcon size={32} weight="light" color={theme.colors.danger.value} />
-                    <CardTitle>Tarefas com Prazo Vencido</CardTitle>
+                    <Card2>
+                        <WarningCircleIcon size={26} weight="light" color={theme.colors.danger.value} />
+                        <CardTitle css={{ marginTop: '2px', }}>Tarefas com Prazo Vencido</CardTitle></Card2>
                     {overdueTasks.length > 0 ? (
                         <OverdueList>
                             {overdueTasks.map((task, index) => (

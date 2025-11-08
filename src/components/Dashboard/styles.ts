@@ -34,8 +34,13 @@ export const Card = styled('div', {
     }
 });
 
+export const Card2 = styled('div', {
+    display: 'flex',
+    alignItems: 'normal',
+    gap: '$2',
+});
+
 export const ChartContainer = styled(Card, {
-    // Faz o gráfico ocupar duas colunas em telas maiores
     gridColumn: 'span 1',
     '@media (min-width: 1024px)': {
         gridColumn: 'span 2',
