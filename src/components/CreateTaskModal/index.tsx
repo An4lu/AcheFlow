@@ -8,9 +8,7 @@ import {
 } from './styles'; 
 // <<< MUDANÇA: Imports atualizados para a lógica de lote
 import { 
-    createTask, createTasksBulk, type TaskPayload,
-    type BulkTaskPayload,
-    type BulkTaskRequest
+    createTask, createTasksBulk, type TaskPayload
 } from '../../services/api';
 // <<< FIM DA MUDANÇA
 import { toast } from 'react-toastify';
