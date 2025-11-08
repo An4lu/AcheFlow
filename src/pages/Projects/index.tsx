@@ -11,7 +11,7 @@ import { ViewMode, type Task } from 'gantt-task-react';
 import { PageLoader } from '../../components/PageLoader';
 import { toast } from 'react-toastify';
 import { DownloadSimpleIcon } from '@phosphor-icons/react';
-import * as XLSX from 'xlsx';
+import { ExportModal } from '../../components/ExportModal';
 
 interface TaskResponsavel {
   id: string;
@@ -26,6 +26,7 @@ export interface ApiTask {
   data_inicio?: string;
   prazo?: string;
   data_fim?: string;
+  dataConclusao?: string | null;
   descricao?: string | null;
   projeto: { id: string; nome: string; };
   responsavel: TaskResponsavel;
@@ -50,6 +51,7 @@ export const VisaoGeral = () => {
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ApiTask | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     projeto: false, responsavel: false, urgencia: false, prazo: false,
@@ -103,9 +105,9 @@ export const VisaoGeral = () => {
   }, [filterValues, activeFilters, allTasks, contextLoading]);
 
   const handleTaskClick = (task: Task) => {
-    const foundTask = filteredTasks.find(t => t._id === task.id);
+    const foundTask = allTasks.find(t => t._id === task.id);
     if (foundTask) {
-      setSelectedTask(foundTask);
+      setSelectedTask(foundTask as ApiTask);
       setEditModalOpen(true);
     }
   };
@@ -126,7 +128,7 @@ export const VisaoGeral = () => {
       await deleteTask(taskId);
       toast.success('Tarefa excluída com sucesso!');
       setEditModalOpen(false);
-      refreshData(); // Atualiza o contexto
+      refreshData();
     } catch (error: any) {
       if (error.response && error.response.status === 404) {
         toast.error('Erro 404: A API (backend) não encontrou a rota de exclusão.');
@@ -135,33 +137,6 @@ export const VisaoGeral = () => {
       }
     }
   };
-
-  const handleClientExport = () => {
-    try {
-      // 1. Formata os dados (usando as tarefas já filtradas na tela)
-      const dataToExport = filteredTasks.map(task => ({
-        'Projeto': task.projeto.nome,
-        'Tarefa': task.nome,
-        'Responsável': `${task.responsavel.nome} ${task.responsavel.sobrenome || ''}`.trim(),
-        'Início': (task.dataCriacao || task.data_inicio)?.split('T')[0] || 'N/D',
-        'Prazo': (task.prazo || task.data_fim)?.split('T')[0] || 'N/D',
-        'Status': task.status,
-      }));
-
-      const ws = XLSX.utils.json_to_sheet(dataToExport);
-
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Tarefas");
-
-      XLSX.writeFile(wb, "Relatorio_Tarefas_Gantt.xlsx");
-
-      toast.success("Relatório gerado com sucesso!");
-
-    } catch (error) {
-      toast.error("Falha ao gerar o relatório Excel.");
-    }
-  };
-
 
   const ganttData = useMemo(() => {
     const relevantProjectIds = new Set(filteredTasks.map(task => task.projeto?.id).filter(Boolean));
@@ -182,7 +157,7 @@ export const VisaoGeral = () => {
         </ViewSwitcher>
 
         <HeaderActions>
-          <ExportButton onClick={handleClientExport}>
+          <ExportButton onClick={() => setIsExportModalOpen(true)}>
             <DownloadSimpleIcon size={20} />
             Exportar (Excel)
           </ExportButton>
@@ -219,6 +194,11 @@ export const VisaoGeral = () => {
         task={selectedTask}
         onSave={handleUpdateTask}
         onDelete={handleDeleteTask}
+      />
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
       />
 
     </Container>
