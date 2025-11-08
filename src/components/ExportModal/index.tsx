@@ -1,8 +1,8 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState, useContext } from 'react';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
 import { Modal } from '../Modal';
-import { ProjectsContext, type Project, type Task } from '../../contexts/ProjectContext';
+import { ProjectsContext } from '../../contexts/ProjectContext';
 import {
     Container,
     ProjectList,
@@ -23,7 +23,6 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Formata a data para "YYYY-MM-DD" (ideal para Excel)
     const formatDate = (dateString: string | undefined | null) => {
         if (!dateString) return 'N/A';
         try {
