@@ -2,52 +2,75 @@ import { useContext, useMemo } from 'react';
 import { ProjectsContext } from '../../contexts/ProjectContext';
 import { Card, CardTitle } from '../Dashboard/styles';
 import { EventList, EventItem, EventDate, EventInfo } from './styles';
-import { CalendarBlankIcon } from '@phosphor-icons/react';
+import { FolderNotchIcon } from '@phosphor-icons/react';
 import { theme } from '../../styles';
 import { Placeholder } from '../MyTasks/styles';
 
-export function UpcomingEvents() {
-    const { events } = useContext(ProjectsContext);
+const getDaysRemaining = (dateStr: string): number => {
+    if (!dateStr) return 0; 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(dateStr + 'T00:00:00Z'); 
+    const diffTime = endDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 
-    const upcomingEvents = useMemo(() => {
+export function UpcomingEvents() {
+    const { projects } = useContext(ProjectsContext);
+
+    const upcomingProjects = useMemo(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        return events
-            .filter(event => new Date(event.data_hora_evento) >= today)
-            .sort((a, b) => new Date(a.data_hora_evento).getTime() - new Date(b.data_hora_evento).getTime())
-            .slice(0, 5); // Limita a 5 eventos
-    }, [events]);
+        const futureLimit = new Date();
+        futureLimit.setDate(today.getDate() + 30); 
+
+        return projects
+            .filter(project => {
+                if (!project.prazo || project.situacao === 'Concluído') {
+                    return false;
+                }
+                
+                const projectDeadline = new Date(project.prazo + 'T00:00:00Z');
+                
+                return projectDeadline >= today && projectDeadline <= futureLimit;
+            })
+            .sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime())
+            .slice(0, 5); 
+    }, [projects]);
 
     const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
+        const date = new Date(dateStr + 'T00:00:00Z'); 
         return {
-            day: date.toLocaleDateString('pt-BR', { day: '2-digit' }),
-            month: date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
-            time: date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            day: date.toLocaleDateString('pt-BR', { day: '2-digit', timeZone: 'UTC' }),
+            month: date.toLocaleDateString('pt-BR', { month: 'short', timeZone: 'UTC' }).replace('.', ''),
         };
     };
 
     return (
         <Card>
-            <CalendarBlankIcon size={32} weight="light" color={theme.colors.brandPrimary.value} />
-            <CardTitle>Próximos Eventos</CardTitle>
+            <FolderNotchIcon size={32} weight="light" color={theme.colors.brandPrimary.value} />
+            <CardTitle>Prazos de Projetos (30 dias)</CardTitle>
 
-            {upcomingEvents.length === 0 ? (
-                <Placeholder>Nenhum evento agendado.</Placeholder>
+            {upcomingProjects.length === 0 ? (
+                <Placeholder>Nenhum projeto com prazo nos próximos 30 dias.</Placeholder>
             ) : (
                 <EventList>
-                    {upcomingEvents.map(event => {
-                        const { day, month, time } = formatDate(event.data_hora_evento);
+                    {upcomingProjects.map(project => {
+                        const { day, month } = formatDate(project.prazo);
+                        const daysLeft = getDaysRemaining(project.prazo);
+
                         return (
-                            <EventItem key={event._id}>
+                            <EventItem key={project._id}>
                                 <EventDate>
                                     <span>{day}</span>
                                     <span>{month}</span>
                                 </EventDate>
                                 <EventInfo>
-                                    <span>{event.tipoEvento}</span>
-                                    <span>{time}h</span>
+                                    <span>{project.nome}</span>
+                                    <span style={{ color: theme.colors.textSecondary.value, fontSize: '13px' }}>
+                                        Resp: {project.responsavel?.nome || 'N/D'} (Vence em {daysLeft}d)
+                                    </span>
                                 </EventInfo>
                             </EventItem>
                         );
